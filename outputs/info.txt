@@ -1,0 +1,1 @@
+Outputs are generated here via a symbolic link to $WORKDIR named after the qsub generated job number.
