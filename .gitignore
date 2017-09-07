@@ -1,0 +1,6 @@
+source/*.o
+source/hu_code
+*.o*
+outputs/*/
+source/test/*.o
+source/test/testrun

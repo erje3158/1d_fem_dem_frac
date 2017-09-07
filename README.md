@@ -1,7 +1,8 @@
 # 1D Uniaxial Finite Strain, FEM-DEM Heirarchical Multiscale Modeling Code
-* MPI/OpenMP Formulation
+* MPI/OpenMP Formulation with Particle Fracture Model
 * DEM - ellip3D, 600 particle assembly from Colorado Mason sand
 * Simulates Split Hopkinson Pressure Bar experiments
+* Particle fracture model developed by Drs. Boning Zhang and Richard Regueiro
 
 ## Boundary Conditions:
 ---> +----+----+----+----+----|  
