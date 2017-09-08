@@ -37,7 +37,7 @@ mkdir -p ${TMP_DIR}
 mkdir -p ${OUT}/${PREFIX}/${JOBNUM}
 cp -r ${EXE}/hu_code ${TMP_DIR} #copies everything from the place this script is run into the work dir
 cd ${TMP_DIR}
-#ln -s ${TMP_DIR}/ ${OUT}/${JOBNUM} #create link to the work dir
+ln -s ${TMP_DIR} ${OUT}/${PREFIX}/${JOBNUM}/${JOBNUM} #create link to the work dir
 pwd
 
 # --- LD_LIBRARY_PATH ---
@@ -55,4 +55,4 @@ echo Simulation finished at `date`
 
 # --- CLEAN UP ---
 #cp -r ${TMP_DIR}/* ${OUT}/${PREFIX}/${JOBNUM}
-ln -s ${TMP_DIR} ${OUT}/${PREFIX}/${JOBNUM}/${JOBNUM} #create link to the work dir
+

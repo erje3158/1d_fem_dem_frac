@@ -132,7 +132,7 @@ mkdir -p ${TMP_DIR}
 mkdir -p ${OUT}/${PREFIX}/${JOBNUM}  
 cp -r ${EXE}/hu_code ${TMP_DIR} #copies everything from the place this script is run into the work dir  
 cd ${TMP_DIR}  
-#ln -s ${TMP_DIR}/ ${OUT}/${JOBNUM} #create link to the work dir  
+ln -s ${TMP_DIR} ${OUT}/${PREFIX}/${JOBNUM}/${JOBNUM} #create link to the work dir  
 pwd  
 
 #--- LD_LIBRARY_PATH ---  
@@ -148,5 +148,3 @@ echo Simulation started at `date`
 aprun -n $NSLOTS ./hu_code ${INP}/input_boundary_file ${INP}/input_particle_file ${BIN}/qdelaunay . ${INP}/fem_input_2el ${INP}/dem_input  
 echo Simulation finished at `date`  
 
-#--- CLEAN UP ---  
-ln -s ${TMP_DIR} ${OUT}/${PREFIX}/${JOBNUM}/${JOBNUM} #create link to the work dir  
