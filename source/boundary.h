@@ -293,26 +293,107 @@ void plnrgd_bdry<T>::disp() const{
 
 template<class T>
 REAL plnrgd_bdry<T>::distToBdry(vec posi) const{
-	vec dv=(*this->CoefOfLimits.begin()).dirc;
-	vec pt=(*this->CoefOfLimits.begin()).apt;
+	vec dv=(*this->CoefOfLimits.begin()).dirc;	// CoefOfLimits.begin() is the boundary itself, 
+	vec pt=(*this->CoefOfLimits.begin()).apt;	// others are crossing boundaries
 	vec ndv=normalize(dv);
 	return (posi-pt)%ndv;
 };
 
 template<class T>
-void plnrgd_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){
+void plnrgd_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){	// August 22, 2013
     typename std::vector<T*>::iterator it;
     std::vector<BdryCoef>::iterator bt;
     bool next;
     PBVec.clear();
     REAL dist, r;
     vec posi, ndirc;
+
+    // for boundary predetection as in notes page 106
+    // at present it can just deal with the boundaries that are normal to the axes
+    vec dv=(*this->CoefOfLimits.begin()).dirc;
+    vec pt=(*this->CoefOfLimits.begin()).apt;
+    vec ndv=normalize(dv);
+
     for (it=ptcls.begin();it!=ptcls.end();++it){
 	if ( (*it)->getType() == 0 ) { // only process free particles, excluding type 5
 	    posi=(*it)->getCurrPosition();
 	    dist=distToBdry(posi);
-	    if(dist>=0 || fabs(dist) > (*it)->getA()) // outside to CoefOfLimits[0] or inside too much
+	    if(dist>=0 || fabs(dist) > (*it)->getMaxRadius()) // outside to CoefOfLimits[0] or inside too much
 		continue;
+
+
+	    // predetection, using the same method as in contact predetection, notes page 106
+	    // April 14, 2014
+	    REAL aplus  = (*it)->getAplus();
+	    REAL aminus = (*it)->getAminus();
+	    REAL bplus  = (*it)->getBplus();
+	    REAL bminus = (*it)->getBminus();
+	    REAL cplus  = (*it)->getCplus();
+	    REAL cminus = (*it)->getCminus(); 
+
+    	    vec local_p1 = vec(aplus, bplus, cplus);
+    	    vec local_p2 = vec(-aminus, bplus, cplus);
+    	    vec local_p3 = vec(-aminus, -bminus, cplus);
+    	    vec local_p4 = vec(aplus, -bminus, cplus);
+    	    vec local_p5 = vec(aplus, bplus, -cminus);
+    	    vec local_p6 = vec(-aminus, bplus, -cminus);
+    	    vec local_p7 = vec(-aminus, -bminus, -cminus);
+    	    vec local_p8 = vec(aplus, -bminus, -cminus);
+
+	    vec global_p1 = posi + (*it)->globalVec(local_p1);
+	    vec global_p2 = posi + (*it)->globalVec(local_p2);
+	    vec global_p3 = posi + (*it)->globalVec(local_p3);
+	    vec global_p4 = posi + (*it)->globalVec(local_p4);
+	    vec global_p5 = posi + (*it)->globalVec(local_p5);
+	    vec global_p6 = posi + (*it)->globalVec(local_p6);
+	    vec global_p7 = posi + (*it)->globalVec(local_p7);
+	    vec global_p8 = posi + (*it)->globalVec(local_p8);
+
+	    // judge which boundary this is
+	    if(ndv.getx()>0){	// x+
+		if(global_p1.getx() < pt.getx() && global_p2.getx() < pt.getx() && global_p3.getx() < pt.getx() && global_p4.getx() < pt.getx()
+		&& global_p5.getx() < pt.getx() && global_p6.getx() < pt.getx() && global_p7.getx() < pt.getx() && global_p8.getx() < pt.getx() ){
+		    // now is judge if the particle is inside too much, so we need to use <
+		    continue;
+		}
+	    }
+	    if(ndv.getx()<0){	// x-
+		if(global_p1.getx() > pt.getx() && global_p2.getx() > pt.getx() && global_p3.getx() > pt.getx() && global_p4.getx() > pt.getx()
+		&& global_p5.getx() > pt.getx() && global_p6.getx() > pt.getx() && global_p7.getx() > pt.getx() && global_p8.getx() > pt.getx() ){
+		    // now is judge if the particle is inside too much, so we need to use >
+		    continue;
+		}
+	    }
+	    if(ndv.gety()>0){	// y+
+		if(global_p1.gety() < pt.gety() && global_p2.gety() < pt.gety() && global_p3.gety() < pt.gety() && global_p4.gety() < pt.gety()
+		&& global_p5.gety() < pt.gety() && global_p6.gety() < pt.gety() && global_p7.gety() < pt.gety() && global_p8.gety() < pt.gety() ){
+		    // now is judge if the particle is inside too much, so we need to use <
+		    continue;
+		}
+	    }
+	    if(ndv.gety()<0){	// y-
+		if(global_p1.gety() > pt.gety() && global_p2.gety() > pt.gety() && global_p3.gety() > pt.gety() && global_p4.gety() > pt.gety()
+		&& global_p5.gety() > pt.gety() && global_p6.gety() > pt.gety() && global_p7.gety() > pt.gety() && global_p8.gety() > pt.gety() ){
+		    // now is judge if the particle is inside too much, so we need to use >
+		    continue;
+		}
+	    }
+	    if(ndv.getz()>0){	// z+
+		if(global_p1.getz() < pt.getz() && global_p2.getz() < pt.getz() && global_p3.getz() < pt.getz() && global_p4.getz() < pt.getz()
+		&& global_p5.getz() < pt.getz() && global_p6.getz() < pt.getz() && global_p7.getz() < pt.getz() && global_p8.getz() < pt.getz() ){
+		    // now is judge if the particle is inside too much, so we need to use <
+		    continue;
+		}
+	    }
+	    if(ndv.getz()<0){	// z-
+		if(global_p1.getz() > pt.getz() && global_p2.getz() > pt.getz() && global_p3.getz() > pt.getz() && global_p4.getz() > pt.getz()
+		&& global_p5.getz() > pt.getz() && global_p6.getz() > pt.getz() && global_p7.getz() > pt.getz() && global_p8.getz() > pt.getz() ){
+		    // now is judge if the particle is inside too much, so we need to use >
+		    continue;
+		}
+	    }
+
+
 	    /*
 	    g_debuginf<<"boundary.h: g_iter="<<g_iteration
 		      <<" bdryId="<<getBdryID()
@@ -446,7 +527,7 @@ REAL cylrgd_bdry<T>::distToBdry(vec posi) const{
 };
 
 template<class T>
-void cylrgd_bdry<T>::findParticleOnBoundary(std::vector<T*> &ptcls){
+void cylrgd_bdry<T>::findParticleOnBoundary(std::vector<T*> &ptcls){	// August 22, 2013
 	typename std::vector<T*>::iterator it;
 	std::vector<BdryCoef>::iterator bt;
 	bool next;
@@ -456,13 +537,13 @@ void cylrgd_bdry<T>::findParticleOnBoundary(std::vector<T*> &ptcls){
  	for (it=ptcls.begin();it!=ptcls.end();++it){
 		posi=(*it)->getCurrPosition();
 		dist=distToBdry(posi);
-		if (dist>(*it)->getA())
+		if (dist>(*it)->getMaxRadius())
 			continue;
 		next=false;
 		for (bt=++this->CoefOfLimits.begin();bt!=this->CoefOfLimits.end();++bt){
 			ndirc=normalize((*bt).dirc);
 			r=vfabs((posi-(*bt).apt)-(posi-(*bt).apt)%ndirc*ndirc);
-			if( ( (*bt).order==1&&(posi-(*bt).apt)%(*bt).dirc>(*it)->getA() )||
+			if( ( (*bt).order==1&&(posi-(*bt).apt)%(*bt).dirc>(*it)->getMaxRadius() )||
 				( (*bt).order==2&&(r-(*bt).rad)*(*bt).side<0 ) ){
 				next=true;//the particle is outof boundary, process next particle
 				break;
@@ -595,7 +676,7 @@ void plnflb_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){
 	/*
 		1----2
 		|    |
-		|	 |
+		|    |
 		4----3
 	*/
 	typename std::vector<T*>::iterator it;
@@ -609,7 +690,7 @@ void plnflb_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){
 		vec vdt=(posi-pt1)%normalize(norm)*normalize(norm);
 		vec proj=posi-vdt;
 		REAL dist=vfabs(vdt);
-		if (dist>(*it)->getA()&&vdt%norm<0)
+		if (dist>(*it)->getMaxRadius()&&vdt%norm<0)
 			continue;
 		vec v1=pt1-proj;
 		vec v2=pt2-proj;
@@ -659,7 +740,7 @@ void plnflb_bdry<T>::findParticleOnLine(){
 			for (it=PBVec.begin();it!=PBVec.end();++it){
 				vec v0=(*it)->getCurrPosition();
 				REAL dist=vfabs((v0-thept)-(v0-thept)%normalize(norm)*normalize(norm));
-				if(dist<(*it)->getA())
+				if(dist<(*it)->getMaxRadius())
 					PCFB[iz][ip].push_back(*it);
 			}
 		}
@@ -726,7 +807,7 @@ void plnflb_bdry<T>::createFlbNet(){
 					bp=*it;
 				}
 				vec rt[2];
-				if((*it)->intersectWithLine(thept,normalize(norm),rt)){
+				if((*it)->intersectWithLine(thept,normalize(norm),rt,1)){
 					//v1.print();rt[0].print();rt[1].print();getchar();
 					vec tp=(rt[0]-rt[1])%norm>0?rt[0]:rt[1];
 					if ((tp-outmost)%norm>0){
@@ -948,7 +1029,7 @@ void cylflb_bdry<T>::findParticleOnLine(){
 			for (it=PBVec.begin();it!=PBVec.end();++it){
 				vec v0=(*it)->getCurrPosition();
 				REAL dist=vfabs((v0-thept)-(v0-thept)%normalize(ll)*normalize(ll));
-				if(dist<(*it)->getA())
+				if(dist<(*it)->getMaxRadius())
 					PCFB[iz][ip].push_back(*it);
 			}
 		}
@@ -1007,7 +1088,7 @@ void cylflb_bdry<T>::createFlbNet(){
 			T *op=NULL;
 			for (it=(PCFB[iz][ip]).begin();it!=(PCFB[iz][ip]).end();++it){
 				vec rt[2];
-				if((*it)->intersectWithLine(thept,normalize(ll),rt)){
+				if((*it)->intersectWithLine(thept,normalize(ll),rt,1)){
 					//v1.print();rt[0].print();rt[1].print();getchar();
 					vec tp=(rt[0]-rt[1])%ll>0?rt[0]:rt[1];
 					if ((tp-outmost)%ll>0){

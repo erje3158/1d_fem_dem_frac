@@ -17,7 +17,7 @@ const REAL EPS        = 1.0e-12;
 
 // relative overlap between particles
 const REAL MINOVERLAP = 1.0e-6;
-REAL MAXOVERLAP = 5.0e-1;
+REAL MAXOVERLAP = 5.0e-1;	// origin is 1.0e-2
 
 // measurable absolute overlap precision between particles, enabled/disabled by macro MEASURE_EPS
 const REAL MEPS       = 1.0e-8;  // 0.1 micron or 0.01 micron
@@ -26,10 +26,105 @@ const REAL MEPS       = 1.0e-8;  // 0.1 micron or 0.01 micron
 long idum             = -1;      // not a constant
 
 // particle material property
-// const REAL YOUNG      = 107.8e+9;// quartz sand E  = 29GPa
-REAL YOUNG      = 8.0e+9;// quartz sand E  = 29GPa
+REAL YOUNG      = 8e+9;	 // quartz sand E  = 29GPa
 REAL POISSON    = 0.18;    // quartz sand v  = 0.25     
 const REAL Gs         = 2.65;    // quartz sand Gs = 2.65    
+
+// critical tensile stress for particle sub-division - original
+const REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+
+/*
+// critical tensile stress for particle sub-division - test 1
+const REAL sigmaCritical = 2.7235e+8;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+8;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+*/
+
+/*
+// critical tensile stress for particle sub-division - test 2
+const REAL sigmaCritical = 2.7235e+9;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+*/
+
+/*
+// critical tensile stress for particle sub-division - test 3
+const REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+8;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+*/
+
+/*
+// critical tensile stress for particle sub-division - test 4,5
+const REAL sigmaCritical = 2.7235e+9;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+9;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+*/
+
+/*
+// critical tensile stress for particle sub-division - test 6
+const REAL sigmaCritical = 2.7235e+10;	// pa, calculate from experiment
+
+// compressive strength for particle sub-division based on Hoek-Brown criterion
+const REAL sigmaCompress = 200.5399e+10;	// calculated from experiment
+const REAL mi		  = 32.4;	// material const, for granite mi=32.4
+*/
+
+
+// critical maximum tensile stress for contact point criterion
+const REAL ContactTensileCritical = 350.196e+7;	// calculated from experiment
+//const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
+
+// Weibull modulus used for particle strength
+const REAL weibullModulus = 0.5;
+const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
+
+// properties for the springs
+const REAL sigma_f = 4.13e7;	// soft criterion for spring
+const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
+				// the accurate propogate speed should be larger than this value
+
+/*
+// critical maximum tensile stress for contact point criterion - test 5
+const REAL ContactTensileCritical = 350.196e+9;	// calculated from experiment
+//const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
+
+// Weibull modulus used for particle strength
+const REAL weibullModulus = 0.5;
+const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
+
+// properties for the springs
+const REAL sigma_f = 4.13e9;	// soft criterion for spring
+const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
+				// the accurate propogate speed should be larger than this value
+*/
+
+/*
+// critical maximum tensile stress for contact point criterion - test 6,7
+const REAL ContactTensileCritical = 350.196e+10;	// calculated from experiment
+//const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
+
+// Weibull modulus used for particle strength
+const REAL weibullModulus = 0.5;
+const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
+
+// properties for the springs
+const REAL sigma_f = 4.13e10;	// soft criterion for spring
+const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
+				// the accurate propogate speed should be larger than this value
+*/
 
 // membrane particle material property
 const REAL memYOUNG   = 1.40e+6; // 1.4MPa
@@ -39,10 +134,15 @@ const REAL memPOISSON = 0.49;
 std::ofstream g_debuginf;        // print debugging information
 std::ofstream g_timeinf;         // print time log
 int g_iteration;                 // iteration number
+int numBrokenType1;		// Hoek-Brown criterion or maximum shear stress
+int numBrokenType2;		// maximum tensile stress at contacts
 
 // output width and precision
 const int OWID        = 16;      // 20, output width
 const int OPREC       = 6;       // 10, output precision, number of digits after decimal dot
+
+// number of timesteps for transition process
+const int numStepTransition = 50;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Part B: These parameters may change frequently and can be easily edited in main.cpp

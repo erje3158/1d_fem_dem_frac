@@ -25,13 +25,13 @@ namespace dem {
     void setPtclRatioBA(REAL ba) {ptcl_ratio_ba = ba;}
     void setPtclRatioCA(REAL ca) {ptcl_ratio_ca = ca;}
 
-    REAL getMaxPtclRadius() {return size[0];}
-    REAL getMinPtclRadius() {return size[sievenum-1] * ptcl_ratio_ca;}
+    REAL getMaxPtclDiameter() {return size[0];}
+    REAL getMinPtclDiameter() {return size[sievenum-1] * ptcl_ratio_ca;}
 
   private:
     int  sievenum; // sievenum == percent.size() == size.size()
     std::vector<REAL> percent;
-    std::vector<REAL> size;
+    std::vector<REAL> size;	// diamter size. 	August 19, 2013
     REAL ptcl_ratio_ba; // ratio of radius b to radius a
     REAL ptcl_ratio_ca; // ratio of radius c to radius a
   };    

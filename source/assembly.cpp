@@ -76,7 +76,7 @@ namespace dem {
   
 std::ofstream progressinf;
   
-void assembly::printParticle(const char* str) const {
+void assembly::printParticle(const char* str) const {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -93,9 +93,12 @@ void assembly::printParticle(const char* str) const {
   
   ofs << setw(OWID) << "ID"
       << setw(OWID) << "type"
-      << setw(OWID) << "radius_a"
-      << setw(OWID) << "radius_b"
-      << setw(OWID) << "radius_c"
+      << setw(OWID) << "a_plus"
+      << setw(OWID) << "a_minus"
+      << setw(OWID) << "b_plus"
+      << setw(OWID) << "b_minus"
+      << setw(OWID) << "c_plus"
+      << setw(OWID) << "c_minus"
       << setw(OWID) << "position_x"
       << setw(OWID) << "position_y"
       << setw(OWID) << "position_z"
@@ -130,9 +133,12 @@ void assembly::printParticle(const char* str) const {
   for (it=ParticleVec.begin();it!=ParticleVec.end();++it)  {
     ofs << setw(OWID) << (*it)->getID()
 	<< setw(OWID) << (*it)->getType()
-	<< setw(OWID) << (*it)->getA()
-	<< setw(OWID) << (*it)->getB()
-	<< setw(OWID) << (*it)->getC();
+	<< setw(OWID) << (*it)->getAplus()
+	<< setw(OWID) << (*it)->getAminus()
+	<< setw(OWID) << (*it)->getBplus()
+	<< setw(OWID) << (*it)->getBminus()
+	<< setw(OWID) << (*it)->getCplus()
+	<< setw(OWID) << (*it)->getCminus();
     
     tmp=(*it)->getCurrPosition();
     ofs << setw(OWID) << tmp.getx()
@@ -182,6 +188,53 @@ void assembly::printParticle(const char* str) const {
   
   ofs.close();
 }
+
+  // used to plot the kinetic information of DEM particles in one file for tecplot
+  void  assembly::openDEMTecplot(std::ofstream &ofs, const char *str) {
+    ofs.open(str);
+    if(!ofs) { std::cout << "stream error: openDEMTecplot" << std::endl; exit(-1); }
+    ofs.setf(std::ios::scientific, std::ios::floatfield);
+    ofs.precision(OPREC);
+
+    ofs << "Title = \"DEM Particle Information\"" << std::endl;
+    ofs << "VARIABLES = \"x\", \"y\",\"z\" \"Ux\" \"Uy\" \"Uz\" \"Vx\" \"Vy\" \"Vz\" \"a_x\" \"a_y\" \"a_z\" \"f_x\" \"f_y\" \"f_z\" \"typeBroken\" \"numBroken\" "
+	<< std::endl;
+  }
+
+  void assembly::printDEMTecplot(std::ofstream &ofs, int iframe) {
+	ofs << "ZONE T =\" " << iframe << "-th Load Step\" "<< std::endl;
+	vec tmp;
+	// Output the coordinates and the array information
+	for(std::vector<particle*>::iterator it = ParticleVec.begin(); it!= ParticleVec.end(); it++) {
+    	    tmp=(*it)->getCurrPosition();
+    	    ofs << setw(OWID) << tmp.getx()
+	        << setw(OWID) << tmp.gety()
+	        << setw(OWID) << tmp.getz();
+
+    	    tmp=(*it)->getCurrCenterMass()-(*it)->getInitCenterMass();
+    	    ofs << setw(OWID) << tmp.getx()
+	        << setw(OWID) << tmp.gety()
+	        << setw(OWID) << tmp.getz();
+
+    	    tmp=(*it)->getCurrVelocity();
+    	    ofs << setw(OWID) << tmp.getx()
+	        << setw(OWID) << tmp.gety()
+	        << setw(OWID) << tmp.getz();
+
+    	    tmp=(*it)->getCurrAcceleration();
+    	    ofs << setw(OWID) << tmp.getx()
+	        << setw(OWID) << tmp.gety()
+	        << setw(OWID) << tmp.getz();
+
+    	    tmp=(*it)->getForce();
+    	    ofs << setw(OWID) << tmp.getx()
+	        << setw(OWID) << tmp.gety()
+	        << setw(OWID) << tmp.getz();
+
+	    ofs << setw(OWID) << (*it)->getTypeBroken()
+		<< setw(OWID) << (*it)->getNumBroken() << std::endl;
+	}
+  }
 
 
 void assembly::plotBoundary(const char *str) const {
@@ -277,7 +330,7 @@ void assembly::plotSpring(const char *str) const {
   ofs.close();
 }  
 
-void assembly::printMemParticle(const char* str) const  {
+void assembly::printMemParticle(const char* str) const  {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -301,9 +354,12 @@ void assembly::printMemParticle(const char* str) const  {
   
   ofs << setw(OWID) << "ID"
       << setw(OWID) << "type"
-      << setw(OWID) << "radius_a"
-      << setw(OWID) << "radius_b"
-      << setw(OWID) << "radius_c"
+      << setw(OWID) << "a_plus"
+      << setw(OWID) << "a_minus"
+      << setw(OWID) << "b_plus"
+      << setw(OWID) << "b_minus"
+      << setw(OWID) << "c_plus"
+      << setw(OWID) << "c_minus"
       << setw(OWID) << "position_x"
       << setw(OWID) << "position_y"
       << setw(OWID) << "position_z"
@@ -338,9 +394,12 @@ void assembly::printMemParticle(const char* str) const  {
 	it = MemBoundary[i][j][k];
 	ofs << setw(OWID) << it->getID()
 	    << setw(OWID) << it->getType()
-	    << setw(OWID) << it->getA()
-	    << setw(OWID) << it->getB()
-	    << setw(OWID) << it->getC();
+	    << setw(OWID) << it->getAplus()
+	    << setw(OWID) << it->getAminus()
+	    << setw(OWID) << it->getBplus()
+	    << setw(OWID) << it->getBminus()
+	    << setw(OWID) << it->getCplus()
+	    << setw(OWID) << it->getCminus();
 	
 	tmp=it->getCurrPosition();
 	ofs << setw(OWID) << tmp.getx()
@@ -650,17 +709,17 @@ void assembly::readSample(const char* str){
     Volume = container.getDimx() * container.getDimy() * container.getDimz();
     
     char s[20];
-    ifs>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s
-       >>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s;
+    ifs>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s	
+       >>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s;
 
     ParticleVec.clear();
     int ID, type;
-    REAL a, b, c, px,py,pz,dax,day,daz,dbx,dby,dbz,dcx,dcy,dcz;
+    REAL aplus, aminus, bplus, bminus, cplus, cminus, px,py,pz,dax,day,daz,dbx,dby,dbz,dcx,dcy,dcz;
     REAL vx,vy,vz,omx,omy,omz,fx,fy,fz,mx,my,mz;
     for (int i=0;i<TotalNum;i++){
-	ifs>>ID>>type>>a>>b>>c>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
+	ifs>>ID>>type>>aplus>>aminus>>bplus>>bminus>>cplus>>cminus>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
 	   >>vx>>vy>>vz>>omx>>omy>>omz>>fx>>fy>>fz>>mx>>my>>mz;
-	particle* pt= new particle(ID,type,vec(a,b,c),vec(px,py,pz),vec(dax,day,daz),vec(dbx,dby,dbz),vec(dcx,dcy,dcz),YOUNG,POISSON);
+	particle* pt= new particle(ID,type,aplus,aminus,bplus,bminus,cplus,cminus,vec(px,py,pz),vec(dax,day,daz),vec(dbx,dby,dbz),vec(dcx,dcy,dcz),YOUNG,POISSON);
 
 //      optional settings for a particle's initial status
 //	pt->setPrevVelocity(vec(vx,vy,vz));
@@ -675,8 +734,7 @@ void assembly::readSample(const char* str){
     ifs.close();
 }
 
-
-void assembly::readSample_continue(const char* str){
+void assembly::readSampleRandom(const char* str){
     std::ifstream ifs(str);
     if(!ifs) {
 	cout << "stream error!" << endl; exit(-1);
@@ -691,17 +749,17 @@ void assembly::readSample_continue(const char* str){
     Volume = container.getDimx() * container.getDimy() * container.getDimz();
     
     char s[20];
-    ifs>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s
-       >>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s;
+    ifs>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s
+       >>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s>>s;
 
     ParticleVec.clear();
     int ID, type;
-    REAL a, b, c, px,py,pz,dax,day,daz,dbx,dby,dbz,dcx,dcy,dcz;
+    REAL aplus, aminus, bplus, bminus, cplus, cminus, px,py,pz,dax,day,daz,dbx,dby,dbz,dcx,dcy,dcz;
     REAL vx,vy,vz,omx,omy,omz,fx,fy,fz,mx,my,mz;
     for (int i=0;i<TotalNum;i++){
-	ifs>>ID>>type>>a>>b>>c>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
+	ifs>>ID>>type>>aplus>>aminus>>bplus>>bminus>>cplus>>cminus>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
 	   >>vx>>vy>>vz>>omx>>omy>>omz>>fx>>fy>>fz>>mx>>my>>mz;
-	particle* pt= new particle(ID,type,vec(a,b,c),vec(px,py,pz),vec(dax,day,daz),vec(dbx,dby,dbz),vec(dcx,dcy,dcz),vec(vx,vy,vz),vec(omx,omy,omz),YOUNG,POISSON);
+	particle* pt= new particle(ID,type,vec(px,py,pz),aplus,aminus,bplus,bminus,cplus,cminus,YOUNG,POISSON);
 
 //      optional settings for a particle's initial status
 //	pt->setPrevVelocity(vec(vx,vy,vz));
@@ -716,6 +774,31 @@ void assembly::readSample_continue(const char* str){
     ifs.close();
 }
 
+void assembly::convertEricSample(const char* iniptclfile,
+			 	 const char* particlefile){
+
+    std::ifstream ifs(iniptclfile);
+    if(!ifs) {
+	cout << "stream error!" << endl; exit(-1);
+    }
+    int RORC;
+    ifs >> TotalNum;
+
+    ParticleVec.clear();
+    int ID, type;
+    REAL radius,px,py,pz;
+    REAL tmp;
+    ID = 0;
+    for (int i=0;i<TotalNum;i++){
+	ID++;
+	ifs>>tmp>>radius>>radius>>radius>>px>>py>>pz>>tmp>>tmp>>tmp>>tmp;
+	particle* pt= new particle(ID,0,vec(px,py,pz)*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,YOUNG,POISSON);
+	ParticleVec.push_back(pt);
+    }
+    ifs.close();
+
+    printParticle(particlefile);
+}
 
 
 // read tessellation information from Qhull output file for granular strain calculation
@@ -780,12 +863,520 @@ void assembly::readTesse_finite(const char* str){
 		n = n+1;
 		i = i+1;
 		j = j+1;	// the ID from Qhull is starting from 0
-		cell ptCell;
-		ptCell.setNodes(m,n,i,j);
+		cell* ptCell = new cell();
+		ptCell->setNodes(m,n,i,j);
 		cellVec.push_back(ptCell);
 	}
 	setNumberingOrder();	// this is important
 }
+
+void assembly::calculatePeriodicParameters(){
+
+    Ymax = getApt(2).gety(); Ymin = getApt(4).gety();
+    Xmax = getApt(1).getx(); Xmin = getApt(3).getx();
+    Zmax = getApt(5).getz(); Zmin = getApt(6).getz();
+    Xinter = Xmax - Xmin;
+    Yinter = Ymax - Ymin;
+    Zinter = Zmax - Zmin;
+    cellSize = 0;
+    REAL tmp_a;
+    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+	tmp_a = (*it)->getMaxRadius();
+	if(tmp_a>cellSize)
+	    cellSize = tmp_a;
+    }
+    cellSize = cellSize*2;
+}
+
+
+void assembly::constructPeriodicParticles(){
+
+    for(std::vector<particle*>::iterator it=periodicParticleVec.begin(); it!=periodicParticleVec.end();it++)
+	delete (*it);
+    periodicParticleVec.clear();
+    totalParticleVec.clear();
+    totalParticleVec = ParticleVec;
+
+    vec tmp_coord;
+    REAL tmp_x, tmp_y, tmp_z;
+    int numPeriodic = 0;
+    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+	tmp_coord = (*it)->getCurrPosition();
+	tmp_x = tmp_coord.getx(); 
+	tmp_y = tmp_coord.gety();
+	tmp_z = tmp_coord.getz();
+	// 6 surfaces
+	if(tmp_x>Xmax-cellSize){	// xmax surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x<Xmin+cellSize){	// xmin surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+//std::cout << "Xmin+cellSize: " << Xmin+cellSize << std::endl;
+//std::cout << "curr x: " << tmp_x << std::endl;
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()));
+//std::cout << "after x: " << pt->getCurrPosition().getx() << std::endl;
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_y>Ymax-cellSize){	// ymax surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_y<Ymin+cellSize){	// ymin surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_z>Zmax-cellSize){	// zmax surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_z<Zmin+cellSize){	// zmin surface
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	// 12 edges
+  	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize){	// XminYmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize){	// XminYmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x<Xmin+cellSize && tmp_z<Zmin+cellSize){	// XminZmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x<Xmin+cellSize && tmp_z>Zmax-cellSize){	// XminZmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize){	// XmaxYmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize){	// XmaxYmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x>Xmax-cellSize && tmp_z<Zmin+cellSize){	// XmaxZmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_x<Xmax-cellSize && tmp_z>Zmax-cellSize){	// XmaxZmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// YminZmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// YminZmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// YmaxZmin edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+  	if(tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// YmaxZmax edge
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	// 8 corners
+	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// XminYminZmin corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// XminYminZmax corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// XminYmaxZmin corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// XminYmaxZmax corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// XmaxYminZmin corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// XmaxYminZmax corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// XmaxYmaxZmin corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}
+	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// XminYminZmin corner
+	    tmp_coord = (*it)->getPrevPosition();
+	    numPeriodic++;
+	    particle* pt= new particle(**it);
+	    pt->setID(TotalNum+numPeriodic);
+	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    pt->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	    periodicParticleVec.push_back(pt);
+	    totalParticleVec.push_back(pt);
+	}	    
+    }
+
+} // constructPeriodicParticles()
+
+
+void assembly::movePeriodicParticles(){
+    vec tmp_coord;
+    REAL tmp_x, tmp_y, tmp_z;
+    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+	tmp_coord = (*it)->getCurrPosition();
+	tmp_x = tmp_coord.getx(); 
+	tmp_y = tmp_coord.gety();
+	tmp_z = tmp_coord.getz();
+
+	tmp_coord = (*it)->getPrevPosition();
+	// 6 surfaces
+	if(tmp_x>Xmax){	// xmax surface    
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));	// for the first approach
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x<Xmin){	// xmin surface
+//std::cout << "Xmin: " << Xmin << std::endl;
+//std::cout << "before x: " << tmp_x << std::endl;
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
+//std::cout << "after x: " << (*it)->getCurrPosition().getx() << std::endl << std::endl;
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_y>Ymax){	// ymax surface
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_y<Ymin){	// ymin surface
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_z>Zmax){	// zmax surface
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_z<Zmin){	// zmin surface
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	// 12 edges, these edges and corners cases seldomly happen
+  	if(tmp_x<Xmin && tmp_y<Ymin){	// XminYmin edge
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x<Xmin && tmp_y>Ymax){	// XminYmax edge
+	    (*it)->setCurrPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
+	    (*it)->setInitPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
+	    (*it)->setPrevPosition((tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x<Xmin && tmp_z<Zmin){	// XminZmin edge
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x<Xmin && tmp_z>Zmax){	// XminZmax edge
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x>Xmax && tmp_y<Ymin){	// XmaxYmin edge
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x>Xmax && tmp_y>Ymax){	// XmaxYmax edge
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x>Xmax && tmp_z<Zmin){	// XmaxZmin edge
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_x<Xmax && tmp_z>Zmax){	// XmaxZmax edge
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_y<Ymin && tmp_z<Zmin){	// YminZmin edge
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_y<Ymin && tmp_z>Zmax){	// YminZmax edge
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_y>Ymax && tmp_z<Zmin){	// YmaxZmin edge
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+  	if(tmp_y>Ymax && tmp_z>Zmax){	// YmaxZmax edge
+	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	// 8 corners
+	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z<Zmin){	// XminYminZmin corner
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z>Zmax){	// XminYminZmax corner
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z<Zmin){	// XminYmaxZmin corner
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z>Zmax){	// XminYmaxZmax corner
+	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z<Zmin){	// XmaxYminZmin corner
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z>Zmax){	// XmaxYminZmax corner
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z<Zmin){	// XmaxYmaxZmin corner
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}
+	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z>Zmax){	// XminYminZmin corner
+	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
+	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+	}	    
+    }
+
+} // movePeriodicParticles()
 
 //start of def OPENMP 
 #ifdef OPENMP	
@@ -793,7 +1384,7 @@ void assembly::readTesse_finite(const char* str){
 #if OPENMP_IMPL == 0
 // OpenMP implementation 0: ts partitions, each thread handles a partition, max diff = n*n*(1-1/ts)/ts
 // implementation is based on linked list, also works for vector but not efficient.
-void assembly::findContact() { 
+void assembly::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -842,7 +1433,7 @@ void assembly::findContact() {
       u=(*it)->getCurrPosition();
       for (pt = it, ++pt; pt != ParticleVec.end(); ++pt){
 	v=(*pt)->getCurrPosition();
-	if (   ( vfabs(v-u) < (*it)->getA() + (*pt)->getA())
+	if (   ( vfabs(v-u) < (*it)->getMaxRadius() + (*pt)->getMaxRadius())
 	       && ( (*it)->getType() !=  1 || (*pt)->getType() != 1  )      // not both are fixed particles
 	       && ( (*it)->getType() !=  5 || (*pt)->getType() != 5  )      // not both are free boundary particles
 	       && ( (*it)->getType() != 10 || (*pt)->getType() != 10 )  ) { // not both are ghost particles
@@ -867,7 +1458,7 @@ void assembly::findContact() {
 #elif OPENMP_IMPL == 1
 // OpenMP implementation 1: ts partitions, each thread handles a partition, max diff = n*n*(1-1/ts)/ts
 // implementation is based on vector index.
-void assembly::findContact() { 
+void assembly::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -895,7 +1486,7 @@ void assembly::findContact() {
       u = ParticleVec[i]->getCurrPosition();
       for (j = i + 1; j < num; ++j) {
 	v = ParticleVec[j]->getCurrPosition();
-	if (   ( vfabs(v-u) < ParticleVec[i]->getA() + ParticleVec[j]->getA() )
+	if (   ( vfabs(v-u) < ParticleVec[i]->getMaxRadius() + ParticleVec[j]->getMaxRadius() )
 	       && ( ParticleVec[i]->getType() !=  1 || ParticleVec[j]->getType() != 1  )      // not both are fixed particles
 	       && ( ParticleVec[i]->getType() !=  5 || ParticleVec[j]->getType() != 5  )      // not both are free boundary particles
 	       && ( ParticleVec[i]->getType() != 10 || ParticleVec[j]->getType() != 10 )  ) { // not both are ghost particles
@@ -919,7 +1510,7 @@ void assembly::findContact() {
 
 #elif OPENMP_IMPL == 2
 // OpenMP implementation 2: no partitions, each thread leaps by ts until completed, max diff = n*(ts-1)/ts
-void assembly::findContact() { 
+void assembly::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -943,7 +1534,7 @@ void assembly::findContact() {
       u = ParticleVec[i]->getCurrPosition();
       for (j = i + 1; j < num; ++j) {
 	v = ParticleVec[j]->getCurrPosition();
-	if (   ( vfabs(v-u) < ParticleVec[i]->getA() + ParticleVec[j]->getA() )
+	if (   ( vfabs(v-u) < ParticleVec[i]->getMaxRadius() + ParticleVec[j]->getMaxRadius() )
 	       && ( ParticleVec[i]->getType() !=  1 || ParticleVec[j]->getType() != 1  )      // not both are fixed particles
 	       && ( ParticleVec[i]->getType() !=  5 || ParticleVec[j]->getType() != 5  )      // not both are free boundary particles
 	       && ( ParticleVec[i]->getType() != 10 || ParticleVec[j]->getType() != 10 )  ) { // not both are ghost particles
@@ -967,7 +1558,7 @@ void assembly::findContact() {
 
 #elif OPENMP_IMPL == 3
 // OpenMP implementation 3: no partitions, each thread leaps by ts until num/2 and handles two particles, max diff = 0
-void assembly::findContact() { 
+void assembly::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -994,7 +1585,7 @@ void assembly::findContact() {
 	u = ParticleVec[k]->getCurrPosition();
 	for (j = k + 1; j < num; ++j) {
 	  v = ParticleVec[j]->getCurrPosition();
-	  if (   ( vfabs(v-u) < ParticleVec[k]->getA() + ParticleVec[j]->getA() )
+	  if (   ( vfabs(v-u) < ParticleVec[k]->getMaxRadius() + ParticleVec[j]->getMaxRadius() )
 		 && ( ParticleVec[k]->getType() !=  1 || ParticleVec[j]->getType() != 1  )      // not both are fixed particles
 		 && ( ParticleVec[k]->getType() !=  5 || ParticleVec[j]->getType() != 5  )      // not both are free boundary particles
 		 && ( ParticleVec[k]->getType() != 10 || ParticleVec[j]->getType() != 10 )  ) { // not both are ghost particles
@@ -1019,7 +1610,7 @@ void assembly::findContact() {
 
 #elif OPENMP_IMPL == 4
 // OpenMP implementation 4: no partitions, parallel for, various loop scheduling: (static), (static,1), (dynamic), (dynamic,1)
-void assembly::findContact() { 
+void assembly::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1037,7 +1628,7 @@ void assembly::findContact() {
     u = ParticleVec[i]->getCurrPosition();
     for (j = i + 1; j < num; ++j) {
       v = ParticleVec[j]->getCurrPosition();
-      if (   ( vfabs(v-u) < ParticleVec[i]->getA() + ParticleVec[j]->getA() )
+      if (   ( vfabs(v-u) < ParticleVec[i]->getMaxRadius() + ParticleVec[j]->getMaxRadius() )
 	     && ( ParticleVec[i]->getType() !=  1 || ParticleVec[j]->getType() != 1  )      // not both are fixed particles
 	     && ( ParticleVec[i]->getType() !=  5 || ParticleVec[j]->getType() != 5  )      // not both are free boundary particles
 	     && ( ParticleVec[i]->getType() != 10 || ParticleVec[j]->getType() != 10 )  ) { // not both are ghost particles
@@ -1065,7 +1656,7 @@ void assembly::findContact() {
 
 //start of ndef BINNING
 #ifndef BINNING
-void assembly::findContact(){ // serial version, O(n x n), n is the number of particles.
+void assembly::findContact(){ // serial version, O(n x n), n is the number of particles. August 21, 2013
     ContactVec.clear();
     PossCntctNum = 0;
 
@@ -1079,7 +1670,7 @@ void assembly::findContact(){ // serial version, O(n x n), n is the number of pa
 	u=(*it)->getCurrPosition();
 	for (pt=it,++pt;pt!=ParticleVec.end();++pt){
 	    v=(*pt)->getCurrPosition();
-	    if (   ( vfabs(v-u) < (*it)->getA() + (*pt)->getA())
+	    if (   ( vfabs(v-u) < (*it)->getMaxRadius() + (*pt)->getMaxRadius())
 		&& ( (*it)->getType() !=  1 || (*pt)->getType() != 1  )      // not both are fixed particles
 		&& ( (*it)->getType() !=  5 || (*pt)->getType() != 5  )      // not both are free boundary particles
 		&& ( (*it)->getType() != 10 || (*pt)->getType() != 10 )  ) { // not both are ghost particles
@@ -1108,7 +1699,7 @@ void assembly::findContact(){ // serial version, O(n x n), n is the number of pa
 
 //else of ndef BINNING
 #else
-void assembly::findContact(){ // serial version, binning methods, cell slightly larger than maximum particle
+void assembly::findContact(){ // serial version, binning methods, cell slightly larger than maximum particle. August 21, 2013
   ContactVec.clear();
   PossCntctNum = 0;
   
@@ -1116,7 +1707,7 @@ void assembly::findContact(){ // serial version, binning methods, cell slightly 
   double time_r = 0;
   gettimeofday(&time_p1,NULL); 
 #endif
-  REAL maxDiameter = gradInfo.getMaxPtclRadius() * 2;
+  REAL maxDiameter = gradInfo.getMaxPtclDiameter();
   int  nx = floor (container.getDimx() / maxDiameter);
   int  ny = floor (container.getDimy() / maxDiameter);
   int  nz = floor (container.getDimz() *1.5 / maxDiameter);
@@ -1194,7 +1785,7 @@ void assembly::findContact(){ // serial version, binning methods, cell slightly 
 	    //cout <<  i << " " << j << " " << k << " " << "m n size=" << m << " " << n << " " <<  cellVec[i][j][k].size() << endl;
 	    pt = cellVec[i][j][k].second[n];
 	    v  = pt->getCurrPosition();
-	    if ( ( vfabs(u-v) < it->getA() + pt->getA() )  &&
+	    if ( ( vfabs(u-v) < it->getMaxRadius() + pt->getMaxRadius() )  &&
 		 ( it->getType() !=  1 || pt->getType() != 1 ) &&   // not both are fixed particles
 		 ( it->getType() !=  5 || pt->getType() != 5 ) &&   // not both are free boundary particles
 		 ( it->getType() != 10 || pt->getType() != 10)  ) { // not both are ghost particles
@@ -1223,7 +1814,7 @@ void assembly::findContact(){ // serial version, binning methods, cell slightly 
 	      for (int n = 0; n < vt.size(); ++n) {
 		pt = vt[n];
 		v  = pt->getCurrPosition();
-		if ( ( vfabs(u-v) < it->getA() + pt->getA() )  &&
+		if ( ( vfabs(u-v) < it->getMaxRadius() + pt->getMaxRadius() )  &&
 		     ( it->getType() !=  1 || pt->getType() != 1 ) &&   // not both are fixed particles
 		     ( it->getType() !=  5 || pt->getType() != 5 ) &&   // not both are free boundary particles
 		     ( it->getType() != 10 || pt->getType() != 10)  ) { // not both are ghost particles
@@ -1378,7 +1969,7 @@ REAL assembly::getParticleVolume() const{
 }
 
 
-vec assembly::getTopFreeParticlePosition() const{
+vec assembly::getTopFreeParticlePosition() const{	
     std::vector<particle*>::const_iterator it,jt,kt;
     it=ParticleVec.begin();
     while (it!=ParticleVec.end() && (*it)->getType()!=0)   // find the 1st free particle
@@ -1410,7 +2001,7 @@ vec assembly::getTopFreeParticlePosition() const{
 
 }
 
-REAL assembly::getMaxCenterHeight() const {
+REAL assembly::getMaxCenterHeight() const {	
   std::vector<particle*>::const_iterator it = ParticleVec.begin();
   REAL z0 = (*it)->getCurrPosition().getz();
   for (; it != ParticleVec.end(); ++it) {
@@ -1432,22 +2023,22 @@ REAL assembly::ellipPileForce() {
 }
 
 
-vec assembly::ellipPileDimn() {
+vec assembly::ellipPileDimn() {	// August 19, 2013
     vec val;
     for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==3) {
-	    val = vec((*it)->getA(), (*it)->getB(), (*it)->getC());
+	    val = vec((*it)->getAplus(), (*it)->getBplus(), (*it)->getCplus());
 	    break;
 	}
     return val;
 }
 
 
-REAL assembly::ellipPileTipZ() {
+REAL assembly::ellipPileTipZ() {	// August 19, 2013
     REAL val=0;
     for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==3) {
-	    val = (*it)->getCurrPosition().getz()-(*it)->getA();
+	    val = (*it)->getCurrPosition().getz()-(*it)->getAminus();
 	    break;
 	}
     return val;
@@ -1532,6 +2123,13 @@ void assembly::clearForce(){
 }
 
 
+void assembly::clearStress(){
+    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+	(*it)->clearStress();
+    }
+}
+
+
 void assembly::flexiBoundaryForceZero(){
     for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->flb_force=0;
@@ -1600,6 +2198,117 @@ void assembly::internalForce(REAL& avgnm, REAL& avgsh){
 
     }
 }
+
+
+// November 7 ,2013
+// add sub-division criterion in the code, April 23, 2014
+void assembly::subDivision(){
+
+	matrix average_stress(3,3);
+	std::vector<particle*> sub_pctlVec;
+	for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+//	    if((*it)->getCandidacy() != 0)// has fracture plane, cannot be divided
+//		continue;
+	    
+	    // April 25, 2014
+    	    // we need to use the current acceleration and omega to calculate 
+	    // the average stress, i.e. values calucated in particle::update()
+    	    // since force terms used in average stress are in current time step, 
+    	    // Also, we cannot put subDivision() right before updateParticle(), 
+	    // since after subDivision() the spring forces should
+    	    // be recalculated before updateParticle(), it is not convenient,
+	    // we need to keep in mind that the acceleration terms and the force terms are 
+	    // corresponding, i.e. we need to use the forces that cause this acceleration
+
+	    (*it)->calcStress();
+	    int break_plane = (*it)->calculateBreakPlane();	// [-1, 1,2,3], if -1, means not break, 
+							// this will calculate maximum tensile stress first
+	    if(break_plane==-1) continue;	// not break this particle
+
+	    particle* pt = new particle((**it), break_plane); // create a fractured particle which is along the c- axle
+							      // must be before breakItSelf(), otherwise the a/b/c of the (*it) have been 
+							      // changed to the sub-particle in the positive direction
+	    (*it)->breakItSelf(break_plane);	// change the particle itself to the fractured particle which is along the c+ axle
+
+
+	    TotalNum++;
+	    pt->setID(TotalNum);
+//	    fracpair frac_pair((*it), pt, break_plane);	// should be (*it) first and then pt!
+//	    fracPairList.push_back(frac_pair);		// at the time when generate the sub-particle, do not apply initial spring force
+	    sub_pctlVec.push_back(pt);			// we need to apply initial cohesive force in the spring, it will be applied at next step
+							// after the contact forces are calculated for the sub-particle and before the update
+
+	} // end for
+
+	for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+	    ParticleVec.push_back(*it);
+
+
+//std::cout << "debug point in subdivision 2222222222222..." << std::endl;
+
+} 
+
+
+void assembly::calculateInitialCohesiveForce(){	// calculate initial cohesive forces to the springs,
+						
+    for(std::list<fracpair>::iterator it=fracPairList.begin(); it!=fracPairList.end(); ++it){
+	if( it->getIsInitialForce()==false ){	// hasn't applied initial cohesive force
+	    it->calcInitialCohesiveForce();	// calculate but not apply initial cohesive force to particle p1 & p2
+	    it->setIsInitialForceTrue();	// it is very important to set isInitialForce=true
+	}
+    }
+
+} // applyInitialCohesiveForce
+
+
+// October 18, 2013
+void assembly::addFractureForce(REAL &avgFracForce){
+    avgFracForce = 0;
+    int numFrac = 0;	// number of fracture pairs
+    REAL fracForce = 0;	// magnitude of force of this fracture pair
+    for(std::list<fracpair>::iterator it=fracPairList.begin();it!=fracPairList.end();++it){
+
+	it->calculateResultant(fracForce);
+	avgFracForce += fracForce;
+	numFrac++;
+    }
+
+    if(numFrac == 0){
+	avgFracForce = 0;
+    }
+    else{
+    	avgFracForce = avgFracForce/numFrac;
+    }
+
+}
+
+// October 18, 2013
+void assembly::eraseFracturePair(){
+    for(std::list<fracpair>::iterator it=fracPairList.begin();it!=fracPairList.end();/*nothing*/){
+	if((*it).getNumSprings() == 0){	// need to erase this fracpair
+	    (*it).getP1()->candidacyMinus();
+	    (*it).getP2()->candidacyMinus();	// have to be before erase()
+	    NumErasedFrac++;
+	    it = fracPairList.erase(it);	// it points to the next element
+	}
+	else
+	    ++it;
+    }
+}
+
+// October 18, 2013
+void assembly::calcNumSprings(){
+    NumSprings = 0;
+    NumBroken = 0;
+    for(std::list<fracpair>::const_iterator it=fracPairList.begin();it!=fracPairList.end();++it){
+	NumSprings += (*it).getNumSprings();
+	NumBroken += (*it).getNumBroken();
+    }
+    // need to add the broken springs in the erased fracPair
+    NumBroken = NumBroken + 4*NumErasedFrac;
+
+}
+
 
 
 void assembly::updateParticle(){
@@ -1855,17 +2564,17 @@ std::cout << "Nc: " << Nc << " AtualConctNum: " << ActualCntctNum << std::endl;	
 }
 
 // reset initial position for each particle
-void assembly::resetStartPosition() {
+void assembly::resetStartCenterMass() {	// August 19, 2013
 	vec curr_p;
 	std::vector<particle*>::const_iterator it;
 	for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
-		curr_p = (*it)->getCurrPosition();
-		(*it)->setStartPosition(curr_p);
+		curr_p = (*it)->getCurrCenterMass();
+		(*it)->setStartCenterMass(curr_p);
 	}
 }
 
 // create input file for Qhull
-void assembly::createInputForQhull() const{
+void assembly::createInputForQhull() const{	// August 19, 2013
 	std::ofstream ofs("input_for_Qhull");
 	if(!ofs){
 		cout << "Stream error when create input for Qhull!" << endl;
@@ -1878,7 +2587,7 @@ void assembly::createInputForQhull() const{
 	vec tmp;
   	std::vector<particle*>::const_iterator  it;
   	for (it=ParticleVec.begin();it!=ParticleVec.end();++it)  {
-    		tmp=(*it)->getCurrPosition();
+    		tmp=(*it)->getCurrCenterMass();
     		ofs << setw(OWID) << tmp.getx()
 		    << setw(OWID) << tmp.gety()
 		    << setw(OWID) << tmp.getz() << endl;
@@ -1924,7 +2633,7 @@ matrix assembly::calculateStiffness(){
 }
 
 // calculate granular stress, written on Feb 13, 2013
-matrix assembly::getGranularStress() const{
+matrix assembly::getGranularStress() const{	// August 19, 2013
 	matrix totalForce(3,3);
 	matrix sigma(3,3);
 	matrix lc(3,1), Fc(1,3);	// sigma(i,j) = lixFj
@@ -1941,13 +2650,13 @@ matrix assembly::getGranularStress() const{
  	std::vector<CONTACT>::const_iterator it;
 
 	for (it=ContactVec.begin();it!=ContactVec.end();++it){
-		P1center(1,1) = it->getP1()->getCurrPosition().getx();
-		P1center(2,1) = it->getP1()->getCurrPosition().gety();
-		P1center(3,1) = it->getP1()->getCurrPosition().getz();
+		P1center(1,1) = it->getP1()->getCurrCenterMass().getx();
+		P1center(2,1) = it->getP1()->getCurrCenterMass().gety();
+		P1center(3,1) = it->getP1()->getCurrCenterMass().getz();
 
-		P2center(1,1) = it->getP2()->getCurrPosition().getx();
-		P2center(2,1) = it->getP2()->getCurrPosition().gety();
-		P2center(3,1) = it->getP2()->getCurrPosition().getz();
+		P2center(1,1) = it->getP2()->getCurrCenterMass().getx();
+		P2center(2,1) = it->getP2()->getCurrCenterMass().gety();
+		P2center(3,1) = it->getP2()->getCurrCenterMass().getz();
 
 		lc = P2center-P1center;
 		Fc(1,1) = (it->NormalForceVec().getx())+(it->TgtForceVec().getx());
@@ -1966,7 +2675,7 @@ matrix assembly::getGranularStress() const{
 
 // granular strain claculation
 // written on Feb 18, 2013
-matrix assembly::getum(int ID, int type) const{	
+matrix assembly::getum(int ID, int type) const{		// August 19, 2013
 // type = 1 means calculate um from starting position, for Bagi's strain and Eulerian strain; type = 0 means calculate um from
 // initial position, for lagrangian finite strain.
 	if(type != 0 && type != 1){std::cout << "Error: type should be 0 or 1 calling getum()!" << std::endl; exit(-1);}
@@ -1976,25 +2685,25 @@ matrix assembly::getum(int ID, int type) const{
 		it++;	// go to the ID particle
 	matrix init_xyz(3,1);	// initial center
 	if(type == 0){
-		init_xyz(1,1) = ((*it)->getInitPosition()).getx();
-		init_xyz(2,1) = ((*it)->getInitPosition()).gety();
-		init_xyz(3,1) = ((*it)->getInitPosition()).getz();
+		init_xyz(1,1) = ((*it)->getInitCenterMass()).getx();
+		init_xyz(2,1) = ((*it)->getInitCenterMass()).gety();
+		init_xyz(3,1) = ((*it)->getInitCenterMass()).getz();
 	}
 	else if (type == 1){
-		init_xyz(1,1) = ((*it)->getStartPosition()).getx();
-		init_xyz(2,1) = ((*it)->getStartPosition()).gety();
-		init_xyz(3,1) = ((*it)->getStartPosition()).getz();
+		init_xyz(1,1) = ((*it)->getStartCenterMass()).getx();
+		init_xyz(2,1) = ((*it)->getStartCenterMass()).gety();
+		init_xyz(3,1) = ((*it)->getStartCenterMass()).getz();
 	}
 	matrix curr_xyz(3,1);	// current center
-	curr_xyz(1,1) = ((*it)->getCurrPosition()).getx();
-	curr_xyz(2,1) = ((*it)->getCurrPosition()).gety();
-	curr_xyz(3,1) = ((*it)->getCurrPosition()).getz();
+	curr_xyz(1,1) = ((*it)->getCurrCenterMass()).getx();
+	curr_xyz(2,1) = ((*it)->getCurrCenterMass()).gety();
+	curr_xyz(3,1) = ((*it)->getCurrCenterMass()).getz();
 	matrix u(3,1);	// displacement vector
 	u = curr_xyz-init_xyz;
 	return u;
 }
 
-matrix assembly::getb(cell pyra, int ID_m) const{
+matrix assembly::getb(cell pyra, int ID_m) const{	// August 19, 2013
 	if(ID_m!=pyra.getm() && ID_m!=pyra.getn() && ID_m!=pyra.geti() && ID_m!=pyra.getj()){
 		std::cout << "Error when calculate b vector: the node is not in this cell!" << std::endl;
 		exit(-1);
@@ -2015,25 +2724,25 @@ matrix assembly::getb(cell pyra, int ID_m) const{
 	it = ParticleVec.begin();
 	for(int i=0; i!=node_ID[it_ID]-1; i++)
 		it++;	// go to the ID particle
-	x1 = ((*it)->getCurrPosition()).getx();
-	y1 = ((*it)->getCurrPosition()).gety();
-	z1 = ((*it)->getCurrPosition()).getz();
+	x1 = ((*it)->getCurrCenterMass()).getx();
+	y1 = ((*it)->getCurrCenterMass()).gety();
+	z1 = ((*it)->getCurrCenterMass()).getz();
 	it_ID++;	// go to the next node
 	REAL x2, y2, z2;	// the current position of second node
 	it = ParticleVec.begin();
 	for(int i=0; i!=node_ID[it_ID]-1; i++)
 		it++;	// go to the ID particle
-	x2 = ((*it)->getCurrPosition()).getx();
-	y2 = ((*it)->getCurrPosition()).gety();
-	z2 = ((*it)->getCurrPosition()).getz();
+	x2 = ((*it)->getCurrCenterMass()).getx();
+	y2 = ((*it)->getCurrCenterMass()).gety();
+	z2 = ((*it)->getCurrCenterMass()).getz();
 	it_ID++;	// go to the next node
 	REAL x3, y3, z3;	// the current position of third node
 	it = ParticleVec.begin();
 	for(int i=0; i!=node_ID[it_ID]-1; i++)
 		it++;	// go to the ID particle
-	x3 = ((*it)->getCurrPosition()).getx();
-	y3 = ((*it)->getCurrPosition()).gety();
-	z3 = ((*it)->getCurrPosition()).getz();
+	x3 = ((*it)->getCurrCenterMass()).getx();
+	y3 = ((*it)->getCurrCenterMass()).gety();
+	z3 = ((*it)->getCurrCenterMass()).getz();
 
 	// calculate area
 	REAL area_tri;
@@ -2051,9 +2760,9 @@ matrix assembly::getb(cell pyra, int ID_m) const{
 	it = ParticleVec.begin();
 	for(int i=0; i!=ID_m-1; i++)
 		it++;	// go to the ID particle
-	xm = ((*it)->getCurrPosition()).getx();
-	ym = ((*it)->getCurrPosition()).gety();
-	zm = ((*it)->getCurrPosition()).getz();
+	xm = ((*it)->getCurrCenterMass()).getx();
+	ym = ((*it)->getCurrCenterMass()).gety();
+	zm = ((*it)->getCurrCenterMass()).getz();
 	REAL vec_mx, vec_my, vec_mz;
 	vec_mx = xm-x3;	// points from node 3 to node m
 	vec_my = ym-y3;
@@ -2136,24 +2845,24 @@ void assembly::setNumberingOrder() {
 //	REAL x3, y3, z3;	// the current position of node 3
 //	REAL x4, y4, z4;	// the current position of node 4
 	REAL cell_volume;	// area of triangle, volume of tet
-	for(std::vector<cell>::iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		nm = (iter)->getm();
-		nn = (iter)->getn();
-		ni = (iter)->geti();
-		nj = (iter)->getj();
+	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		nm = (*iter)->getm();
+		nn = (*iter)->getn();
+		ni = (*iter)->geti();
+		nj = (*iter)->getj();
 		// 1, choose m, n as node 1, 2
 		n1 = nm;
 		n2 = nn;
 		n3 = ni;
 		n4 = nj;
-		(iter)->setNodes(n1,n2,n3,n4);
-		cell_volume = getCellVolume(*iter);
+		(*iter)->setNodes(n1,n2,n3,n4);
+		cell_volume = getCellVolume(**iter);
 
 		if(cell_volume < 0){	// swap n2 and n3
 			n2 = ni;
 			n3 = nn;
-			(iter)->setNodes(n1,n2,n3,n4);
-			cell_volume = getCellVolume(*iter);
+			(*iter)->setNodes(n1,n2,n3,n4);
+			cell_volume = getCellVolume(**iter);
 		}
 		
 //		// get coordinates for node 1, 2
@@ -2209,14 +2918,14 @@ void assembly::setNumberingOrder() {
 			std::cout << "Error: nodes are not numbered counter-clockwise!" << std::endl;
 		}
 
-		(iter)->setInitialCellVolume(cell_volume);
+		(*iter)->setInitialCellVolume(cell_volume);
 		matrix bigB(4,3);
-		bigB = getBigB(*iter);
-		(iter)->setInitialBigB(bigB);
+		bigB = getBigB(**iter);
+		(*iter)->setInitialBigB(bigB);
 	}
 }
 
-matrix assembly::getBigB(const cell& tempCell) const{
+matrix assembly::getBigB(const cell& tempCell) const{	// August 19, 2013
 	int n1,n2,n3,n4;
 	REAL x1, y1, z1;	// the current position of node 1
 	REAL x2, y2, z2;	// the current position of node 2
@@ -2234,30 +2943,30 @@ matrix assembly::getBigB(const cell& tempCell) const{
 	it = ParticleVec.begin();
 	for(int i=0; i!=n1-1; i++)
 		it++;	// go to the n1 particle
-	x1 = ((*it)->getCurrPosition()).getx();
-	y1 = ((*it)->getCurrPosition()).gety();
-	z1 = ((*it)->getCurrPosition()).getz();
+	x1 = ((*it)->getCurrCenterMass()).getx();
+	y1 = ((*it)->getCurrCenterMass()).gety();
+	z1 = ((*it)->getCurrCenterMass()).getz();
 	
 	it = ParticleVec.begin();
 	for(int i=0; i!=n2-1; i++)
 		it++;	// go to the n2 particle
-	x2 = ((*it)->getCurrPosition()).getx();
-	y2 = ((*it)->getCurrPosition()).gety();
-	z2 = ((*it)->getCurrPosition()).getz();
+	x2 = ((*it)->getCurrCenterMass()).getx();
+	y2 = ((*it)->getCurrCenterMass()).gety();
+	z2 = ((*it)->getCurrCenterMass()).getz();
 
 	it = ParticleVec.begin();
 	for(int i=0; i!=n3-1; i++)
 		it++;	// go to the n3 particle
-	x3 = ((*it)->getCurrPosition()).getx();
-	y3 = ((*it)->getCurrPosition()).gety();
-	z3 = ((*it)->getCurrPosition()).getz();
+	x3 = ((*it)->getCurrCenterMass()).getx();
+	y3 = ((*it)->getCurrCenterMass()).gety();
+	z3 = ((*it)->getCurrCenterMass()).getz();
 
 	it = ParticleVec.begin();
 	for(int i=0; i!=n4-1; i++)
 		it++;	// go to the n4 particle
-	x4 = ((*it)->getCurrPosition()).getx();
-	y4 = ((*it)->getCurrPosition()).gety();
-	z4 = ((*it)->getCurrPosition()).getz();
+	x4 = ((*it)->getCurrCenterMass()).getx();
+	y4 = ((*it)->getCurrCenterMass()).gety();
+	z4 = ((*it)->getCurrCenterMass()).getz();
 
 	// get intermediate variables
 	REAL a1, a2, a3, a4;
@@ -2423,7 +3132,7 @@ matrix assembly::getdudx_curr(const cell& tempCell) const{
 }
 
 // get volume of cell
-REAL assembly::getCellVolume(const cell& tempCell) const{
+REAL assembly::getCellVolume(const cell& tempCell) const{	// August 19, 2013
 	int n1,n2,n3,n4;
 	REAL x1, y1, z1;	// the current position of node 1
 	REAL x2, y2, z2;	// the current position of node 2
@@ -2441,30 +3150,30 @@ REAL assembly::getCellVolume(const cell& tempCell) const{
 	it = ParticleVec.begin();
 	for(int i=0; i!=n1-1; i++)
 		it++;	// go to the n1 particle
-	x1 = ((*it)->getCurrPosition()).getx();
-	y1 = ((*it)->getCurrPosition()).gety();
-	z1 = ((*it)->getCurrPosition()).getz();
+	x1 = ((*it)->getCurrCenterMass()).getx();
+	y1 = ((*it)->getCurrCenterMass()).gety();
+	z1 = ((*it)->getCurrCenterMass()).getz();
 	
 	it = ParticleVec.begin();
 	for(int i=0; i!=n2-1; i++)
 		it++;	// go to the n2 particle
-	x2 = ((*it)->getCurrPosition()).getx();
-	y2 = ((*it)->getCurrPosition()).gety();
-	z2 = ((*it)->getCurrPosition()).getz();
+	x2 = ((*it)->getCurrCenterMass()).getx();
+	y2 = ((*it)->getCurrCenterMass()).gety();
+	z2 = ((*it)->getCurrCenterMass()).getz();
 
 	it = ParticleVec.begin();
 	for(int i=0; i!=n3-1; i++)
 		it++;	// go to the n3 particle
-	x3 = ((*it)->getCurrPosition()).getx();
-	y3 = ((*it)->getCurrPosition()).gety();
-	z3 = ((*it)->getCurrPosition()).getz();
+	x3 = ((*it)->getCurrCenterMass()).getx();
+	y3 = ((*it)->getCurrCenterMass()).gety();
+	z3 = ((*it)->getCurrCenterMass()).getz();
 
 	it = ParticleVec.begin();
 	for(int i=0; i!=n4-1; i++)
 		it++;	// go to the n4 particle
-	x4 = ((*it)->getCurrPosition()).getx();
-	y4 = ((*it)->getCurrPosition()).gety();
-	z4 = ((*it)->getCurrPosition()).getz();
+	x4 = ((*it)->getCurrCenterMass()).getx();
+	y4 = ((*it)->getCurrCenterMass()).gety();
+	z4 = ((*it)->getCurrCenterMass()).getz();
 
 	// get volume of this cell
 	REAL cell_volume;
@@ -2563,9 +3272,9 @@ matrix assembly::getFiniteStrain(){
 	average_dudx_Lagrangian = finite_strain;	// used to test quadratic terms, April 22, 2013
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
-		temp_volume = (iter)->getInitialCellVolume();
-		temp_dudx = getdudx(*iter);
+	for(std::vector<cell*>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
+		temp_volume = (*iter)->getInitialCellVolume();
+		temp_dudx = getdudx(**iter);
 //		finite_strain += temp_volume*(temp_dudx+temp_dudx.getTrans()+temp_dudx.getTrans()*temp_dudx); 
 		average_dudx_Lagrangian += temp_volume*temp_dudx;	// used to test quadratic terms
 		init_totalVolume += temp_volume;
@@ -2588,9 +3297,9 @@ matrix assembly::getHigherStrain() const{
 	}
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
-		temp_volume = (iter)->getInitialCellVolume();
-		temp_dudx = getdudx(*iter);
+	for(std::vector<cell*>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
+		temp_volume = (*iter)->getInitialCellVolume();
+		temp_dudx = getdudx(**iter);
 		higher_strain += temp_volume*(temp_dudx.getTrans()*temp_dudx); 
 	}
 	higher_strain = higher_strain/(2.0*initVolume);
@@ -2612,9 +3321,9 @@ matrix assembly::getEulerianStrain(){
 	average_dudx_Eulerian = eulerian_strain;	// used to test quadratic terms
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(*iter);
-		temp_dudx = getdudx_curr(*iter);
+	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(**iter);
+		temp_dudx = getdudx_curr(**iter);
 
 //		eulerian_strain += temp_volume*(temp_dudx+temp_dudx.getTrans()-temp_dudx.getTrans()*temp_dudx); 
 		average_dudx_Eulerian += temp_volume*temp_dudx;	// used to test quadratic terms
@@ -2639,9 +3348,9 @@ matrix assembly::getAverage_dvdx() const{
 	}
 	matrix temp_dvdx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(*iter);
-		temp_dvdx = getdvdx_curr(*iter);
+	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(**iter);
+		temp_dvdx = getdvdx_curr(**iter);
 
 		average_dvdx += temp_volume*temp_dvdx;	
 		curr_totalVolume += temp_volume;
@@ -2662,9 +3371,9 @@ matrix assembly::getEuler_HOT() const{
 	}
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(*iter);
-		temp_dudx = getdudx_curr(*iter);
+	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(**iter);
+		temp_dudx = getdudx_curr(**iter);
 
 		eulerian_strain += temp_volume*(-1*temp_dudx.getTrans()*temp_dudx); 
 	}
@@ -2911,7 +3620,7 @@ void assembly::deposit_repose(int   interval,
 		debugfile);         // output file, debug info
 }
 
-void assembly::angleOfRepose(int   interval,
+void assembly::angleOfRepose(int   interval,	// August 28, 2013
 			     const char* inibdryfile,
 			     const char* particlefile, 
 			     const char* contactfile,
@@ -2979,8 +3688,8 @@ void assembly::angleOfRepose(int   interval,
   REAL bdry_penetr[7] = {0,0,0,0,0,0,0};
   int  bdry_cntnum[7] = {0,0,0,0,0,0,0};
 
-  REAL maxRadius = gradInfo.getMaxPtclRadius();
-  REAL maxDiameter = maxRadius * 2.0;
+  REAL maxDiameter = gradInfo.getMaxPtclDiameter();	// August 28, 2013
+  REAL maxRadius = maxDiameter/2.0;
   REAL z0 = container.getMinCorner().getz();
   vector<particle*> lastPtcls;
   particle *newPtcl = NULL;
@@ -3178,7 +3887,7 @@ void assembly::angleOfRepose(int   interval,
 
 void assembly::generate(const char* particlefile,
 			int freetype,
-			REAL rFloHeight)
+			REAL rFloHeight)	// August 19, 2013
 {
   REAL x,y,z;
   particle* newptcl;
@@ -3186,7 +3895,7 @@ void assembly::generate(const char* particlefile,
   REAL dimx     = container.getDimx();
   REAL dimy     = container.getDimy();
   REAL dimz     = container.getDimz();
-  REAL diameter = gradInfo.getMaxPtclRadius()*2.0;
+  REAL diameter = gradInfo.getMaxPtclDiameter();
 
   REAL offset   = 0;
   REAL edge     = diameter;
@@ -3236,6 +3945,72 @@ void assembly::generate(const char* particlefile,
   printParticle(particlefile);
   
 }
+
+void assembly::generateCubicPacking(const char* particlefile,
+			int numX,
+			int numY,
+			int numZ,
+			REAL radius)	// August 19, 2013
+{
+  particle* newptcl;
+  TotalNum = 0;
+  
+  REAL x1 = container.getMinCorner().getx();
+  REAL y1 = container.getMinCorner().gety();
+  REAL z1 = container.getMinCorner().getz();
+
+  int nx,ny,nz;
+  REAL x,y,z;
+  for(nx=0; nx<numX; nx++){
+    for(ny=0; ny<numY; ny++){
+      for(nz=0; nz<numZ; nz++){
+	x = x1+radius+nx*2*radius;
+	y = y1+radius+ny*2*radius;
+	z = z1+radius+nz*2*radius;
+	newptcl = new particle(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
+	ParticleVec.push_back(newptcl);
+	TotalNum++;
+      }
+    }
+  }
+  
+  printParticle(particlefile);
+  
+}
+
+// this is hexagonal close packed, refer to https://en.wikipedia.org/wiki/Close-packing_of_equal_spheres
+void assembly::generateHexPacking(const char* particlefile,
+			int numX,
+			int numY,
+			int numZ,
+			REAL radius)	// August 19, 2013
+{
+  particle* newptcl;
+  TotalNum = 0;
+  
+  REAL x1 = container.getMinCorner().getx();
+  REAL y1 = container.getMinCorner().gety();
+  REAL z1 = container.getMinCorner().getz();
+
+  int i,j,k;
+  REAL x,y,z;
+  for(i=0; i<numX; i++){
+    for(j=0; j<numY; j++){
+      for(k=0; k<numZ; k++){
+	x = radius+( 2*i+((j+k)%2) )*radius;
+	y = radius+sqrt(3.0)*(j+1.0/3.0*(k%2))*radius;
+	z = radius+2.0*sqrt(6.0)/3.0*k*radius;
+	newptcl = new particle(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
+	ParticleVec.push_back(newptcl);
+	TotalNum++;
+      }
+    }
+  }
+  
+  printParticle(particlefile);
+  
+}
+
 
 /*
 // The above comment out is made by Boning Zhang, so as below new generate function. the purpose of this new function is to generate 
@@ -4554,7 +5329,7 @@ void assembly::buildBoundary(const char* boundaryfile)
   ofs.close();
 }
 
-void assembly::trim(bool toRebuild,
+void assembly::trim(bool toRebuild,	// August 28, 2013
 		    const char* particlefile,
 		    const char* trmparticle)
 {
@@ -4580,7 +5355,7 @@ void assembly::trim(bool toRebuild,
     center=(*itr)->getCurrPosition();
     if(center.getx() <= x1 || center.getx() >= x2 ||
        center.gety() <= y1 || center.gety() >= y2 ||
-       center.getz() <= z1 || center.getz() + gradInfo.getMaxPtclRadius() > z2)
+       center.getz() <= z1 || center.getz() + gradInfo.getMaxPtclDiameter()/2.0 > z2)
       {
 	delete (*itr); // release memory
 	itr = ParticleVec.erase(itr); 
@@ -4622,7 +5397,7 @@ void assembly::trimCavity(bool toRebuild,
   std::vector<particle*>::iterator itr;
   vec center;
   REAL mass = 0;
-  REAL delta = gradInfo.getMaxPtclRadius();
+  REAL delta = gradInfo.getMaxPtclDiameter()/2.0;	// August 28, 2013
 
   for (itr = ParticleVec.begin(); itr != ParticleVec.end(); ){
     center=(*itr)->getCurrPosition();
@@ -4693,7 +5468,7 @@ void assembly::expandCavityParticles(bool toRebuild,
 }
 
 
-void assembly::printCavityParticle(int total, const char* str) const {
+void assembly::printCavityParticle(int total, const char* str) const {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -4710,9 +5485,12 @@ void assembly::printCavityParticle(int total, const char* str) const {
   
   ofs << setw(OWID) << "ID"
       << setw(OWID) << "type"
-      << setw(OWID) << "radius_a"
-      << setw(OWID) << "radius_b"
-      << setw(OWID) << "radius_c"
+      << setw(OWID) << "a_plus"
+      << setw(OWID) << "a_minus"
+      << setw(OWID) << "b_plus"
+      << setw(OWID) << "b_minus"
+      << setw(OWID) << "c_plus"
+      << setw(OWID) << "c_minus"
       << setw(OWID) << "position_x"
       << setw(OWID) << "position_y"
       << setw(OWID) << "position_z"
@@ -4757,9 +5535,12 @@ void assembly::printCavityParticle(int total, const char* str) const {
 
     ofs << setw(OWID) << (*it)->getID()
 	<< setw(OWID) << (*it)->getType()
-	<< setw(OWID) << (*it)->getA()
-	<< setw(OWID) << (*it)->getB()
-	<< setw(OWID) << (*it)->getC();
+	<< setw(OWID) << (*it)->getAplus()
+	<< setw(OWID) << (*it)->getAminus()
+	<< setw(OWID) << (*it)->getBplus()
+	<< setw(OWID) << (*it)->getBminus()
+	<< setw(OWID) << (*it)->getCplus()
+	<< setw(OWID) << (*it)->getCminus();
     
     tmp=(*it)->getCurrPosition();
     ofs << setw(OWID) << tmp.getx()
@@ -5180,7 +5961,7 @@ void assembly::createMemParticle(REAL rRadius,
 {
   if (toRebuild) readSample(particlefile);
 
-  REAL radius = gradInfo.getMinPtclRadius();
+  REAL radius = gradInfo.getMinPtclDiameter()/2.0;	// August 28, 2013
   if (gradInfo.getSize().size() == 1 &&
       gradInfo.getPtclRatioBA() == 1.0 && 
       gradInfo.getPtclRatioCA() == 1.0)
@@ -5679,237 +6460,6 @@ void assembly::deposit(int   total_steps,
 	    printParticle(stepsfp);
 
 	    sprintf(stepsstr, "%03d", stepsnum); 
-	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
-	    printContact(stepsfp);
-	    time(&timeStamp);
-	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
-	    ++stepsnum;
-	}
-
-	// 7. (2) output stress and strain info.
-	if (g_iteration % interval == 0) {
-	    gettimeofday(&time_w2,NULL);
-	    REAL t1=getTransEnergy();
-	    REAL t2=getRotatEnergy();
-	    REAL t3=getPotenEnergy(-0.025);
-	    progressinf << setw(OWID) << g_iteration
-		        << setw(OWID) << getPossCntctNum()
-		        << setw(OWID) << getActualCntctNum()
-		        << setw(OWID) << getAveragePenetration()
-		        << setw(OWID) << avgNormal
-		        << setw(OWID) << avgTangt
-		        << setw(OWID) << getAverageVelocity() 
-		        << setw(OWID) << getAverageOmga()
-		        << setw(OWID) << getAverageForce()   
-		        << setw(OWID) << getAverageMoment()
-		        << setw(OWID) << t1
-		        << setw(OWID) << t2
-		        << setw(OWID) << (t1+t2)
-		        << setw(OWID) << t3
-		        << setw(OWID) << (t1+t2+t3)
-		        << setw(OWID) << void_ratio
-		        << setw(OWID) << void_ratio/(1+void_ratio)
-		        << setw(OWID) << 2.0*(getActualCntctNum()
-					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
-					+bdry_cntnum[4]+bdry_cntnum[6])/TotalNum
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-//			<< setw(OWID) << granularStress(1,1)
-//			<< setw(OWID) << granularStress(1,2)
-//			<< setw(OWID) << granularStress(1,3)
-//			<< setw(OWID) << granularStress(2,1)
-//			<< setw(OWID) << granularStress(2,2)
-//			<< setw(OWID) << granularStress(2,3)
-//			<< setw(OWID) << granularStress(3,1)
-//			<< setw(OWID) << granularStress(3,2)
-//			<< setw(OWID) << granularStress(3,3)
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-		        << setw(OWID) << "0"
-	                << setw(OWID) << getVibraTimeStep()
-	                << setw(OWID) << getImpactTimeStep()
-		        << setw(OWID) << timediffsec(time_w1,time_w2)
-		        << endl;
-
-	    /*
-	    g_debuginf << setw(OWID) << g_iteration
-		       << setw(OWID) << bdry_penetr[1]
-		       << setw(OWID) << bdry_penetr[2]
-		       << setw(OWID) << bdry_penetr[3]
-		       << setw(OWID) << bdry_penetr[4]
-		       << setw(OWID) << bdry_penetr[6]
-		       << setw(OWID) << bdry_cntnum[1]
-		       << setw(OWID) << bdry_cntnum[2]
-		       << setw(OWID) << bdry_cntnum[3]
-		       << setw(OWID) << bdry_cntnum[4]
-		       << setw(OWID) << bdry_cntnum[6]
-		       << endl;
-	    */
-
-	}
-
-	// 8. loop break conditions.
-
-    } while (++g_iteration < total_steps);
-    
-    // post_1. store the final snapshot of particles & contacts.
-    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
-    printParticle(stepsfp);
-
-    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
-    printContact(stepsfp);
-    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
-
-    // post_2. close streams
-    progressinf.close();
-    g_debuginf.close();
-}
-
-
-// deposit floating particles into a container through applying gravity,
-// the container can be as simple as a bottom plate
-// keep all kinetic states the same, September 09, 2014
-void assembly::deposit_continue(int   total_steps,  
-		       int   snapshots,
-		       int   interval,
-		       const char* iniptclfile,   
-		       const char* inibdryfile,
-		       const char* particlefile, 
-		       const char* contactfile,
-		       const char* progressfile, 
-		       const char* debugfile)
-{
-    // pre_1: open streams for output.
-    // particlefile and contactfile are used for snapshots at the end.
-    progressinf.open(progressfile); 
-    if(!progressinf) { cout << "stream error!" << endl; exit(-1); }
-    progressinf.setf(std::ios::scientific, std::ios::floatfield);
-    progressinf.precision(OPREC);
-    progressinf << setw(OWID) << "iteration"
-	        << setw(OWID) << "poss_contact"
-	        << setw(OWID) << "actual_contact"
-	        << setw(OWID) << "penetration"
-	        << setw(OWID) << "avg_normal"
-	        << setw(OWID) << "avg_tangt"
-	        << setw(OWID) << "avg_velocity"
-	        << setw(OWID) << "avg_omga"
-	        << setw(OWID) << "avg_force"
-	        << setw(OWID) << "avg_moment"
-	        << setw(OWID) << "trans_energy"
-	        << setw(OWID) << "rotat_energy"
-	        << setw(OWID) << "kinet_energy"
-	        << setw(OWID) << "poten_energy"
-	        << setw(OWID) << "total_energy"
-	        << setw(OWID) << "void_ratio"
-	        << setw(OWID) << "porosity"
-	        << setw(OWID) << "coord_number"
-	        << setw(OWID) << "density"
-	        << setw(OWID) << "sigma_y1"
-	        << setw(OWID) << "sigma_y2"
-	        << setw(OWID) << "sigma_x1"
-	        << setw(OWID) << "sigma_x2"
-	        << setw(OWID) << "sigma_z1"
-	        << setw(OWID) << "sigma_z2"
-	        << setw(OWID) << "mean_stress"
-//		<< setw(OWID) << "sigma_11"
-//		<< setw(OWID) << "sigma_12"
-//		<< setw(OWID) << "sigma_13"
-//		<< setw(OWID) << "sigma_21"
-//		<< setw(OWID) << "sigma_22"
-//		<< setw(OWID) << "sigma_23"
-//		<< setw(OWID) << "sigma_31"
-//		<< setw(OWID) << "sigma_32"
-//		<< setw(OWID) << "sigma_33"
-	        << setw(OWID) << "dimx"
-	        << setw(OWID) << "dimy"
-	        << setw(OWID) << "dimz"
-	        << setw(OWID) << "volume"
-	        << setw(OWID) << "epsilon_x"
-	        << setw(OWID) << "epsilon_y"
-	        << setw(OWID) << "epsilon_z"
-	        << setw(OWID) << "epsilon_v"
-	        << setw(OWID) << "vibra_t_step"
-	        << setw(OWID) << "impact_t_step"
-	        << setw(OWID) << "wall_time" << endl;
-
-    g_debuginf.open(debugfile);
-    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1); }
-    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
-
-    // pre_2. create particles and boundaries from existing files.
-    readSample_continue(iniptclfile); // create container and particles, velocity and omga are set zero. 
-    readBoundary(inibdryfile);   // create boundaries.
-
-    // pre_3: define variables used in iterations.
-    REAL l13, l24, l56;
-    REAL avgNormal=0;
-    REAL avgTangt=0;
-    int  stepsnum=0;
-    char stepsstr[4];
-    char stepsfp[50];
-    REAL void_ratio=0;
-    REAL bdry_penetr[7];
-//    matrix granularStress;	// granular stress
-    int  bdry_cntnum[7];
-    for (int i=0;i<7;++i){
-	bdry_penetr[i]=0; bdry_cntnum[i]=0;
-    }
-
-    // iterations starting ...
-    g_iteration=0; 
-    gettimeofday(&time_w1,NULL);
-    do
-    {
-	// 1. create possible boundary particles and contacts between particles.
-        //gettimeofday(&time_w1,NULL);
-        findContact();
-	//gettimeofday(&time_w2,NULL);
-	//cout << setw(OWID) << timediffsec(time_w1,time_w2);
-	//gettimeofday(&time_w1,NULL);
-        findParticleOnBoundary();
-
-	// 2. set particles' forces/moments as zero before each re-calculation,
-	clearForce();	
-
-	// 3. calculate contact forces/moments and apply them to particles.
-	internalForce(avgNormal, avgTangt);
-
-	// 4. calculate boundary forces/moments and apply them to particles.
-	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
-	
-	// 5. update particles' velocity/omga/position/orientation based on force/moment.
-	updateParticle();
-	//gettimeofday(&time_w2,NULL);
-	//cout << setw(OWID) << timediffsec(time_w1,time_w2) << endl;
-
-	// 6. calculate specimen void ratio.
-	l56=getTopFreeParticlePosition().getz() - getApt(6).getz();
-	l24=getApt(2).gety()-getApt(4).gety();
-	l13=getApt(1).getx()-getApt(3).getx(); Volume=l13*l24*l56;
-	
-	// granular stress calculatioin
-//	granularStress.clear();
-//	granularStress = getGranularStress();
-	void_ratio=Volume/getParticleVolume()-1;
-
-	// 7. (1) output particles and contacts information as snapshots.
-	if (g_iteration % (total_steps/snapshots) == 0){
-	    sprintf(stepsstr, "%03d", stepsnum+100); 
-	    strcpy(stepsfp, particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
-	    printParticle(stepsfp);
-
-	    sprintf(stepsstr, "%03d", stepsnum+100); 
 	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
 	    printContact(stepsfp);
 	    time(&timeStamp);
@@ -6790,7 +7340,14 @@ void assembly::isotropic(int   total_steps,
 		<< setw(OWID) << "H.O.T._Euler" 
 		<< setw(OWID) << "H.O.T._Euler" 
 		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" << endl
+		<< setw(OWID) << "H.O.T._Euler"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "subDivision"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "average" << endl
 	        << setw(OWID) << "number"
 	        << setw(OWID) << "contacts"
 	        << setw(OWID) << "contacts"
@@ -6873,7 +7430,14 @@ void assembly::isotropic(int   total_steps,
 	        << setw(OWID) << "epsilon_23"
 	        << setw(OWID) << "epsilon_31"
 	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33" << endl;
+	        << setw(OWID) << "epsilon_33"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken" 
+		<< setw(OWID) << "f"
+		<< setw(OWID) << "tau2"
+		<< setw(OWID) << "p" 
+		<< setw(OWID) << "fracNml" 
+		<< setw(OWID) << "fracTgt" << endl;
 
 
     std::ofstream balancedinf(balancedfile);
@@ -6928,17 +7492,18 @@ void assembly::isotropic(int   total_steps,
 	}
     }
     
-/*    // first tessellation
-    createInputForQhull();
-    callQhull();
-    readTesse("tess_info");
-    readTesse_finite("tess_info");  
-    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged  
-*/
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");  
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged  
 
     REAL epsilon_w, epsilon_l, epsilon_h;
     REAL avgNormal=0;
     REAL avgTangt=0;
+    REAL avgFracNml = 0;	// average fracture normal forces
+    REAL avgFracTgt = 0;	// average fracture tangent forces
     int         stepsnum=0;
     char        stepsstr[4];
     char        stepsfp[50];
@@ -6966,15 +7531,22 @@ void assembly::isotropic(int   total_steps,
 
 	// 2. set particles' forces/moments as zero before each re-calculation
 	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
 
 	// 3. calculate contact forces/moments and apply them to particles
 	internalForce(avgNormal, avgTangt);
 	
 	// 4. calculate boundary forces/moments and apply them to particles
 	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+	addFractureForce(avgFracNml);
+
+	eraseFracturePair();
 	
 	// 5. update particles' velocity/omga/position/orientation based on force/moment
 	updateParticle();
+
+	subDivision();
 	
 	// 6. update boundaries' position and orientation
 	l56=getApt(5).getz()-getApt(6).getz();
@@ -6988,9 +7560,9 @@ void assembly::isotropic(int   total_steps,
 	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
 	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
 	
-	// calculate granular stress
-	granularStress.clear();
-	granularStress = getGranularStress();
+//	// calculate granular stress
+//	granularStress.clear();
+//	granularStress = getGranularStress();
 //	// calculate granular strain
 //	granularStrain.clear();
 //	granularStrain = getGranularStrain();
@@ -7080,6 +7652,7 @@ void assembly::isotropic(int   total_steps,
 	// 7. (2) output stress and strain info
 	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
 	if (g_iteration % interval == 0 ){
+
 /*	    // calculate granular strain and Euler strain
 	    granularStrain.clear();
 	    eulerianStrain.clear();
@@ -7090,7 +7663,7 @@ void assembly::isotropic(int   total_steps,
 	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-			resetStartPosition();	// reset initial position
+			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -7108,6 +7681,9 @@ void assembly::isotropic(int   total_steps,
 	    lag_HOT.clear();
 	    lag_HOT = getHigherStrain();
 */
+
+	    // calcualte number of springs
+	    calcNumSprings();
 
 	    progressinf << setw(OWID) << g_iteration
 		        << setw(OWID) << getPossCntctNum()
@@ -7152,6 +7728,7 @@ void assembly::isotropic(int   total_steps,
 			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
 		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
 		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
 		        << endl;
 	    g_debuginf << setw(OWID) << g_iteration
 		       << setw(OWID) << bdry_penetr[1]
@@ -7209,8 +7786,11 @@ void assembly::isotropic(int   total_steps,
 					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
 		        << endl;*/
 	    // calculate granular strain
-	    granularStrain.clear();
-	    granularStrain = getGranularStrain()+previousStrain;
+//	    granularStrain.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+
+	    // calcualte number of springs
+	    calcNumSprings();
 	    progressinf << setw(OWID) << g_iteration
 		        << setw(OWID) << getPossCntctNum()
 		        << setw(OWID) << getActualCntctNum()
@@ -7254,6 +7834,7 @@ void assembly::isotropic(int   total_steps,
 			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
 		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
 		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
 		        << endl;
 	    break;
 	}
@@ -7753,7 +8334,7 @@ void assembly::isotropic(int   total_steps,
 	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold  ){	// need to tessellate again
-			resetStartPosition();	// reset initial position
+			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -8346,20 +8927,291 @@ void assembly::odometer(int   total_steps,
     progressinf.open(progressfile);
     if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
     progressinf.setf(std::ios::scientific, std::ios::floatfield);
-    progressinf << "odometer..." << endl
-	        << "     iteration possible  actual      average	    average         average         average"
-	        << "         average         average         average        sample            sample     "
-	        << "     sample          sample          sample          sample          sample          "
-	        << "sample          sample         sample           sample          sample          sample     "
-	        << "     sample          sample          sample          void            sample        coordinate"
-	        << endl
-	        << "       number  contacts contacts   penetration   contact_normal  contact_tangt     velocity"
-	        << "          omga            force           moment        density          "
-	        << "sigma1_1        sigma1_2        sigma2_1        sigma2_2        "
-	        << "sigma3_1        sigma3_2           p             width          length           "
-	        << "height          volume         epsilon_w       epsilon_l       epsilon_h       epsilon_v"
-	        << "        ratio          porosity         number"
-	        << endl;
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "sample" // for new 3 sigma's
+		<< setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag"
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "Logarithmic" 	// for logarithmic strain
+		<< setw(OWID) << "Logarithmic"
+		<< setw(OWID) << "Logarithmic"
+		<< setw(OWID) << "Logarithmic" 
+		<< setw(OWID) << "Bagi" 	// for average_dudx_Bagi, used to test quadratic terms, April 22, 2013
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Lagrangian" 	// for average_dudx_Lagrangian, used to test quadratic terms
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian"
+		<< setw(OWID) << "Eulerian" 	// for average_dudx_Eulerian, used to test quadratic terms
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "spatial" 	// for spatial velocity gradient tensor, deformation rate tensor
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "from rate" 	// for strain based on spatial deformation rate tensor, July 8, 2013
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "subDivision"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "average" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "sigma_11"
+	        << setw(OWID) << "sigma_12"
+	        << setw(OWID) << "sigma_13"
+	        << setw(OWID) << "sigma_21"
+	        << setw(OWID) << "sigma_22"
+	        << setw(OWID) << "sigma_23"
+	        << setw(OWID) << "sigma_31"
+	        << setw(OWID) << "sigma_32"
+	        << setw(OWID) << "sigma_33"
+	        << setw(OWID) << "p"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "epsilon_11"
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" 
+	        << setw(OWID) << "epsilon_11"	// for finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "epsilon_11"	// for mixed finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "epsilon_11"	// for eulerian finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33" 
+	        << setw(OWID) << "epsilon_11"	// for mixed eulerian finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33" 
+		<< setw(OWID) << "epsilon_w"	// for logranthmic strain
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Bagi, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Lagrangian, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Eulerian, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 
+	        << setw(OWID) << "dvdx_11"	// for spatial velocity gradient tensor, deformation rate tensor
+	        << setw(OWID) << "dvdx_12"
+	        << setw(OWID) << "dvdx_13"
+	        << setw(OWID) << "dvdx_21"
+	        << setw(OWID) << "dvdx_22"
+	        << setw(OWID) << "dvdx_23"
+	        << setw(OWID) << "dvdx_31"
+	        << setw(OWID) << "dvdx_32"
+	        << setw(OWID) << "dvdx_33"
+	        << setw(OWID) << "epsilon_11"	// for strain based on spatial deformation rate tensor
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33" 
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken" 
+		<< setw(OWID) << "f"
+		<< setw(OWID) << "tau2"
+		<< setw(OWID) << "p" 
+		<< setw(OWID) << "fracNml" 
+		<< setw(OWID) << "fracTgt" << endl;
 
     std::ofstream balancedinf(balancedfile);
     if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
@@ -8383,6 +9235,16 @@ void assembly::odometer(int   total_steps,
     if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
     g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
 
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
     // pre_2. create particles and boundaries from files
     readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
     readBoundary(inibdryfile);   // create boundaries
@@ -8394,9 +9256,50 @@ void assembly::odometer(int   total_steps,
     initVolume = W0*L0*H0;
     REAL l13, l24, l56, min_area, mid_area, max_area;
     REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
     REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
     REAL avgNormal=0;
     REAL avgTangt=0;
+    REAL avgFracNml = 0;	// average fracture normal forces
+    REAL avgFracTgt = 0;	// average fracture tangent forces
     int         stepsnum=0;
     char        stepsstr[4];
     char        stepsfp[50];
@@ -8423,15 +9326,22 @@ void assembly::odometer(int   total_steps,
 	
 	// 2. set particles' forces and moments as zero before each re-calculation
 	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
 
 	// 3. calculate contact forces and moments
 	internalForce(avgNormal, avgTangt);
 	
 	// 4. calculate boundary forces
 	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+	addFractureForce(avgFracNml);
+
+	eraseFracturePair();
 	
 	// 5. update particles' velocity/omga/displacement based on force/moment
 	updateParticle();
+
+	subDivision();
 	
 	// 6. update boundaries' position and orientation
 	l56=getApt(5).getz()-getApt(6).getz();
@@ -8445,12 +9355,12 @@ void assembly::odometer(int   total_steps,
 	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
 	void_ratio=Volume/getParticleVolume()-1;
 
-	if (sigma3_1<sigma)
+	if (sigma3_1<sigma+sigma_inc)
 	    minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
 	else
 	    minctl[0].tran=vec(0,0,TIMESTEP*RELEASE_RATE);
 	
-	if (sigma3_2<sigma)
+	if (sigma3_2<sigma+sigma_inc)
 	    minctl[1].tran=vec(0,0,TIMESTEP*COMPRESS_RATE);
 	else
 	    minctl[1].tran=vec(0,0,-TIMESTEP*RELEASE_RATE);
@@ -8473,6 +9383,78 @@ void assembly::odometer(int   total_steps,
 	// 7. (2) output stress and strain info
 	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
 	if (g_iteration % interval == 0){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+*/
+
+	    // calcualte number of springs
+	    calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
 	    progressinf << setw(OWID) << g_iteration
 		        << setw(OWID) << getPossCntctNum()
 		        << setw(OWID) << getActualCntctNum()
@@ -8484,9 +9466,11 @@ void assembly::odometer(int   total_steps,
 		        << setw(OWID) << getAverageForce()   
 		        << setw(OWID) << getAverageMoment()
 		        << setw(OWID) << getDensity()
-		        << setw(OWID) << sigma1_1 << setw(OWID) << sigma1_2
-		        << setw(OWID) << sigma2_1 << setw(OWID) << sigma2_2
-		        << setw(OWID) << sigma3_1 << setw(OWID) << sigma3_2
+		        << setw(OWID) << sigma1_1 << setw(OWID) << sigma1_2 << setw(OWID) << sigma2_1
+			<< setw(OWID) << sigma2_2 << setw(OWID) << sigma3_1 << setw(OWID) << sigma3_2
+		        << setw(OWID) << granularStress(1,1) << setw(OWID) << granularStress(1,2) << setw(OWID) << granularStress(1,3)
+		        << setw(OWID) << granularStress(2,1) << setw(OWID) << granularStress(2,2) << setw(OWID) << granularStress(2,3)
+		        << setw(OWID) << granularStress(3,1) << setw(OWID) << granularStress(3,2) << setw(OWID) << granularStress(3,3)
 		        << setw(OWID) << getAverageRigidPressure()
 		        << setw(OWID) << l24 << setw(OWID) << l13 << setw(OWID) << l56
 		        << setw(OWID) << Volume
@@ -8494,11 +9478,50 @@ void assembly::odometer(int   total_steps,
 		        << setw(OWID) << epsilon_l
 		        << setw(OWID) << epsilon_h
 		        << setw(OWID) << (epsilon_w+epsilon_l+epsilon_h)
+			<< setw(OWID) << granularStrain(1,1) << setw(OWID) << granularStrain(1,2) << setw(OWID) << granularStrain(1,3)
+		        << setw(OWID) << granularStrain(2,1) << setw(OWID) << granularStrain(2,2) << setw(OWID) << granularStrain(2,3)
+		        << setw(OWID) << granularStrain(3,1) << setw(OWID) << granularStrain(3,2) << setw(OWID) << granularStrain(3,3)
 		        << setw(OWID) << void_ratio
 		        << setw(OWID) << void_ratio/(1+void_ratio)
 		        << setw(OWID) << 2.0*(getActualCntctNum()
 					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
 					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
+	                << setw(OWID) << getVibraTimeStep()
+	                << setw(OWID) << getImpactTimeStep()
+		        << setw(OWID) << timediffsec(time_w1,time_w2)
+			<< setw(OWID) << finiteStrain(1,1) << setw(OWID) << finiteStrain(1,2) << setw(OWID) << finiteStrain(1,3)
+		        << setw(OWID) << finiteStrain(2,1) << setw(OWID) << finiteStrain(2,2) << setw(OWID) << finiteStrain(2,3)
+		        << setw(OWID) << finiteStrain(3,1) << setw(OWID) << finiteStrain(3,2) << setw(OWID) << finiteStrain(3,3)
+			<< setw(OWID) << lag_HOT(1,1) << setw(OWID) << lag_HOT(1,2) << setw(OWID) << lag_HOT(1,3)
+		        << setw(OWID) << lag_HOT(2,1) << setw(OWID) << lag_HOT(2,2) << setw(OWID) << lag_HOT(2,3)
+		        << setw(OWID) << lag_HOT(3,1) << setw(OWID) << lag_HOT(3,2) << setw(OWID) << lag_HOT(3,3)
+			<< setw(OWID) << eulerianStrain(1,1) << setw(OWID) << eulerianStrain(1,2) << setw(OWID) << eulerianStrain(1,3)
+		        << setw(OWID) << eulerianStrain(2,1) << setw(OWID) << eulerianStrain(2,2) << setw(OWID) << eulerianStrain(2,3)
+		        << setw(OWID) << eulerianStrain(3,1) << setw(OWID) << eulerianStrain(3,2) << setw(OWID) << eulerianStrain(3,3)
+			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
+		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
+		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+		        << setw(OWID) << epsilon_w_log
+		        << setw(OWID) << epsilon_l_log
+		        << setw(OWID) << epsilon_h_log
+		        << setw(OWID) << (epsilon_w_log+epsilon_l_log+epsilon_h_log)
+			<< setw(OWID) << average_dudx_Bagi(1,1) << setw(OWID) << average_dudx_Bagi(1,2) << setw(OWID) << average_dudx_Bagi(1,3)
+		        << setw(OWID) << average_dudx_Bagi(2,1) << setw(OWID) << average_dudx_Bagi(2,2) << setw(OWID) << average_dudx_Bagi(2,3)
+		        << setw(OWID) << average_dudx_Bagi(3,1) << setw(OWID) << average_dudx_Bagi(3,2) << setw(OWID) << average_dudx_Bagi(3,3)
+		        
+			<< setw(OWID) << average_dudx_Lagrangian(1,1) << setw(OWID) << average_dudx_Lagrangian(1,2) << setw(OWID) << average_dudx_Lagrangian(1,3)
+		        << setw(OWID) << average_dudx_Lagrangian(2,1) << setw(OWID) << average_dudx_Lagrangian(2,2) << setw(OWID) << average_dudx_Lagrangian(2,3)
+		        << setw(OWID) << average_dudx_Lagrangian(3,1) << setw(OWID) << average_dudx_Lagrangian(3,2) << setw(OWID) << average_dudx_Lagrangian(3,3)
+			<< setw(OWID) << average_dudx_Eulerian(1,1) << setw(OWID) << average_dudx_Eulerian(1,2) << setw(OWID) << average_dudx_Eulerian(1,3)
+		        << setw(OWID) << average_dudx_Eulerian(2,1) << setw(OWID) << average_dudx_Eulerian(2,2) << setw(OWID) << average_dudx_Eulerian(2,3)
+		        << setw(OWID) << average_dudx_Eulerian(3,1) << setw(OWID) << average_dudx_Eulerian(3,2) << setw(OWID) << average_dudx_Eulerian(3,3)
+			<< setw(OWID) << spatial_dvdx(1,1) << setw(OWID) << spatial_dvdx(1,2) << setw(OWID) << spatial_dvdx(1,3)
+		        << setw(OWID) << spatial_dvdx(2,1) << setw(OWID) << spatial_dvdx(2,2) << setw(OWID) << spatial_dvdx(2,3)
+		        << setw(OWID) << spatial_dvdx(3,1) << setw(OWID) << spatial_dvdx(3,2) << setw(OWID) << spatial_dvdx(3,3)
+			<< setw(OWID) << curr_strain_rate(1,1) << setw(OWID) << curr_strain_rate(1,2) << setw(OWID) << curr_strain_rate(1,3)
+		        << setw(OWID) << curr_strain_rate(2,1) << setw(OWID) << curr_strain_rate(2,2) << setw(OWID) << curr_strain_rate(2,3)
+		        << setw(OWID) << curr_strain_rate(3,1) << setw(OWID) << curr_strain_rate(3,2) << setw(OWID) << curr_strain_rate(3,3)
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
 		        << endl;
 	}
 
@@ -8536,6 +9559,10 @@ void assembly::odometer(int   total_steps,
 
 	// 9. loop break condition
 	if (fabs(sigma3_1-sigma_1)/sigma_1 < STRESS_ERROR && fabs(sigma3_2-sigma_1)/sigma_1 < STRESS_ERROR) {
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
 	    progressinf << setw(OWID) << g_iteration
 		        << setw(OWID) << getPossCntctNum()
 		        << setw(OWID) << getActualCntctNum()
@@ -8544,24 +9571,65 @@ void assembly::odometer(int   total_steps,
 		        << setw(OWID) << avgTangt
 		        << setw(OWID) << getAverageVelocity() 
 		        << setw(OWID) << getAverageOmga()
-		        << setw(OWID) << getAverageForce()    
+		        << setw(OWID) << getAverageForce()   
 		        << setw(OWID) << getAverageMoment()
 		        << setw(OWID) << getDensity()
-		        << setw(OWID) << sigma1_1 << setw(OWID) << sigma1_2
-		        << setw(OWID) << sigma2_1 << setw(OWID) << sigma2_2
-		        << setw(OWID) << sigma3_1 << setw(OWID) << sigma3_2
-		        << setw(OWID) << getAverageRigidPressure()  // just the mean stress p
+		        << setw(OWID) << sigma1_1 << setw(OWID) << sigma1_2 << setw(OWID) << sigma2_1
+			<< setw(OWID) << sigma2_2 << setw(OWID) << sigma3_1 << setw(OWID) << sigma3_2
+		        << setw(OWID) << granularStress(1,1) << setw(OWID) << granularStress(1,2) << setw(OWID) << granularStress(1,3)
+		        << setw(OWID) << granularStress(2,1) << setw(OWID) << granularStress(2,2) << setw(OWID) << granularStress(2,3)
+		        << setw(OWID) << granularStress(3,1) << setw(OWID) << granularStress(3,2) << setw(OWID) << granularStress(3,3)
+		        << setw(OWID) << getAverageRigidPressure()
 		        << setw(OWID) << l24 << setw(OWID) << l13 << setw(OWID) << l56
 		        << setw(OWID) << Volume
 		        << setw(OWID) << epsilon_w
 		        << setw(OWID) << epsilon_l
 		        << setw(OWID) << epsilon_h
 		        << setw(OWID) << (epsilon_w+epsilon_l+epsilon_h)
+			<< setw(OWID) << granularStrain(1,1) << setw(OWID) << granularStrain(1,2) << setw(OWID) << granularStrain(1,3)
+		        << setw(OWID) << granularStrain(2,1) << setw(OWID) << granularStrain(2,2) << setw(OWID) << granularStrain(2,3)
+		        << setw(OWID) << granularStrain(3,1) << setw(OWID) << granularStrain(3,2) << setw(OWID) << granularStrain(3,3)
 		        << setw(OWID) << void_ratio
 		        << setw(OWID) << void_ratio/(1+void_ratio)
 		        << setw(OWID) << 2.0*(getActualCntctNum()
 					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
 					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
+	                << setw(OWID) << getVibraTimeStep()
+	                << setw(OWID) << getImpactTimeStep()
+		        << setw(OWID) << timediffsec(time_w1,time_w2)
+			<< setw(OWID) << finiteStrain(1,1) << setw(OWID) << finiteStrain(1,2) << setw(OWID) << finiteStrain(1,3)
+		        << setw(OWID) << finiteStrain(2,1) << setw(OWID) << finiteStrain(2,2) << setw(OWID) << finiteStrain(2,3)
+		        << setw(OWID) << finiteStrain(3,1) << setw(OWID) << finiteStrain(3,2) << setw(OWID) << finiteStrain(3,3)
+			<< setw(OWID) << lag_HOT(1,1) << setw(OWID) << lag_HOT(1,2) << setw(OWID) << lag_HOT(1,3)
+		        << setw(OWID) << lag_HOT(2,1) << setw(OWID) << lag_HOT(2,2) << setw(OWID) << lag_HOT(2,3)
+		        << setw(OWID) << lag_HOT(3,1) << setw(OWID) << lag_HOT(3,2) << setw(OWID) << lag_HOT(3,3)
+			<< setw(OWID) << eulerianStrain(1,1) << setw(OWID) << eulerianStrain(1,2) << setw(OWID) << eulerianStrain(1,3)
+		        << setw(OWID) << eulerianStrain(2,1) << setw(OWID) << eulerianStrain(2,2) << setw(OWID) << eulerianStrain(2,3)
+		        << setw(OWID) << eulerianStrain(3,1) << setw(OWID) << eulerianStrain(3,2) << setw(OWID) << eulerianStrain(3,3)
+			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
+		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
+		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+		        << setw(OWID) << epsilon_w_log
+		        << setw(OWID) << epsilon_l_log
+		        << setw(OWID) << epsilon_h_log
+		        << setw(OWID) << (epsilon_w_log+epsilon_l_log+epsilon_h_log)
+			<< setw(OWID) << average_dudx_Bagi(1,1) << setw(OWID) << average_dudx_Bagi(1,2) << setw(OWID) << average_dudx_Bagi(1,3)
+		        << setw(OWID) << average_dudx_Bagi(2,1) << setw(OWID) << average_dudx_Bagi(2,2) << setw(OWID) << average_dudx_Bagi(2,3)
+		        << setw(OWID) << average_dudx_Bagi(3,1) << setw(OWID) << average_dudx_Bagi(3,2) << setw(OWID) << average_dudx_Bagi(3,3)
+		        
+			<< setw(OWID) << average_dudx_Lagrangian(1,1) << setw(OWID) << average_dudx_Lagrangian(1,2) << setw(OWID) << average_dudx_Lagrangian(1,3)
+		        << setw(OWID) << average_dudx_Lagrangian(2,1) << setw(OWID) << average_dudx_Lagrangian(2,2) << setw(OWID) << average_dudx_Lagrangian(2,3)
+		        << setw(OWID) << average_dudx_Lagrangian(3,1) << setw(OWID) << average_dudx_Lagrangian(3,2) << setw(OWID) << average_dudx_Lagrangian(3,3)
+			<< setw(OWID) << average_dudx_Eulerian(1,1) << setw(OWID) << average_dudx_Eulerian(1,2) << setw(OWID) << average_dudx_Eulerian(1,3)
+		        << setw(OWID) << average_dudx_Eulerian(2,1) << setw(OWID) << average_dudx_Eulerian(2,2) << setw(OWID) << average_dudx_Eulerian(2,3)
+		        << setw(OWID) << average_dudx_Eulerian(3,1) << setw(OWID) << average_dudx_Eulerian(3,2) << setw(OWID) << average_dudx_Eulerian(3,3)
+			<< setw(OWID) << spatial_dvdx(1,1) << setw(OWID) << spatial_dvdx(1,2) << setw(OWID) << spatial_dvdx(1,3)
+		        << setw(OWID) << spatial_dvdx(2,1) << setw(OWID) << spatial_dvdx(2,2) << setw(OWID) << spatial_dvdx(2,3)
+		        << setw(OWID) << spatial_dvdx(3,1) << setw(OWID) << spatial_dvdx(3,2) << setw(OWID) << spatial_dvdx(3,3)
+			<< setw(OWID) << curr_strain_rate(1,1) << setw(OWID) << curr_strain_rate(1,2) << setw(OWID) << curr_strain_rate(1,3)
+		        << setw(OWID) << curr_strain_rate(2,1) << setw(OWID) << curr_strain_rate(2,2) << setw(OWID) << curr_strain_rate(2,3)
+		        << setw(OWID) << curr_strain_rate(3,1) << setw(OWID) << curr_strain_rate(3,2) << setw(OWID) << curr_strain_rate(3,3)
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
 		        << endl;
 	    break;
 	}
@@ -9026,7 +10094,7 @@ void assembly::iso_MemBdry(int   total_steps,
   
   // pre_2. create particles from file and calculate forces caused by hydraulic pressure
   if (toRebuild) readSample(iniptclfile);
-  REAL radius = gradInfo.getMinPtclRadius();
+  REAL radius = gradInfo.getMinPtclDiameter()/2.0;	// August 28, 2013
   if (gradInfo.getSize().size() == 1 &&
       gradInfo.getPtclRatioBA() == 1.0 && 
       gradInfo.getPtclRatioCA() == 1.0)
@@ -9650,7 +10718,14 @@ void assembly::triaxial(int   total_steps,
 		<< setw(OWID) << "from rate" 
 		<< setw(OWID) << "from rate" 
 		<< setw(OWID) << "from rate" 
-		<< setw(OWID) << "from rate" << endl
+		<< setw(OWID) << "from rate" 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "subDivision"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "average" << endl
 	        << setw(OWID) << "number"
 	        << setw(OWID) << "contacts"
 	        << setw(OWID) << "contacts"
@@ -9785,7 +10860,14 @@ void assembly::triaxial(int   total_steps,
 	        << setw(OWID) << "epsilon_23"
 	        << setw(OWID) << "epsilon_31"
 	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33" << endl;
+	        << setw(OWID) << "epsilon_33" 
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken" 
+		<< setw(OWID) << "f"
+		<< setw(OWID) << "tau2"
+		<< setw(OWID) << "p"
+		<< setw(OWID) << "fracNml" 
+		<< setw(OWID) << "fracTgt" << endl;
 
     std::ofstream balancedinf(balancedfile);
     if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
@@ -9856,9 +10938,9 @@ void assembly::triaxial(int   total_steps,
 	        << setw(OWID) << "t_step"
 	        << setw(OWID) << "time" << endl;
 
-    g_debuginf.open(debugfile);
-    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
-    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
 
     std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
     temp_vec.push_back(0);
@@ -9881,8 +10963,8 @@ void assembly::triaxial(int   total_steps,
     initVolume = W0*L0*H0;
     REAL l13, l24, l56, min_area, mid_area, max_area;
     REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
-    matrix granularStress;
-    matrix granularStrain;	// granular strain
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
     matrix previousStrain(3,3);
     matrix previousEuler(3,3);
     matrix finiteStrain(3,3);	// finite granular strain
@@ -9913,16 +10995,18 @@ void assembly::triaxial(int   total_steps,
     }
     
     // first tessellation
-    createInputForQhull();
-    callQhull();
-    readTesse("tess_info");
-    readTesse_finite("tess_info");
-    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
 
     REAL epsilon_w, epsilon_l, epsilon_h;
     REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
     REAL avgNormal=0;
     REAL avgTangt=0;
+    REAL avgFracNml = 0;	// average fracture normal forces
+    REAL avgFracTgt = 0;	// average fracture tangent forces
     int         stepsnum=0;
     char        stepsstr[4];
     char        stepsfp[50];
@@ -9940,6 +11024,9 @@ void assembly::triaxial(int   total_steps,
 	bdry_penetr[i]=0; bdry_cntnum[i]=0;
     }
 
+//    subDivision();	// at present, subdivide before simulation
+//printParticle("fractured_particles");
+
     // iterations start here...
     g_iteration=0;
     gettimeofday(&time_w1,NULL);
@@ -9951,6 +11038,7 @@ void assembly::triaxial(int   total_steps,
 
 	// 2. set particles' forces/moments as zero before each re-calculation
 	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
 
 	// 3. calculate contact forces/moments and apply them to particles
 	internalForce(avgNormal, avgTangt);
@@ -9958,9 +11046,19 @@ void assembly::triaxial(int   total_steps,
 	// 4. calculate boundary forces/moments and apply them to particles
 	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
 
+	addFractureForce(avgFracNml);
+
+	eraseFracturePair();
+
 	// 5. update particles' velocity/omga/position/orientation based on force/moment
 	updateParticle();
-	
+
+	subDivision();
+
+//std::cout << "total number: " << TotalNum << std::endl;
+//std::cout << "top boundary: " << getApt(5).getz() << std::endl;
+//std::cout << "bot boundary: " << getApt(6).getz() << std::endl;
+//std::cout << "number of fracture pairs: " << fracPairList.size() << std::endl;
 	// 6. update boundaries' position and orientation
 	l56=getApt(5).getz()-getApt(6).getz();
 	l24=getApt(2).gety()-getApt(4).gety();
@@ -9971,7 +11069,7 @@ void assembly::triaxial(int   total_steps,
 	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
 	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
 	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
-
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
 //	granularStress.clear();
 //	granularStress = getGranularStress();	// calculate granular stress
 
@@ -10036,8 +11134,7 @@ void assembly::triaxial(int   total_steps,
 	if (g_iteration % (total_steps/snapshots) == 0){
 	    sprintf(stepsstr, "%03d", stepsnum); 
 	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
-	    printParticle(stepsfp);
-	    
+	    printParticle(stepsfp);    
 	    sprintf(stepsstr, "%03d", stepsnum); 
 	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
 	    printContact(stepsfp);
@@ -10050,11 +11147,11 @@ void assembly::triaxial(int   total_steps,
 	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
 	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
 	if (g_iteration % interval == 0 ){
-
+/*
 //	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 //	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 //	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-//			resetStartPosition();	// reset initial position
+//			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -10116,6 +11213,10 @@ void assembly::triaxial(int   total_steps,
 
 	    granularStress.clear();
 	    granularStress = getGranularStress();	// calculate granular stress
+*/
+
+	    // calcualte number of springs
+	   calcNumSprings();
 
 	    gettimeofday(&time_w2,NULL);
 	    progressinf << setw(OWID) << g_iteration
@@ -10184,6 +11285,7 @@ void assembly::triaxial(int   total_steps,
 			<< setw(OWID) << curr_strain_rate(1,1) << setw(OWID) << curr_strain_rate(1,2) << setw(OWID) << curr_strain_rate(1,3)
 		        << setw(OWID) << curr_strain_rate(2,1) << setw(OWID) << curr_strain_rate(2,2) << setw(OWID) << curr_strain_rate(2,3)
 		        << setw(OWID) << curr_strain_rate(3,1) << setw(OWID) << curr_strain_rate(3,2) << setw(OWID) << curr_strain_rate(3,3)
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
 		        << endl;
 //	    g_debuginf << setw(OWID) << g_iteration
 //		       << setw(OWID) << getTransEnergy()
@@ -10264,7 +11366,7 @@ void assembly::triaxial(int   total_steps,
     // post_2. close streams
     progressinf.close();
     balancedinf.close();
-    g_debuginf.close();
+//    g_debuginf.close();
 }
 
 
@@ -10329,9 +11431,9 @@ void assembly::triaxial(int   total_steps,
 	        << "        ratio          porosity         number"
 	        << endl;
 
-    g_debuginf.open(debugfile);
-    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
-    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
 
     // pre_2. create particles and boundaries from files
     readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
@@ -10493,7 +11595,7 @@ void assembly::triaxial(int   total_steps,
 					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
 					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
 		        << endl;
-	    g_debuginf << setw(OWID) << g_iteration
+/*	    g_debuginf << setw(OWID) << g_iteration
 		       << setw(OWID) << bdry_penetr[1]
 		       << setw(OWID) << bdry_penetr[2]
 		       << setw(OWID) << bdry_penetr[3]
@@ -10507,6 +11609,8 @@ void assembly::triaxial(int   total_steps,
 		       << setw(OWID) << bdry_cntnum[5]
 		       << setw(OWID) << bdry_cntnum[6]
 		       << endl;
+*/
+
 	}
 
 /*
@@ -10554,7 +11658,7 @@ void assembly::triaxial(int   total_steps,
     // post_2. close streams
     progressinf.close();
     balancedinf.close();
-    g_debuginf.close();
+//    g_debuginf.close();
 }
 
 
@@ -11065,7 +12169,7 @@ void assembly::ellipPile_Disp(int   total_steps,
 	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-			resetStartPosition();	// reset initial position
+			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -12624,19 +13728,18 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	readBoundary(inbdryfile);	// create boundaries
 
 	// pre_3. define variables used in iterations
-	REAL bottom_z = 0;
 	REAL bdryW = getApt(2).gety()-getApt(4).gety();
     	REAL bdryL = getApt(1).getx()-getApt(3).getx();
-	REAL bdryH = getTopFreeParticlePosition().getz()-bottom_z;	// height of boundary box
-
+	REAL bdryH = getApt(5).getz()-getApt(6).getz();	// height of boundary box
+	bdryH = 0.13;	// after trmByHeight();
 	REAL subHeight = bdryH*relativeHeight;	// the actual height of subdomain
 	REAL subWidth = bdryW*relativeWidth;
 	REAL subLength = bdryL*relativeLength;
 	REAL subArea = subWidth*subLength;
 
-	REAL baseCoordH = bottom_z;	// the coordinate of base of boundary box
-	REAL baseCoordL = getApt(3).getx()+(bdryL-subLength)*0.5;
-	REAL baseCoordW = getApt(4).gety()+(bdryW-subWidth)*0.5;
+	REAL baseCoordH = getApt(6).getz();	// the coordinate of base of boundary box
+	REAL baseCoordL = getApt(3).getx()+(bdryL-subLength)/2;
+	REAL baseCoordW = getApt(4).gety()+(bdryW-subWidth)/2;
 
 	REAL subVolume = subHeight*subWidth*subLength;
 	vector<REAL> subBaseCoord;	// actual height above the boundary base of base of each subdomain
@@ -12695,12 +13798,12 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	vector<REAL>::size_type it_mass = 0;
 	bool is_pctl_in;
   	for (it_p=ParticleVec.begin();it_p!=ParticleVec.end();++it_p)  {	
-		x_p = (*it_p)->getCurrPosition().getx();
-		y_p = (*it_p)->getCurrPosition().gety();
-		z_p = (*it_p)->getCurrPosition().getz();
+		x_p = (*it_p)->getCurrCenterMass().getx();
+		y_p = (*it_p)->getCurrCenterMass().gety();
+		z_p = (*it_p)->getCurrCenterMass().getz();
 		it_mass = 0;
 		for(std::vector<REAL>::const_iterator it=subBaseCoord.begin(); it!=subBaseCoord.end(); it++){
-			is_pctl_in = z_p>(*it)+subHeight*0.5 && z_p<(baseCoordH+bdryH)
+			is_pctl_in = z_p>(*it)+subHeight/2 && z_p<(baseCoordH+bdryH)
 				   && y_p>baseCoordW && y_p<(baseCoordW+subWidth)
 				   && x_p>baseCoordL && x_p<(baseCoordL+subLength);	// l->x, w->y, h->z
 			if(is_pctl_in)
@@ -12719,13 +13822,13 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	bool is_con1_in, is_con2_in;
 	REAL x_con1, y_con1, z_con1, x_con2, y_con2, z_con2;	// contact coordinates
 	for (it=ContactVec.begin();it!=ContactVec.end();++it){
-		P1center(1,1) = it->getP1()->getCurrPosition().getx();
-		P1center(2,1) = it->getP1()->getCurrPosition().gety();
-		P1center(3,1) = it->getP1()->getCurrPosition().getz();
+		P1center(1,1) = it->getP1()->getCurrCenterMass().getx();
+		P1center(2,1) = it->getP1()->getCurrCenterMass().gety();
+		P1center(3,1) = it->getP1()->getCurrCenterMass().getz();
 
-		P2center(1,1) = it->getP2()->getCurrPosition().getx();
-		P2center(2,1) = it->getP2()->getCurrPosition().gety();
-		P2center(3,1) = it->getP2()->getCurrPosition().getz();
+		P2center(1,1) = it->getP2()->getCurrCenterMass().getx();
+		P2center(2,1) = it->getP2()->getCurrCenterMass().gety();
+		P2center(3,1) = it->getP2()->getCurrCenterMass().getz();
 
 		lc = P2center-P1center;
 		Fc(1,1) = (it->NormalForceVec().getx())+(it->TgtForceVec().getx());
@@ -12753,7 +13856,7 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 				subPctlNum[it_subnum] += 2;
 			}
 			else if( is_con1_in || is_con2_in ){// have and only have one point in the subdomain
-				totalForce[it_mat] += lc*Fc*0.5;
+				totalForce[it_mat] += lc*Fc/2;
 				subPctlNum[it_subnum] += 1;
 			}
 			it_mat++;	// go to the next subdomain to make the same judgement
@@ -12771,7 +13874,7 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	it_mass = 0;
 	for(it_mat=0; it_mat!=granularStress.size(); it_mat++, it_subnum++, it_mass++){
 		resultstress << setw(OWID) << bdryH
-			     << setw(OWID) << bdryH-baseH[it_mat]-subHeight*0.5
+			     << setw(OWID) << bdryH-baseH[it_mat]-subHeight/2
 			     << setw(OWID) << granularStress[it_mat](1,1)
 			     << setw(OWID) << granularStress[it_mat](1,2)
 			     << setw(OWID) << granularStress[it_mat](1,3)
@@ -12815,7 +13918,7 @@ void assembly::trimByHeight(REAL Height,
 	int num_iter = 0;
   	for (itr = ParticleVec.begin(); itr != ParticleVec.end(); ){
     		center=(*itr)->getCurrPosition();
-    		if(center.getz()+(*itr)->getA() > z2)
+    		if(center.getz()+(*itr)->getMaxRadius() > z2)
       		{
 			mass_removed += (*itr)->getMass();
 			delete (*itr); // release memory
@@ -12847,9 +13950,9 @@ std::cout << "mass of removed particles: " << endl << mass_removed << endl;
   y1 = getApt(4).gety();
   x2 = getApt(1).getx();
   y2 = getApt(2).gety();
-  x0 = (x1+x2)/2;
-  y0 = (y1+y2)/2;
-  z0 = (z1+z2)/2;
+  x0 = (x1+x2)*0.5;
+  y0 = (y1+y2)*0.5;
+  z0 = (z1+z2)*0.5;
 
   int bdrynum = 6;
 
@@ -13296,9 +14399,9 @@ void assembly::calculateMiddleStress(int subNum,	// the number of subdomains tha
 
 	bool is_pctl_in;
   	for (it_p=ParticleVec.begin();it_p!=ParticleVec.end();++it_p)  {	
-		x_p = (*it_p)->getCurrPosition().getx();
-		y_p = (*it_p)->getCurrPosition().gety();
-		z_p = (*it_p)->getCurrPosition().getz();
+		x_p = (*it_p)->getCurrCenterMass().getx();
+		y_p = (*it_p)->getCurrCenterMass().gety();
+		z_p = (*it_p)->getCurrCenterMass().getz();
 		it_mass = 0;
 		for(int i=0; i!=subNum; i++){
 			is_pctl_in = z_p>baseCoordH+i*subHeight;	// l->x, w->y, h->z
@@ -13388,7 +14491,6 @@ void assembly::calculateFabric(const char* inptclfile,
 	REAL tao;	// tao = sqrt(I2(D))
 	REAL boxVolume = boxHeight*boxWidth*boxLength*pow(10,-9);
 std::cout << "boxVolume: " << boxVolume << std::endl;
-std::cout << "particle volume: " << getParticleVolume() << std::endl;
 	REAL sample_voidratio = boxVolume/getParticleVolume()-1;
 std::cout << "void ratio: " << sample_voidratio << std::endl;
 	REAL sample_porosity = sample_voidratio/(1+sample_voidratio);
@@ -13436,47 +14538,88 @@ std::cout << "a: " << a << std::endl;
 		     << endl;
 }
 
+REAL assembly::getMaxDiameter() const{
+    
+    REAL Alength, Blength, Clength;
+    REAL maxDiameter = 0;
+    for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
+	Alength = (*it)->getAplus() + (*it)->getAminus();
+	Blength = (*it)->getBplus() + (*it)->getBminus();
+        Clength = (*it)->getCplus() + (*it)->getCminus();
+	if(it==ParticleVec.begin())
+	    maxDiameter = Alength;
+	if(maxDiameter<Alength)
+	    maxDiameter = Alength;
+	if(maxDiameter<Blength)
+	    maxDiameter = Blength;
+	if(maxDiameter<Clength)
+	    maxDiameter = Clength;
+    }
 
-void assembly::GrainSizeDistribution(const char* inptclfile,
+    return maxDiameter;
+}
+
+REAL assembly::getMinDiameter() const{
+    
+    REAL Alength, Blength, Clength;
+    REAL minDiameter = 0;
+    for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
+	Alength = (*it)->getAplus() + (*it)->getAminus();
+	Blength = (*it)->getBplus() + (*it)->getBminus();
+        Clength = (*it)->getCplus() + (*it)->getCminus();
+	if(it==ParticleVec.begin())
+	    minDiameter = Alength;
+	if(minDiameter>Alength)
+	    minDiameter = Alength;
+	if(minDiameter>Blength)
+	    minDiameter = Blength;
+	if(minDiameter>Clength)
+	    minDiameter = Clength;
+    }
+
+    return minDiameter;
+}
+
+
+void assembly::GrainSizeDistribution(int sieve_num,
+				     const char* inptclfile,
 			       	     const char* resultfile){
 
-	int sieve_num = 8;
+	// create particles
+	readSample(inptclfile); // create container and particles, velocity and omga are set zero. 
+	
 	REAL *sieve_size = new REAL[sieve_num];
-	sieve_size[0]=4.76e-3;
-	sieve_size[1]=2e-3;
-	sieve_size[2]=0.841e-3;
-	sieve_size[3]=0.42e-3;
-	sieve_size[4]=0.297e-3;
-	sieve_size[5]=0.149e-3;
-	sieve_size[6]=0.105e-3;
-	sieve_size[7]=0.074e-3;	// unit m
+	REAL *pass_percent = new REAL[sieve_num];	// the mass percent that can pass this current sieve
+	REAL minDiameter = getMinDiameter();
+   	REAL maxDiameter = getMaxDiameter();
+	REAL space_inter = (maxDiameter-minDiameter)/REAL(sieve_num-1);
+	for(int i=0; i<sieve_num; i++){
+	    sieve_size[i]=space_inter*i+minDiameter;
+	    pass_percent[i]=0;	// initialization
+ 	}
+
 	// open streams for output
 	std::ofstream resultfabric;
 	resultfabric.open(resultfile);
-	if(!resultfabric){cout << "Stream error when open fabric output file!" << endl; exit(-1);}
+	if(!resultfabric){cout << "Stream error when open grain size output file!" << endl; exit(-1);}
 	resultfabric.setf(std::ios::scientific, std::ios::floatfield);
-	resultfabric << setw(OWID) << "sieve size";
+//	resultfabric << setw(OWID) << "sieve size";
 	for(int i=0; i<sieve_num; i++){
 	    resultfabric << setw(OWID) << sieve_size[i];
 	}
 	resultfabric << std::endl;
 
-	// create particles
-	readSample(inptclfile); // create container and particles, velocity and omga are set zero. 
-
-	REAL *pass_percent = new REAL[sieve_num];	// the mass percent that can pass this current sieve
-
 	REAL totalMass = 0;
 	REAL particleMass;
 	REAL Alength, Blength, Clength;
 	for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
-	    Alength = 2*(*it)->getA();
-	    Blength = 2*(*it)->getB();
-	    Clength = 2*(*it)->getC();
+	    Alength = (*it)->getAplus() + (*it)->getAminus();
+	    Blength = (*it)->getBplus() + (*it)->getBminus();
+	    Clength = (*it)->getCplus() + (*it)->getCminus();
 	    particleMass = (*it)->getMass();
 	    totalMass = totalMass+particleMass;
 	    for(int i=0; i<sieve_num; i++){
-		if(Alength<=sieve_size[i] || Blength<=sieve_size[i] || Clength<=sieve_size[i]){	// minor principle length can pass
+		if(Alength<=sieve_size[i] || Blength<=sieve_size[i] || Clength<=sieve_size[i]){	// minor principle length can pass 
 		// this particle can pass this sieve 
 		    pass_percent[i] = pass_percent[i]+particleMass;
 		}
@@ -13488,14 +14631,16 @@ void assembly::GrainSizeDistribution(const char* inptclfile,
 	}
 
 	// output information about fabric
-	resultfabric << setw(OWID) << "pass percent";
+//	resultfabric << setw(OWID) << "pass percent";
 	for(int i=0; i<sieve_num; i++){
 	    resultfabric << setw(OWID) << pass_percent[i];
 	}
 	resultfabric << std::endl;
 	resultfabric.close();
-}
 
+	delete[] sieve_size;
+	delete[] pass_percent;
+}
 
 
 // reset coordinates of particles which are contacting with boundaries. And then call Qhull to tessellate. This function is written for Nonlinear FEM term project -- a 3D tet poromechanics Matlab code.
@@ -13591,7 +14736,7 @@ void assembly::GrainSizeDistribution(const char* inptclfile,
 		x_p = (*it_p)->getCurrPosition().getx();
 		y_p = (*it_p)->getCurrPosition().gety();
 		z_p = (*it_p)->getCurrPosition().getz();
-		max_r = (*it_p)->getA();
+		max_r = (*it_p)->getMaxRadius();
 	
 		if(x_max-x_p < max_r )	// means particle is near to max x surface
 			x_p = x_max;
@@ -13658,11 +14803,11 @@ void assembly::GrainSizeDistribution(const char* inptclfile,
 	ifs.close();
 */
 	int it_tet = 0;
-	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++, it_tet++){
-		m = (iter)->getm();
-		n = (iter)->getn();
-		i = (iter)->geti();
-		j = (iter)->getj();
+	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++, it_tet++){
+		m = (*iter)->getm();
+		n = (*iter)->getn();
+		i = (*iter)->geti();
+		j = (*iter)->getj();
 
 		ofs << setw(OWID) << it_tet+1 << ", "
 		    << setw(OWID) << m << ", " 
@@ -14240,7 +15385,7 @@ void assembly::rotateXYZ(REAL angle,	// angle that you want to roate
 	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-			resetStartPosition();	// reset initial position
+			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -14761,8 +15906,8 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
     matrix previousBagi_dudx(3,3);
     matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
 
-    matrix initialPosition(3,1);	// initial position of each particle, used for rotation
-    matrix currentPosition(3,1);	// current position of each particle, used for rotation
+    matrix initialCenterMass(3,1);	// initial position of each particle, used for rotation
+    matrix currentCenterMass(3,1);	// current position of each particle, used for rotation
     vec con_position;
     vec curr_velocity;
     REAL prev_x, prev_y, prev_z;
@@ -14887,25 +16032,25 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
 	// apply rotation to each particle
 	for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){				
 		// get previous position
-		prev_x = (*it)->getCurrPosition().getx();
-		prev_y = (*it)->getCurrPosition().gety();
-		prev_z = (*it)->getCurrPosition().getz();
+		prev_x = (*it)->getCurrCenterMass().getx();
+		prev_y = (*it)->getCurrCenterMass().gety();
+		prev_z = (*it)->getCurrCenterMass().getz();
 
-		initialPosition(1,1) = (*it)->getInitPosition().getx();
-		initialPosition(2,1) = (*it)->getInitPosition().gety();
-		initialPosition(3,1) = (*it)->getInitPosition().getz();
+		initialCenterMass(1,1) = (*it)->getInitCenterMass().getx();
+		initialCenterMass(2,1) = (*it)->getInitCenterMass().gety();
+		initialCenterMass(3,1) = (*it)->getInitCenterMass().getz();
 		
-		currentPosition = Rz*Ry*Rx*initialPosition;	// rotation
+		currentCenterMass = Rz*Ry*Rx*initialCenterMass;	// rotation
 
-		con_position.setx(currentPosition(1,1));
-		con_position.sety(currentPosition(2,1));
-		con_position.setz(currentPosition(3,1));
-		(*it)->setCurrPosition(con_position);
+		con_position.setx(currentCenterMass(1,1));
+		con_position.sety(currentCenterMass(2,1));
+		con_position.setz(currentCenterMass(3,1));
+		(*it)->setCurrCenterMass(con_position);
 		
 		// set current velocity
-		curr_velocity.setx((currentPosition(1,1)-prev_x)/TIMESTEP);
-		curr_velocity.sety((currentPosition(2,1)-prev_y)/TIMESTEP);
-		curr_velocity.setz((currentPosition(3,1)-prev_z)/TIMESTEP);
+		curr_velocity.setx((currentCenterMass(1,1)-prev_x)/TIMESTEP);
+		curr_velocity.sety((currentCenterMass(2,1)-prev_y)/TIMESTEP);
+		curr_velocity.setz((currentCenterMass(3,1)-prev_z)/TIMESTEP);
 		(*it)->setCurrVelocity(curr_velocity);
     	}
 	
@@ -15048,7 +16193,7 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
 //	    spatial_dvdx.clear();
 //	    spatial_dvdx = getAverage_dvdx();
 
-//	    resetStartPosition();	// reset initial position
+//	    resetStartCenterMass();	// reset initial position
 	    // update previousStrain
 	    previousStrain = granularStrain;
 	    previousEuler = eulerianStrain;
@@ -15172,7 +16317,7 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
     g_debuginf.close();
 }
 
-  // this is actually a deposit process, but since we cannot calculate granular stress and strain during normal deposition, however in cavity expansion we need to calculate granular stress and strain. Then we write a new function cavityExpand to do cavity expansion and in this function, we will calculate granular stress and strain. June 17, 2013
+// this is actually a deposit process, but since we cannot calculate granular stress and strain during normal deposition, however in cavity expansion we need to calculate granular stress and strain. Then we write a new function cavityExpand to do cavity expansion and in this function, we will calculate granular stress and strain. June 17, 2013
 // the output progress file format is the same as triaxial
 void assembly::cavityExpand(int   total_steps,  
 		       int   snapshots,
@@ -15590,7 +16735,7 @@ void assembly::cavityExpand(int   total_steps,
 	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
 	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
 	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-			resetStartPosition();	// reset initial position
+			resetStartCenterMass();	// reset initial position
 			// tessellate again
 			createInputForQhull();
 			callQhull();
@@ -15716,8 +16861,8 @@ void assembly::cavityExpand(int   total_steps,
     g_debuginf.close();
 }
 
-  // this is used to calculate volume of the assembly based on particle input file, July 14, 2013
-  void assembly::calculateVolume(const char* iniptclefile){
+// this is used to calculate volume of the assembly based on particle input file, July 14, 2013
+void assembly::calculateVolume(const char* iniptclefile){
 
     readSample(iniptclefile); // create container and particles, velocity and omga are set zero. 
     // first tessellation
@@ -15726,17 +16871,3015 @@ void assembly::cavityExpand(int   total_steps,
     readTesse("tess_info");
     readTesse_finite("tess_info");
 
-	REAL curr_totalVolume = 0;	// the current summed volume of all cells
+    REAL curr_totalVolume = 0;	// the current summed volume of all cells
 
-	REAL temp_volume;
-	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(*iter);
-		curr_totalVolume += temp_volume;
-	}
+    REAL temp_volume;
+    for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+	temp_volume = getCellVolume(**iter);
+	curr_totalVolume += temp_volume;
+    }
 
     std::cout << "the volume of the assembly is: " << std::endl;
     std::cout << curr_totalVolume << std::endl;
 
+}
+
+
+void assembly::testTransition(){
+
+    // generate a new particle
+    particle* pt= new particle(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
+    TotalNum = 1;
+    ParticleVec.push_back(pt);
+
+    // initial break
+    std::vector<particle*> sub_pctlVec;
+    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	int break_plane = 1;	// [-1, 1,2,3], if -1, means not break, 
+	particle* pt = new particle((**it), break_plane); 
+	(*it)->breakItSelf(break_plane);	
+	TotalNum++;
+	pt->setID(TotalNum);
+	sub_pctlVec.push_back(pt);		
+    } // end for
+
+    for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	ParticleVec.push_back(*it);
+
+    // time integration
+    char        stepsstr[4];
+    char        stepsfp[50];
+    for(g_iteration=0; g_iteration<100; g_iteration++){
+	sprintf(stepsstr, "%03d", g_iteration); 
+	strcpy(stepsfp,"trans_particle"); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	printParticle(stepsfp);
+
+  	particleShapeTransition();
+
+	if(g_iteration==30){
+	    sub_pctlVec.clear();
+    	    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	    	int break_plane = 2;	// [-1, 1,2,3], if -1, means not break, 
+		if(it==ParticleVec.begin())
+		    break_plane = 3;
+	    	particle* pt = new particle((**it), break_plane); 
+	    	(*it)->breakItSelf(break_plane);	
+	    	TotalNum++;
+	    	pt->setID(TotalNum);
+	    	sub_pctlVec.push_back(pt);		
+    	    } // end for
+
+    	     for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	  	ParticleVec.push_back(*it);
+ 	}
+    } //end time for
+
+    strcpy(stepsfp, "trans_particle"); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+} // testTransition()
+
+
+void assembly::testBreakPlaneRotation(){
+
+    // generate a new particle
+    particle* pt= new particle(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
+    TotalNum = 1;
+    ParticleVec.push_back(pt);
+
+    printParticle("com_particle_000");
+
+    // initial break
+    std::vector<particle*> sub_pctlVec;
+    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	int break_plane = 1;	// [-1, 1,2,3], if -1, means not break, 
+	(*it)->rotateBreakPlaneRandomly();
+	particle* pt = new particle((**it), break_plane); 
+	(*it)->breakItSelf(break_plane);	
+	TotalNum++;
+	pt->setID(TotalNum);
+	sub_pctlVec.push_back(pt);		
+    } // end for
+
+    for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	ParticleVec.push_back(*it);
+
+    // time integration
+    char        stepsstr[4];
+    char        stepsfp[50];
+    for(g_iteration=1; g_iteration<100; g_iteration++){
+	sprintf(stepsstr, "%03d", g_iteration); 
+	strcpy(stepsfp,"com_particle"); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	printParticle(stepsfp);
+
+	if(g_iteration==30){
+	    sub_pctlVec.clear();
+    	    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	    	int break_plane = 2;	// [-1, 1,2,3], if -1, means not break, 
+		if(it==ParticleVec.begin())
+		    break_plane = 3;
+	    	particle* pt = new particle((**it), break_plane); 
+	    	(*it)->breakItSelf(break_plane);	
+	    	TotalNum++;
+	    	pt->setID(TotalNum);
+	    	sub_pctlVec.push_back(pt);		
+    	    } // end for
+
+    	     for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	  	ParticleVec.push_back(*it);
+ 	}
+    } //end time for
+
+    strcpy(stepsfp, "com_particle"); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+} // testTransition()
+
+
+void assembly::particleShapeTransition(){
+
+    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+	(*it)->shapeTransition();		
+    } // end for
+} // particleShapeTransition
+
+void assembly::compress(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			const char* iniptclfile, 
+			const char* inibdryfile,
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "maximum"
+		<< setw(OWID) << "maximum" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken"  
+		<< setw(OWID) << "fracForce"
+		<< setw(OWID) << "tensile stress1"
+		<< setw(OWID) << "tensile stress2" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracForce = 0;	// average fracture forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation
+//printParticle("fractured_particles");
+
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL bottom_disp = 0;	// displacement of bottom boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014, also clear the contact stresses
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+	addFractureForce(avgFracForce);
+
+	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,0);
+	minctl[1].tran=vec(0,0, TIMESTEP*COMPRESS_RATE);	// move bottom boundary up
+
+	bottom_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+*/
+
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+			<< setw(OWID) << avgFracForce
+			<< setw(OWID) << (*ParticleVec.begin())->getStress1()
+			<< setw(OWID) << (*ParticleVec.begin())->getStress2()
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+}
+
+
+void assembly::compressRandomParticles(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			const char* iniptclfile, 
+			const char* inibdryfile,
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "average" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken"  
+		<< setw(OWID) << "fracForce" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracForce = 0;	// average fracture forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation, debug
+//printParticle("fractured_particles");
+
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+	addFractureForce(avgFracForce);
+
+	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
+	minctl[1].tran=vec(0,0,0);	// move bottom boundary up
+
+	top_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+*/
+
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+			<< setw(OWID) << avgFracForce
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+}
+
+void assembly::compressRandomCubicPacking(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			int   numX,	// number of particles in x direction
+		   	int   numY,	// number of particles in y direction
+			int   numZ,	// number of particles in z direction
+			REAL  radius,	// radius of particles
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "granular"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "particle" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken"  
+		<< setw(OWID) << "fracForce"
+		<< setw(OWID) << "type 1"
+		<< setw(OWID) << "type 2"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "epsilon_h"
+		<< setw(OWID) << "fraction" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::ofstream demTecplotInf;
+    openDEMTecplot(demTecplotInf, "DEM_results.dat");
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // generate particles and build boundary
+    const char* iniptclfile = "flo_particle_end";
+    const char* inibdryfile = "flo_boundary_end";
+
+    REAL dimx = numX*2*radius;
+    REAL dimy = numY*2*radius;
+    REAL dimz = numZ*2*radius;
+    dem::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
+    container = rectangle(dimx,dimy,dimz,center);
+    buildBoundary(inibdryfile);
+    generateCubicPacking(iniptclfile, numX, numY, numZ, radius);
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+//// rotate all the particles to be along the x,y,z direction
+//for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+//  (*it)->rotateToXYZDirections();
+//}
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracForce = 0;	// average fracture forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation, debug
+//printParticle("fractured_particles");
+
+    numBrokenType1=0;
+    numBrokenType2=0;
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+//	addFractureForce(avgFracForce);
+//
+//	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+// 	particleShapeTransition();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
+	minctl[1].tran=vec(0,0,0);	// move bottom boundary up
+
+	top_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    //update container for pintout
+	    container.set(l13, l24, l56, vec( (getApt(1).getx()+getApt(3).getx())*0.5,
+					      (getApt(2).gety()+getApt(4).gety())*0.5,
+					      (getApt(5).getz()+getApt(6).getz())*0.5  ) );
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    printDEMTecplot(demTecplotInf, stepsnum);
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+*/
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+
+
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+			<< setw(OWID) << avgFracForce
+			<< setw(OWID) << numBrokenType1
+			<< setw(OWID) << numBrokenType2
+			<< setw(OWID) << (sigma3_1+sigma3_2)*0.5
+			<< setw(OWID) << granularStress(3,3)
+			<< setw(OWID) << epsilon_h
+			<< setw(OWID) << getParticleVolume()/Volume
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+}
+
+void assembly::compressRandomHexPacking(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			int   numX,	// number of particles in x direction
+		   	int   numY,	// number of particles in y direction
+			int   numZ,	// number of particles in z direction
+			REAL  radius,	// radius of particles
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "granular"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "particle" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken"  
+		<< setw(OWID) << "fracForce"
+		<< setw(OWID) << "type 1"
+		<< setw(OWID) << "type 2"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "epsilon_h"
+		<< setw(OWID) << "fraction" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+    std::ofstream demTecplotInf;
+    openDEMTecplot(demTecplotInf, "DEM_results.dat");
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // generate particles and build boundary
+    const char* iniptclfile = "flo_particle_end";
+    const char* inibdryfile = "flo_boundary_end";
+
+    // hexagonal close packed, refer to https://en.wikipedia.org/wiki/Close-packing_of_equal_spheres
+    int i=numX-1;
+    int j=numY-1;
+    int k=numZ-1;
+    REAL dimx = radius+std::max( ( 2*i+((j+k)%2) ), ( 2*i+((j+k-1)%2) ) )*radius+radius;
+    REAL dimy = radius+std::max( ( sqrt(3.0)*(j+1.0/3.0*(k%2)) ), ( sqrt(3.0)*(j+1.0/3.0*((k-1)%2)) ) )*radius+radius;
+    REAL dimz = radius+2.0*sqrt(6.0)/3.0*k*radius+radius;
+    dem::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
+    container = rectangle(dimx,dimy,dimz,center);
+    buildBoundary(inibdryfile);
+    generateHexPacking(iniptclfile, numX, numY, numZ, radius);
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracForce = 0;	// average fracture forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation, debug
+//printParticle("fractured_particles");
+
+
+    numBrokenType1=0;
+    numBrokenType2=0;
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+//	addFractureForce(avgFracForce);
+//
+//	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+//	particleShapeTransition();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
+	minctl[1].tran=vec(0,0,0);	// move bottom boundary up
+
+	top_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    //update container for pintout
+	    container.set(l13, l24, l56, vec( (getApt(1).getx()+getApt(3).getx())*0.5,
+					      (getApt(2).gety()+getApt(4).gety())*0.5,
+					      (getApt(5).getz()+getApt(6).getz())*0.5  ) );
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    printDEMTecplot(demTecplotInf, stepsnum);
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+*/
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+
+
+	    // calcualte number of springs
+	    calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+			<< setw(OWID) << avgFracForce
+			<< setw(OWID) << numBrokenType1
+			<< setw(OWID) << numBrokenType2
+			<< setw(OWID) << (sigma3_1+sigma3_2)*0.5
+			<< setw(OWID) << granularStress(3,3)
+			<< setw(OWID) << epsilon_h
+			<< setw(OWID) << getParticleVolume()/Volume
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+}
+
+
+void assembly::compressParticlePacking(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			const char* iniptclfile,
+			const char* inibdryfile,
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "broken"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "granular"
+		<< setw(OWID) << "nominal"
+		<< setw(OWID) << "particle" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken"  
+		<< setw(OWID) << "fracForce"
+		<< setw(OWID) << "type 1"
+		<< setw(OWID) << "type 2"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "sigma zz"
+		<< setw(OWID) << "epsilon_h"
+		<< setw(OWID) << "fraction" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::ofstream demTecplotInf;
+    openDEMTecplot(demTecplotInf, "DEM_results.dat");
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracForce = 0;	// average fracture forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation, debug
+//printParticle("fractured_particles");
+
+    numBrokenType1=0;
+    numBrokenType2=0;
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+//	addFractureForce(avgFracForce);
+//
+//	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+// 	particleShapeTransition();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
+	minctl[1].tran=vec(0,0,0);	// move bottom boundary up
+
+	top_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    //update container for pintout
+	    container.set(l13, l24, l56, vec( (getApt(1).getx()+getApt(3).getx())*0.5,
+					      (getApt(2).gety()+getApt(4).gety())*0.5,
+					      (getApt(5).getz()+getApt(6).getz())*0.5  ) );
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    printDEMTecplot(demTecplotInf, stepsnum);
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+*/
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+
+
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+			<< setw(OWID) << avgFracForce
+			<< setw(OWID) << numBrokenType1
+			<< setw(OWID) << numBrokenType2
+			<< setw(OWID) << (sigma3_1+sigma3_2)*0.5
+			<< setw(OWID) << granularStress(3,3)
+			<< setw(OWID) << epsilon_h
+			<< setw(OWID) << getParticleVolume()/Volume
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+}
+
+
+void assembly::SHPB(int   total_steps,  
+			int   snapshots, 
+			int   interval,  
+			const char* iniptclfile, 
+			const char* inibdryfile,
+			const char* particlefile,
+			const char* boundaryfile,
+			const char* contactfile, 
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "number " 
+		<< setw(OWID) << "subDivision"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "invidual"
+		<< setw(OWID) << "average"
+		<< setw(OWID) << "average" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "springs" 
+		<< setw(OWID) << "broken" 
+		<< setw(OWID) << "f"
+		<< setw(OWID) << "tau2"
+		<< setw(OWID) << "p"
+		<< setw(OWID) << "fracNml" 
+		<< setw(OWID) << "fracTgt" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+//    createInputForQhull();
+//    callQhull();
+//    readTesse("tess_info");
+//    readTesse_finite("tess_info");
+//    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    REAL avgFracNml = 0;	// average fracture normal forces
+    REAL avgFracTgt = 0;	// average fracture tangent forces
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation
+//printParticle("fractured_particles");
+
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    do
+    {
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+	addFractureForce(avgFracNml);
+
+	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+
+	subDivision();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-TIMESTEP*COMPRESS_RATE);
+	minctl[1].tran=vec(0,0,0);	// move bottom boundary up
+
+	top_disp += TIMESTEP*COMPRESS_RATE;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[0].tran=vec(0,0,0);
+	
+	midctl[1].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);
+	maxctl[0].tran=vec(0,0,0);
+	
+	maxctl[1].tran=vec(0,0,0);
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+	updateRB(min,minctl,2);
+	updateRB(mid,midctl,2);
+	updateRB(max,maxctl,2);
+	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    sprintf(stepsstr, "%03d", stepsnum); 
+	    strcpy(stepsfp, contactfile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printContact(stepsfp);
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 ){
+/*
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+*/
+
+	    // calcualte number of springs
+	   calcNumSprings();
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << NumSprings << setw(OWID) << NumBroken 
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration < total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    strcpy(stepsfp, particlefile); strcat(stepsfp, "_end");
+    printParticle(stepsfp);
+
+    strcpy(stepsfp, contactfile); strcat(stepsfp, "_end");
+    printContact(stepsfp);
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    strcpy(stepsfp, boundaryfile); strcat(stepsfp, "_end");
+    printBoundary(stepsfp);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
 }
 
 
@@ -15889,8 +20032,7 @@ void assembly::unixialCompression(int   total_steps,
 		<< setw(OWID) << "bottom"
 		<< setw(OWID) << "top"
 		<< setw(OWID) << "top" 
-		<< setw(OWID) << "tangent" 
-		<< setw(OWID) << "sample" << endl
+		<< setw(OWID) << "tangent" << endl
 	        << setw(OWID) << "number"
 	        << setw(OWID) << "contacts"
 	        << setw(OWID) << "contacts"
@@ -16021,8 +20163,7 @@ void assembly::unixialCompression(int   total_steps,
 		<< setw(OWID) << "force"
 		<< setw(OWID) << "displacement"
 		<< setw(OWID) << "force" 
-                << setw(OWID) << "operator" 
-		<< setw(OWID) << "mass" << endl;
+                << setw(OWID) << "operator" << endl;
 
     std::ofstream balancedinf(balancedfile);
     if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
@@ -16138,11 +20279,7 @@ void assembly::unixialCompression(int   total_steps,
    
     matrix stiffnessD(9,9);
     REAL D11;
-    REAL mass;
 
-    //CK : Initialize mass
-    mass = 0.0;
-    
     // initialize previousStrain(3,3)
     for(int i_ps=0; i_ps!=2; i_ps++){
 	for(int j_ps=0; j_ps!=2; j_ps++){
@@ -16196,12 +20333,6 @@ void assembly::unixialCompression(int   total_steps,
     REAL top_init = getApt(5).getz();
     REAL topCompressRate = topDispl/double(total_steps);
     REAL botCompressRate = botDispl/double(total_steps);
-
-    std::vector<particle*>::iterator pt;
-    for(pt=ParticleVec.begin(); pt!=ParticleVec.end(); ++pt){
-       mass += (*pt)->getMass();
-    }
-
     do
     {
 	// 1. create possible boundary particles and contacts between particles
@@ -16210,6 +20341,7 @@ void assembly::unixialCompression(int   total_steps,
 
 	// 2. set particles' forces/moments as zero before each re-calculation
 	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
 
 	// 3. calculate contact forces/moments and apply them to particles
 	internalForce(avgNormal, avgTangt);
@@ -16217,8 +20349,18 @@ void assembly::unixialCompression(int   total_steps,
 	// 4. calculate boundary forces/moments and apply them to particles
 	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
 
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+//	addFractureForce(avgFracForce);
+//
+//	eraseFracturePair();
+
 	// 5. update particles' velocity/omga/position/orientation based on force/moment
 	updateParticle();
+
+	subDivision();
+
+// 	particleShapeTransition();
 
 	// 6. update boundaries' position and orientation
 	l56=getApt(5).getz()-getApt(6).getz();
@@ -16279,6 +20421,770 @@ void assembly::unixialCompression(int   total_steps,
 	updateRB(mid,midctl,2);
 	updateRB(max,maxctl,2);
 	updateRB6();
+	
+	// 7. (1) output particles and contacts information
+	if (g_iteration % (total_steps/snapshots) == 0){
+	    sprintf(stepsstr, "%03d", stepsnum+first_snapshot); 
+	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+	    printParticle(stepsfp);    
+	    time(&timeStamp);
+	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+	    ++stepsnum;
+	}
+
+	// 7. (2) output stress and strain info
+	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+	if (g_iteration % interval == 0 || g_iteration==total_steps-1){
+
+//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+//			resetStartCenterMass();	// reset initial position
+			// tessellate again
+			createInputForQhull();
+			callQhull();
+			readTesse("tess_info");
+			readTesse_finite("tess_info");
+//	    }
+
+	// calculate strain by rate
+	prev_strain_rate.clear();
+	prev_strain_rate = curr_strain_rate;	// set previous strain
+	
+	// calculate spatial velocity gradient tensor
+	spatial_dvdx.clear();
+	spatial_dvdx = getAverage_dvdx();
+	curr_dvdx.clear();
+	curr_dvdx = spatial_dvdx;
+	
+	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+
+	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
+
+
+	    // calculate granular strain and Euler strain
+	    average_dudx_Bagi.clear();	// used to test quadratic terms
+	    average_dudx_Eulerian.clear();
+
+	    granularStrain.clear();
+	    eulerianStrain.clear();
+	    euler_HOT.clear();
+//	    granularStrain = getGranularStrain()+previousStrain;
+//	    eulerianStrain = getEulerianStrain()+previousEuler;
+//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+//
+//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
+
+	    granularStrain = getGranularStrain();
+	    eulerianStrain = getEulerianStrain();
+	    euler_HOT = getEuler_HOT();
+
+	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+	    // update previousStrain
+	    previousStrain = granularStrain;
+	    previousEuler = eulerianStrain;
+	    previousEuler_HOT = euler_HOT;
+	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+	    previousEuler_dudx = average_dudx_Eulerian;
+
+	    // calculate finite granular strain
+	    finiteStrain.clear();
+	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+	    finiteStrain = getFiniteStrain();
+	    // calculate mixed finite granular strain
+	    lag_HOT.clear();
+	    lag_HOT = getHigherStrain();
+
+
+	    granularStress.clear();
+	    granularStress = getGranularStress();	// calculate granular stress
+
+	    stiffnessD = calculateStiffness();
+	    D11=stiffnessD(9,9);
+
+	    gettimeofday(&time_w2,NULL);
+	    progressinf << setw(OWID) << g_iteration
+		        << setw(OWID) << getPossCntctNum()
+		        << setw(OWID) << getActualCntctNum()
+		        << setw(OWID) << getAveragePenetration()
+		        << setw(OWID) << avgNormal
+		        << setw(OWID) << avgTangt
+		        << setw(OWID) << getAverageVelocity() 
+		        << setw(OWID) << getAverageOmga()
+		        << setw(OWID) << getAverageForce()   
+		        << setw(OWID) << getAverageMoment()
+		        << setw(OWID) << getDensity()
+		        << setw(OWID) << sigma1_1 << setw(OWID) << sigma1_2 << setw(OWID) << sigma2_1
+			<< setw(OWID) << sigma2_2 << setw(OWID) << sigma3_1 << setw(OWID) << sigma3_2
+		        << setw(OWID) << granularStress(1,1) << setw(OWID) << granularStress(1,2) << setw(OWID) << granularStress(1,3)
+		        << setw(OWID) << granularStress(2,1) << setw(OWID) << granularStress(2,2) << setw(OWID) << granularStress(2,3)
+		        << setw(OWID) << granularStress(3,1) << setw(OWID) << granularStress(3,2) << setw(OWID) << granularStress(3,3)
+		        << setw(OWID) << getAverageRigidPressure()
+		        << setw(OWID) << l24 << setw(OWID) << l13 << setw(OWID) << l56
+		        << setw(OWID) << Volume
+		        << setw(OWID) << epsilon_w
+		        << setw(OWID) << epsilon_l
+		        << setw(OWID) << epsilon_h
+		        << setw(OWID) << (epsilon_w+epsilon_l+epsilon_h)
+			<< setw(OWID) << granularStrain(1,1) << setw(OWID) << granularStrain(1,2) << setw(OWID) << granularStrain(1,3)
+		        << setw(OWID) << granularStrain(2,1) << setw(OWID) << granularStrain(2,2) << setw(OWID) << granularStrain(2,3)
+		        << setw(OWID) << granularStrain(3,1) << setw(OWID) << granularStrain(3,2) << setw(OWID) << granularStrain(3,3)
+		        << setw(OWID) << void_ratio
+		        << setw(OWID) << void_ratio/(1+void_ratio)
+		        << setw(OWID) << 2.0*(getActualCntctNum()
+					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
+					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
+	                << setw(OWID) << getVibraTimeStep()
+	                << setw(OWID) << getImpactTimeStep()
+		        << setw(OWID) << timediffsec(time_w1,time_w2)
+			<< setw(OWID) << finiteStrain(1,1) << setw(OWID) << finiteStrain(1,2) << setw(OWID) << finiteStrain(1,3)
+		        << setw(OWID) << finiteStrain(2,1) << setw(OWID) << finiteStrain(2,2) << setw(OWID) << finiteStrain(2,3)
+		        << setw(OWID) << finiteStrain(3,1) << setw(OWID) << finiteStrain(3,2) << setw(OWID) << finiteStrain(3,3)
+			<< setw(OWID) << lag_HOT(1,1) << setw(OWID) << lag_HOT(1,2) << setw(OWID) << lag_HOT(1,3)
+		        << setw(OWID) << lag_HOT(2,1) << setw(OWID) << lag_HOT(2,2) << setw(OWID) << lag_HOT(2,3)
+		        << setw(OWID) << lag_HOT(3,1) << setw(OWID) << lag_HOT(3,2) << setw(OWID) << lag_HOT(3,3)
+			<< setw(OWID) << eulerianStrain(1,1) << setw(OWID) << eulerianStrain(1,2) << setw(OWID) << eulerianStrain(1,3)
+		        << setw(OWID) << eulerianStrain(2,1) << setw(OWID) << eulerianStrain(2,2) << setw(OWID) << eulerianStrain(2,3)
+		        << setw(OWID) << eulerianStrain(3,1) << setw(OWID) << eulerianStrain(3,2) << setw(OWID) << eulerianStrain(3,3)
+			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
+		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
+		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+		        << setw(OWID) << 0
+		        << setw(OWID) << 0
+		        << setw(OWID) << 0
+		        << setw(OWID) << 0
+			<< setw(OWID) << average_dudx_Bagi(1,1) << setw(OWID) << average_dudx_Bagi(1,2) << setw(OWID) << average_dudx_Bagi(1,3)
+		        << setw(OWID) << average_dudx_Bagi(2,1) << setw(OWID) << average_dudx_Bagi(2,2) << setw(OWID) << average_dudx_Bagi(2,3)
+		        << setw(OWID) << average_dudx_Bagi(3,1) << setw(OWID) << average_dudx_Bagi(3,2) << setw(OWID) << average_dudx_Bagi(3,3)
+		        
+			<< setw(OWID) << average_dudx_Lagrangian(1,1) << setw(OWID) << average_dudx_Lagrangian(1,2) << setw(OWID) << average_dudx_Lagrangian(1,3)
+		        << setw(OWID) << average_dudx_Lagrangian(2,1) << setw(OWID) << average_dudx_Lagrangian(2,2) << setw(OWID) << average_dudx_Lagrangian(2,3)
+		        << setw(OWID) << average_dudx_Lagrangian(3,1) << setw(OWID) << average_dudx_Lagrangian(3,2) << setw(OWID) << average_dudx_Lagrangian(3,3)
+			<< setw(OWID) << average_dudx_Eulerian(1,1) << setw(OWID) << average_dudx_Eulerian(1,2) << setw(OWID) << average_dudx_Eulerian(1,3)
+		        << setw(OWID) << average_dudx_Eulerian(2,1) << setw(OWID) << average_dudx_Eulerian(2,2) << setw(OWID) << average_dudx_Eulerian(2,3)
+		        << setw(OWID) << average_dudx_Eulerian(3,1) << setw(OWID) << average_dudx_Eulerian(3,2) << setw(OWID) << average_dudx_Eulerian(3,3)
+			<< setw(OWID) << spatial_dvdx(1,1) << setw(OWID) << spatial_dvdx(1,2) << setw(OWID) << spatial_dvdx(1,3)
+		        << setw(OWID) << spatial_dvdx(2,1) << setw(OWID) << spatial_dvdx(2,2) << setw(OWID) << spatial_dvdx(2,3)
+		        << setw(OWID) << spatial_dvdx(3,1) << setw(OWID) << spatial_dvdx(3,2) << setw(OWID) << spatial_dvdx(3,3)
+			<< setw(OWID) << getApt(6).getz() - bottom_init
+			<< setw(OWID) << vfabs(getNormalForce(6))
+			<< setw(OWID) << getApt(5).getz() - top_init
+			<< setw(OWID) << vfabs(getNormalForce(5))
+			<< setw(OWID) << D11
+		        << endl;
+//	    g_debuginf << setw(OWID) << g_iteration
+//		       << setw(OWID) << getTransEnergy()
+//		       << setw(OWID) << getRotatEnergy()
+//		       << setw(OWID) << bdry_penetr[1]
+//		       << setw(OWID) << bdry_penetr[2]
+//		       << setw(OWID) << bdry_penetr[3]
+//		       << setw(OWID) << bdry_penetr[4]
+//		       << setw(OWID) << bdry_penetr[5]
+//		       << setw(OWID) << bdry_penetr[6]
+//		       << setw(OWID) << bdry_cntnum[1]
+//		       << setw(OWID) << bdry_cntnum[2]
+//		       << setw(OWID) << bdry_cntnum[3]
+//		       << setw(OWID) << bdry_cntnum[4]
+//		       << setw(OWID) << bdry_cntnum[5]
+//		       << setw(OWID) << bdry_cntnum[6]
+//		       << endl;
+	}
+
+	// 9. loop break condition: through displacement control mechanism
+	
+    } while (++g_iteration <= total_steps);
+
+    // post_1. store the final snapshot of particles, contacts and boundaries.
+    printParticle(iniptclfile);
+
+    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+
+    printBoundary(inibdryfile);
+    
+    // post_2. close streams
+    progressinf.close();
+    balancedinf.close();
+//    g_debuginf.close();
+} // unixialCompression
+
+void assembly::unixialCompressionPB1(int   total_steps,  
+			REAL topDispl,
+			REAL botDispl,
+			int   first_snapshot,
+			int   snapshots, 
+			int   interval,  
+			const char* iniptclfile, 
+			const char* inibdryfile,
+			const char* particlefile,
+			const char* progressfile,
+			const char* balancedfile,
+			const char* debugfile) 
+{
+    // pre_1: open streams for output
+    // particlefile and contactfile are used for snapshots at the end.
+    progressinf.open(progressfile);
+    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+    progressinf.setf(std::ios::scientific, std::ios::floatfield);
+    progressinf.precision(OPREC);
+    progressinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "sample" // for new 3 sigma's
+		<< setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+		<< setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "finite" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag" 
+		<< setw(OWID) << "H.O.T._Lag"
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "H.O.T._Euler" 
+		<< setw(OWID) << "Logarithmic" 	// for logarithmic strain
+		<< setw(OWID) << "Logarithmic"
+		<< setw(OWID) << "Logarithmic"
+		<< setw(OWID) << "Logarithmic" 
+		<< setw(OWID) << "Bagi" 	// for average_dudx_Bagi, used to test quadratic terms, April 22, 2013
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Bagi" 
+		<< setw(OWID) << "Lagrangian" 	// for average_dudx_Lagrangian, used to test quadratic terms
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian" 
+		<< setw(OWID) << "Lagrangian"
+		<< setw(OWID) << "Eulerian" 	// for average_dudx_Eulerian, used to test quadratic terms
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "Eulerian" 
+		<< setw(OWID) << "spatial" 	// for spatial velocity gradient tensor, deformation rate tensor
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial" 
+		<< setw(OWID) << "spatial"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "bottom"
+		<< setw(OWID) << "top"
+		<< setw(OWID) << "top" 
+		<< setw(OWID) << "tangent" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+		<< setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "sigma_11"
+	        << setw(OWID) << "sigma_12"
+	        << setw(OWID) << "sigma_13"
+	        << setw(OWID) << "sigma_21"
+	        << setw(OWID) << "sigma_22"
+	        << setw(OWID) << "sigma_23"
+	        << setw(OWID) << "sigma_31"
+	        << setw(OWID) << "sigma_32"
+	        << setw(OWID) << "sigma_33"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "epsilon_11"
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" 
+	        << setw(OWID) << "epsilon_11"	// for finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "epsilon_11"	// for mixed finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33"
+	        << setw(OWID) << "epsilon_11"	// for eulerian finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33" 
+	        << setw(OWID) << "epsilon_11"	// for mixed eulerian finite strain
+	        << setw(OWID) << "epsilon_12"
+	        << setw(OWID) << "epsilon_13"
+	        << setw(OWID) << "epsilon_21"
+	        << setw(OWID) << "epsilon_22"
+	        << setw(OWID) << "epsilon_23"
+	        << setw(OWID) << "epsilon_31"
+	        << setw(OWID) << "epsilon_32"
+	        << setw(OWID) << "epsilon_33" 
+		<< setw(OWID) << "epsilon_w"	// for logranthmic strain
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Bagi, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Lagrangian, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 
+	        << setw(OWID) << "dudx_11"	// for average_dudx_Eulerian, used to test quadratic terms
+	        << setw(OWID) << "dudx_12"
+	        << setw(OWID) << "dudx_13"
+	        << setw(OWID) << "dudx_21"
+	        << setw(OWID) << "dudx_22"
+	        << setw(OWID) << "dudx_23"
+	        << setw(OWID) << "dudx_31"
+	        << setw(OWID) << "dudx_32"
+	        << setw(OWID) << "dudx_33" 	        
+		<< setw(OWID) << "dvdx_11"	// for spatial velocity gradient tensor, deformation rate tensor
+	        << setw(OWID) << "dvdx_12"
+	        << setw(OWID) << "dvdx_13"
+	        << setw(OWID) << "dvdx_21"
+	        << setw(OWID) << "dvdx_22"
+	        << setw(OWID) << "dvdx_23"
+	        << setw(OWID) << "dvdx_31"
+	        << setw(OWID) << "dvdx_32"
+	        << setw(OWID) << "dvdx_33"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force"
+		<< setw(OWID) << "displacement"
+		<< setw(OWID) << "force" 
+                << setw(OWID) << "operator" << endl;
+
+    std::ofstream balancedinf(balancedfile);
+    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+    balancedinf.precision(OPREC);
+    balancedinf << setw(OWID) << "iteration"
+	        << setw(OWID) << "possible"
+	        << setw(OWID) << "actual"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "average"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "void"
+	        << setw(OWID) << "sample"
+	        << setw(OWID) << "coordinate"
+	        << setw(OWID) << "vibra"
+	        << setw(OWID) << "impact"
+	        << setw(OWID) << "wall-clock" << endl
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "contacts"
+	        << setw(OWID) << "penetration"
+	        << setw(OWID) << "contact_normal"
+	        << setw(OWID) << "contact_tangt"
+	        << setw(OWID) << "velocity"
+	        << setw(OWID) << "omga"
+	        << setw(OWID) << "force"
+	        << setw(OWID) << "moment"
+	        << setw(OWID) << "density"
+	        << setw(OWID) << "sigma1_1"
+	        << setw(OWID) << "sigma1_2"
+	        << setw(OWID) << "sigma2_1"
+	        << setw(OWID) << "sigma2_2"
+	        << setw(OWID) << "sigma3_1"
+	        << setw(OWID) << "sigma3_2"
+	        << setw(OWID) << "mean_stress"
+	        << setw(OWID) << "width"
+	        << setw(OWID) << "length"
+	        << setw(OWID) << "height"
+	        << setw(OWID) << "volume"
+	        << setw(OWID) << "epsilon_w"
+	        << setw(OWID) << "epsilon_l"
+	        << setw(OWID) << "epsilon_h"
+	        << setw(OWID) << "epsilon_v"
+	        << setw(OWID) << "ratio"
+	        << setw(OWID) << "porosity"
+	        << setw(OWID) << "number"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "t_step"
+	        << setw(OWID) << "time" << endl;
+
+//    g_debuginf.open(debugfile);
+//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+
+    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    temp_vec.push_back(0);
+    for(int i=0; i!=3; i++){
+	average_dudx_Bagi.appendRow(temp_vec);
+	average_dudx_Eulerian.appendRow(temp_vec);
+	average_dudx_Lagrangian.appendRow(temp_vec);
+    }
+
+    // pre_2. create particles and boundaries from files
+    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+    readBoundary(inibdryfile);   // create boundaries
+
+    // pre_3. define variables used in iterations
+    REAL W0 = getApt(2).gety()-getApt(4).gety();
+    REAL L0 = getApt(1).getx()-getApt(3).getx();
+    REAL H0 = getApt(5).getz()-getApt(6).getz();
+    initVolume = W0*L0*H0;
+    REAL l13, l24, l56, min_area, mid_area, max_area;
+    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+    matrix granularStress(3,3);
+    matrix granularStrain(3,3);	// granular strain
+    matrix previousStrain(3,3);
+    matrix previousEuler(3,3);
+    matrix finiteStrain(3,3);	// finite granular strain
+    matrix lag_HOT(3,3);	// mixed finite granular strain
+    matrix eulerianStrain(3,3);	// eulerian granular strain
+    matrix euler_HOT(3,3);
+    matrix previousEuler_HOT(3,3);
+    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+    matrix previousBagi_dudx(3,3);
+    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+
+    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+    matrix prev_strain_rate(3,3);
+    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+   
+    matrix stiffnessD(9,9);
+    REAL D11;
+
+    // initialize previousStrain(3,3)
+    for(int i_ps=0; i_ps!=2; i_ps++){
+	for(int j_ps=0; j_ps!=2; j_ps++){
+		previousStrain(i_ps+1,j_ps+1) = 0;
+		previousEuler(i_ps+1,j_ps+1) = 0;
+		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+	}
+    }
+    
+    // first tessellation
+    createInputForQhull();
+    callQhull();
+    readTesse("tess_info");
+    readTesse_finite("tess_info");
+    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+
+    REAL epsilon_w, epsilon_l, epsilon_h;
+    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+
+    REAL avgNormal=0;
+    REAL avgTangt=0;
+    int         stepsnum=0;
+    char        stepsstr[4];
+    char        stepsfp[50];
+    
+    int         mid[2]={1,3};    // boundary 1 and 3
+    int         max[2]={2,4};    // boundary 2 and 4
+    int         min[2]={5,6};    // boundary 5 and 6
+    UPDATECTL   midctl[2];
+    UPDATECTL   maxctl[2];
+    UPDATECTL   minctl[2];
+    REAL void_ratio=0;
+    REAL bdry_penetr[7];
+    int         bdry_cntnum[7];
+    for (int i=0;i<7;++i){
+	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+    }
+
+//    subDivision();	// at present, subdivide before simulation
+//printParticle("fractured_particles");
+
+    // iterations start here...
+    g_iteration=0;
+    gettimeofday(&time_w1,NULL);
+    REAL top_disp = 0;	// displacement of top boundary
+    REAL bot_disp = 0;	// displacement of bottom boundary
+    REAL bottom_init = getApt(6).getz();
+    REAL top_init = getApt(5).getz();
+    REAL topCompressRate = topDispl/double(total_steps);
+    REAL botCompressRate = botDispl/double(total_steps);
+    vec tmp_pos, tmp_pos1;
+    calculatePeriodicParameters();
+    REAL dzOverZ0 = topCompressRate/Zinter;
+    REAL tmp_dispz, init_z;
+    do
+    {
+	// copy periodic boundary particles to provide periodic particle vector as boundary
+	constructPeriodicParticles();	
+
+	// 1. create possible boundary particles and contacts between particles
+	findContact();
+//	findParticleOnBoundary();
+
+	// 2. set particles' forces/moments as zero before each re-calculation
+	clearForce();	
+	clearStress();	// clear average stress of each particle, April 23, 2014
+
+	// 3. calculate contact forces/moments and apply them to particles
+	internalForce(avgNormal, avgTangt);
+	
+	// 4. calculate boundary forces/moments and apply them to particles
+//	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+
+//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+						// two sub-poly-ellipsoids separately.
+//	addFractureForce(avgFracForce);
+//
+//	eraseFracturePair();
+
+	// 5. update particles' velocity/omga/position/orientation based on force/moment
+	updateParticle();
+     	// apply boundary conditions directly on boundary particles
+     	for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+	    tmp_pos = (*it)->getCurrPosition();
+	    tmp_pos1 = (*it)->getPrevPositionPB();	// position at last time step
+
+	    init_z = (*it)->getInitPosition().getz();
+	    tmp_dispz = dzOverZ0*(init_z-Zmin);
+	    (*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
+	    (*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
+
+	    tmp_pos = (*it)->getCurrPosition();
+
+	    if(tmp_pos.getz()<Zmin+0.5*cellSize){	// bot boundary particles
+		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
+		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
+	    }
+	    tmp_pos = (*it)->getCurrPosition();
+	    if(tmp_pos.getx()>Xmax-0.5*cellSize || tmp_pos.getx()<Xmin+0.5*cellSize){	// x boundaries
+		(*it)->setCurrPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));	// fixed in x direction
+		(*it)->setPrevPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));
+	    }
+	    tmp_pos = (*it)->getCurrPosition();
+	    if(tmp_pos.gety()>Ymax-0.5*cellSize || tmp_pos.gety()<Ymin+0.5*cellSize){	// y boundaries
+		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));	// fixed in y direction
+		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));
+	    }
+	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+    	}
+
+  	// apply periodic boundary to move the particles out of left side to right side
+	movePeriodicParticles();
+
+	subDivision();
+
+	// 6. update boundaries' position and orientation
+	l56=getApt(5).getz()-getApt(6).getz();
+	l24=getApt(2).gety()-getApt(4).gety();
+	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+//	granularStress.clear();
+//	granularStress = getGranularStress();	// calculate granular stress
+
+	void_ratio=Volume/getParticleVolume()-1;
+
+	// displacement control
+	minctl[0].tran=vec(0,0,-topCompressRate);
+	minctl[1].tran=vec(0,0, botCompressRate);	// move bottom boundary up
+
+	top_disp += topCompressRate;
+	bot_disp += botCompressRate;
+
+	midctl[0].tran=vec(0,0,0);
+	midctl[1].tran=vec(0,0,0);
+
+	maxctl[0].tran=vec(0,0,0);	
+	maxctl[1].tran=vec(0,0,0);
+
+
+/*
+	// force control
+	if (sigma2_1<sigma_a)
+	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma2_2<sigma_a)
+	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+	else
+	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+	
+	if (sigma1_1<sigma_a)
+	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+	
+	if (sigma1_2<sigma_a)
+	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+	else
+	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+
+*/
+
+	
+//	updateRB(min,minctl,2);
+//	updateRB(mid,midctl,2);
+//	updateRB(max,maxctl,2);
+//	updateRB6();
 	
 	// 7. (1) output particles and contacts information
 	if (g_iteration % (total_steps/snapshots) == 0){
@@ -16433,7 +21339,6 @@ void assembly::unixialCompression(int   total_steps,
 			<< setw(OWID) << getApt(5).getz() - top_init
 			<< setw(OWID) << vfabs(getNormalForce(5))
 			<< setw(OWID) << D11
-			<< setw(OWID) << mass
 		        << endl;
 //	    g_debuginf << setw(OWID) << g_iteration
 //		       << setw(OWID) << getTransEnergy()
@@ -16469,6 +21374,5 @@ void assembly::unixialCompression(int   total_steps,
     balancedinf.close();
 //    g_debuginf.close();
 } // unixialCompression
-
 
 } // namespace dem

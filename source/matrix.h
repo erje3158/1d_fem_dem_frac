@@ -58,6 +58,7 @@ class matrix{
 	friend matrix expm(matrix);	// calculate the exponential of each element in the matrix. Not used here
 	friend REAL trace(matrix);	// calculate the trace of the matrix, add on March 8, 2013 for fabric invariants
 	friend matrix kroneckerProduct(matrix A, matrix B);	// kronecker product
+
 	
 
 };

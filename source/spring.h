@@ -30,8 +30,8 @@ class spring {
 
   void init(particle &p1, particle &p2) {
     length0 = vfabs( p2.getCurrPosition() - p1.getCurrPosition() );
-    REAL radius = p1.getA();
-    assert (radius == p2.getA() );
+    REAL radius = p1.getMaxRadius();
+    assert (radius == p2.getMaxRadius() );
     ks = Young * 4 * radius * radius / length0;
   } 
 };

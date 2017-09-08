@@ -130,9 +130,13 @@ void el_stress_ellip3d(const char * outputDir,
     // Change back to the directory from where this code is being run so that file inputs can be referenced properly
     chdir(cCurrentPath);
         
+    cout << "HERE 1" << endl;
+
     //Routines to look at comp_progress
     std:ifstream infile(string(outputDir) + "/el"+ to_string(el+1) + "_ip" + to_string(ip+1) + "/comp_progress");
         
+    cout << "HERE 2" << endl;
+
     //This routine retrieves the last line of comp_progress
     string lastLine = getLastLine(infile);
     // This loop goes through the last line of comp_progress and parses out the approrpriate parts
@@ -149,6 +153,8 @@ void el_stress_ellip3d(const char * outputDir,
         if(ii == 131) mass = trash;
     }
         
+    cout << "HERE 3" << endl;
+
     stress_el(0,ip,el) = sig11;
     stress_el(1,ip,el) = sig11;
     stress_el(2,ip,el) = sig11/dudX1(0);
