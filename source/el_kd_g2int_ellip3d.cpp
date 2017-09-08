@@ -71,7 +71,7 @@ void el_kd_g2int_ellip3d(const char * outputDir,
         // Code to read comp_prgress to get value for D11
         std:ifstream infile(dirName + "/comp_progress");
         string lastLine = getLastLine(infile);
-        for(ii = 0; ii < 132; ii++) {
+        for(ii = 0; ii < 131; ii++) {
             if(ii == 0)
                 trash = stod(lastLine, &sz);
             else {

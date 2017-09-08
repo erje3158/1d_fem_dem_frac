@@ -401,6 +401,7 @@ int main(int argc, char * argv[]) {
         //does this need to be sent to each node?
         el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
         //el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
+
         fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
             
         F_S_el = fs_el.col(el);
