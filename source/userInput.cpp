@@ -114,7 +114,12 @@ void demInput::readData(const char * inputFile)
       if ( line == "$DEM Constitutive"  ) { input >> this->youngsMod  ;
                                             input >> this->poisRatio  ;}
       if ( line == "$Time Parameters"   ) { input >> this->timestep   ;}
-      if ( line == "$Particle Contact"  ) { input >> this->damping    ;}
+      if ( line == "$Particle Contact"  ) { input >> this->damping    ;
+                                            input >> this->friction   ;}
+      if ( line == "$Partcile Fracture" ) { input >> this->sigmaCrit  ;
+                                          { input >> this->sigmaComp  ;
+                                            input >> this->tensileCrit;
+                                            input >> this->sigmaF     ;}
     }
   input.close();
 }
@@ -139,6 +144,13 @@ void demInput::echoData()
   cout << endl;
   cout << "Particle Contact:"                         << endl;
   cout << "   damping        = " << this->damping     << endl;
+  cout << "   friction       = " << this->friction    << endl;
+  cout << endl;
+  cout << "Particle Fracture:"                        << endl;
+  cout << "   sigmaCrit      = " << this->sigmaCrit   << endl;
+  cout << "   sigmaComp      = " << this->sigmaComp   << endl;
+  cout << "   tensileCrit    = " << this->tensileCrit << endl;
+  cout << "   sigmaF         = " << this->sigmaF      << endl;
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << endl << endl << endl;
 }

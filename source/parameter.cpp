@@ -31,10 +31,10 @@ REAL POISSON    = 0.18;    // quartz sand v  = 0.25
 const REAL Gs         = 2.65;    // quartz sand Gs = 2.65    
 
 // critical tensile stress for particle sub-division - original
-const REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
+REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
 
 // compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
+REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
 const REAL mi		  = 32.4;	// material const, for granite mi=32.4
 
 /*
@@ -84,7 +84,7 @@ const REAL mi		  = 32.4;	// material const, for granite mi=32.4
 
 
 // critical maximum tensile stress for contact point criterion
-const REAL ContactTensileCritical = 350.196e+7;	// calculated from experiment
+REAL ContactTensileCritical = 350.196e+7;	// calculated from experiment
 //const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
 
 // Weibull modulus used for particle strength
@@ -92,7 +92,7 @@ const REAL weibullModulus = 0.5;
 const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
 
 // properties for the springs
-const REAL sigma_f = 4.13e7;	// soft criterion for spring
+REAL sigma_f = 4.13e7;	// soft criterion for spring
 const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
 				// the accurate propogate speed should be larger than this value
 

@@ -65,7 +65,7 @@ void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads,
     
     // 2. normal damping and tangential friciton
     dem::DMP_CNT       = demParams.damping;    // normal contact damping ratio
-    dem::FRICTION      = 0.8;     // coefficient of friction between particles
+    dem::FRICTION      = demParams.friction;     // coefficient of friction between particles
     dem::BDRYFRIC      = 0.8;     // coefficient of friction between particle and rigid wall
     dem::COHESION      = 0;       // cohesion between particles, 5.0e+8
 
@@ -78,6 +78,11 @@ void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads,
     dem::MAXOVERLAP    = demParams.maxOverlap;
     dem::YOUNG         = demParams.youngsMod;
     dem::POISSON       = demParams.poisRatio;
+
+    dem::sigmaCritical          = demParams.simgaCrit; 
+    dem::sigmaCompress          = demParams.sigmaComp;
+    dem::ContactTensileCritical = demParams.tensileCrit;
+    dem::sigma_f                = demParams.sigmaF;
 
     dem::assembly A;
 
