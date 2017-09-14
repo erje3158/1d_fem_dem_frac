@@ -116,7 +116,7 @@ void demInput::readData(const char * inputFile)
       if ( line == "$Time Parameters"   ) { input >> this->timestep   ;}
       if ( line == "$Particle Contact"  ) { input >> this->damping    ;
                                             input >> this->friction   ;}
-      if ( line == "$Partcile Fracture" ) { input >> this->sigmaCrit  ;
+      if ( line == "$Particle Fracture" ) { input >> this->sigmaCrit  ;
                                             input >> this->sigmaComp  ;
                                             input >> this->tensileCrit;
                                             input >> this->sigmaF     ;}
