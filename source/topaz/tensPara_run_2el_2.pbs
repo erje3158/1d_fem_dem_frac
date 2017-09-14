@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N hu_code_test
+#PBS -N tensPara_2
 #PBS -l select=4:ncpus=36:mpiprocs=1
 #PBS -l walltime=168:00:00
 #PBS -l place=scatter:excl
