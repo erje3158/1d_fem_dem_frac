@@ -2792,7 +2792,7 @@ matrix assembly::getdmn(edge mn, std::vector<cell> cellsContain) const{
 	dmn(1,1) = 0;
 	dmn(2,1) = 0;
 	dmn(3,1) = 0;
-	for(std::vector<cell>::const_iterator it=cellsContain.begin(); it!=cellsContain.end(); it++){
+	for(std::vector<cell>::iterator it=cellsContain.begin(); it!=cellsContain.end(); it++){
 		dmn += getb((*it), node_n)-getb((*it), node_m);
 	}
 	dmn = dmn/12;
@@ -2813,7 +2813,7 @@ matrix assembly::getGranularStrain() {
 	}
 	average_dudx_Bagi = granular_e;	// used to test quadratic terms, April 22, 2013
 //std::cout << "point 1!" << std::endl;
-	for(std::map<edge, std::vector<cell> >::const_iterator map_it=edge_map.begin(); map_it!=edge_map.end(); map_it++){
+	for(std::map<edge, std::vector<cell> >::iterator map_it=edge_map.begin(); map_it!=edge_map.end(); map_it++){
 		// get the edge
 		temp = map_it->first;
 		dmn.clear();
