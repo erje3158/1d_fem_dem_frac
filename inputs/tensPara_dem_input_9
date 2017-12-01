@@ -1,0 +1,19 @@
+$Particle Overlap
+5.0e-1
+
+$DEM Constitutive
+29.0e9
+0.18
+
+$Time Parameters
+2.0e-8
+
+$Particle Contact
+0.7
+0.8
+
+$Particle Fracture
+2.7235e+10
+200.5399e+7
+350.196e+7
+4.13e+10
