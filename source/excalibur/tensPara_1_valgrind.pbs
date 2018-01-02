@@ -50,7 +50,7 @@ module swap PrgEnv-intel PrgEnv-gnu
 module list
 
 echo Simulation started at `date`
-aprun -n $NSLOTS valgrind --leak-check=yes ./hu_code
+valgrind --leak-check=yes aprun -n $NSLOTS  ./hu_code
 echo Simulation finished at `date`
 
 # --- CLEAN UP ---
