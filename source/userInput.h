@@ -38,9 +38,13 @@ class femInput
 
   double alphaM;         // Mass Proportional Parameter
 
-  int whichDisp;     // If 0 - error
-               // If 1 - applied finite displacement
-               // If 2 - "correct" SHPB displacement
+  int whichDisp;         // If 0 - error
+                         // If 1 - applied finite displacement
+                         // If 2 - "correct" SHPB displacement
+
+  int whichConst;        // If 0 - error
+                         // If 1 - hyperelasticity
+                         // If 2 - ellip3d DEM
 
   femInput()
   {
@@ -75,6 +79,8 @@ class femInput
     alphaM       = 0.0; 
 
     whichDisp    = 0;
+
+    whichConst   = 0;
   }
 
   ~femInput();

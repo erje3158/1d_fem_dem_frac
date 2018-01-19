@@ -420,17 +420,35 @@ int main(int argc, char * argv[]) {
         if (n%print_int==0) {
             n_print++;
         }
-        
-        //el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
-        el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
+
+        if (femParams.whichConst == 1)
+        {
+            el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
+        } else if (femParams.whichConst == 2)
+        {
+            el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+        } else
+        {
+            cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
+            exit(0);
+        }
             
 #ifdef USE_MPI
         MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
+        if (femParams.whichConst == 1)
+        {
+            el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
+        } else if (femParams.whichConst == 2)
+        {
+            el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
+        } else
+        {
+            cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
+            exit(0);
+        }
         //does this need to be sent to each node?
-        //el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
-        el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
 
         fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
             

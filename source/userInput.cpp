@@ -46,8 +46,10 @@ void femInput::readData(const char * inputFile)
                                              input >> this->time_tot   ;}
       if ( line == "$Strain Rate"        ) { input >> this->strainrate ;}
       if ( line == "$Mass Damping"       ) { input >> this->alphaM     ;}
-      if ( line == "$Finite Applied Disp") { this->whichDisp = 1       ;}
-      if ( line == "$SHPB Applied Disp"  ) { this->whichDisp = 2       ;}
+      if ( line == "$Finite Applied Disp") { this->whichDisp  = 1      ;}
+      if ( line == "$SHPB Applied Disp"  ) { this->whichDisp  = 2      ;}
+      if ( line == "$Hyperelasticity"    ) { this->whichConst = 1      ;}
+      if ( line == "$Ellip3D DEM"        ) { this->whichConst = 2      ;}
     }
   input.close();
 }
@@ -98,7 +100,7 @@ void femInput::echoData()
   cout << "Mass Damping:"                             << endl;
   cout << "   alphaM         = " << this->alphaM      << endl;
   cout << endl;
-  cout << "Which Displacement?"             << endl;
+  cout << "Which Displacement?"                       << endl;
   if (this->whichDisp == 1)
   {
     cout << "   applied finite displacement"          << endl;
@@ -108,6 +110,17 @@ void femInput::echoData()
   } else
   {
     cout << "   Error! No Specified Disp   "          << endl;
+  }
+  cout << "Which Constitutive Model?"                 << endl;
+  if (this->whichConst == 1)
+  {
+    cout << "   Hyperelasticity"                      << endl;
+  } else if (this->whichConst == 2)
+  {
+    cout << "   Ellip3D DEM"                          << endl;
+  } else
+  {
+    cout << "   Error! No Specified Model"            << endl;
   }
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << endl << endl << endl;
