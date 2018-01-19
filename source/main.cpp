@@ -21,8 +21,11 @@
 #include "armadillo"
 #include "routines.h"
 #include "meshTools.h"
+#include "dispFunctions.h"
 
+#ifdef USE_MPI
 #include "mpi.h"
+#endif
 
 using namespace std;
 using namespace arma;
@@ -73,23 +76,30 @@ int main(int argc, char * argv[]) {
     ofstream d_file, v_file, a_file, t_file, stress_file, isv_file, F_S_file;
     char cCurrentPath[FILENAME_MAX];
     
+#ifdef USE_MPI
     // Initialize MPI
     rc = MPI_Init(&argc, &argv);
     if(rc != MPI_SUCCESS) {
     	cout << "Error starting program with MPI..." << endl;
     	MPI_Abort(MPI_COMM_WORLD, rc);
     }
+#endif
 
     if(argc > 7 || argc < 7) {
         cout << "Input Format: " << argv[0] << " <Path to Boundary Input File> <Path to Particle Input File> <Path to qdelauny> <Directory to Write Outputs> <Path to FEM Inputs> <Path to DEM Inputs>" << endl;
         return -1;
     }
 
+#ifdef USE_MPI
     MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	cout << "rank = " << rank << endl;
 	cout << "numtasks = " << numtasks << endl;
+#else
+    rank = 1;
+    numtasks = 1;
+#endif
 
     BI_file_Path = argv[1];
     PI_file_Path = argv[2];
@@ -144,7 +154,9 @@ int main(int argc, char * argv[]) {
     	cout << "Current Directory is " << cCurrentPath << endl;
     }
 
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
     //Read data from input file (fem_inputs)
     femInput femParams;
@@ -220,10 +232,18 @@ int main(int argc, char * argv[]) {
     dispfun_disp.zeros(nsteps);
     dispfun_eps.zeros(nsteps);
     
-    for(ii = 1; ii < nsteps; ii++) {
-        dispfun_time(ii) = (ii-1.0) * time_tot/double(nsteps);
-        dispfun_disp(ii) = -h * (exp(strainrate * dispfun_time(ii))-1.0);
-        dispfun_eps(ii)  = log(1.0+dispfun_disp(ii)/h);
+    if (femParams.whichDisp == 1)
+    {
+        finiteAppliedDisp(dispfun_time, dispfun_disp, dispfun_eps, nsteps, time_tot, strainrate, h);
+
+    } else if (femParams.whichDisp == 2)
+    {
+        shpbAppliedDisp(dispfun_time, dispfun_disp, dispfun_eps, nsteps, time_tot, strainrate, h);
+
+    } else 
+    {
+        cout << "ERROR: NO SPECIFICED DISPLACEMENT" << endl;
+        exit(0);
     }
     
     createG(g, dispfun_disp, params, 0);
@@ -325,26 +345,34 @@ int main(int argc, char * argv[]) {
 
     }
 	
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
     if (rank == 0)
     {
         femParams.echoData();
+        femParams.checkData();
         demParams.echoData();
+        demParams.checkData();
         printMesh(coords, LM, g);
     }
 
     femParams.~femInput();
 
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
     for(n = 1; n <= nsteps; n++) {
     	if(rank == 0) {
     		cout << "*** Current step = " << n << " ***" << endl;
     	}
 
+#ifdef USE_MPI
     	MPI_Barrier(MPI_COMM_WORLD);
-    	
+#endif
+
         t = t + dt;
 
         createG(g_n, dispfun_disp, params, n-1);
@@ -393,14 +421,16 @@ int main(int argc, char * argv[]) {
             n_print++;
         }
         
-        el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
-        //el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
+        //el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+        el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
             
+#ifdef USE_MPI
         MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
         //does this need to be sent to each node?
-        el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
-        //el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
+        //el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
+        el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
 
         fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
             
@@ -466,7 +496,9 @@ int main(int argc, char * argv[]) {
             cout << "F_S = " << F_S << endl;
          }
 
+#ifdef USE_MPI
          MPI_Barrier(MPI_COMM_WORLD);
+#endif
         
         if(rank==0 && n%print_int==0) {
 			chdir(cCurrentPath);
@@ -518,12 +550,17 @@ int main(int argc, char * argv[]) {
     	    F_S_file.close();
         }
 
+#ifdef USE_MPI
         MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
         stress_el.zeros();
         isv_el.zeros();
     }
     
+#ifdef USE_MPI
     MPI_Finalize();
+#endif
+
     return 0;
 }

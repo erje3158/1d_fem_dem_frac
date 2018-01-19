@@ -1,5 +1,5 @@
 programName = hu_code
-CXX = CC -DOPENMP -fopenmp
+CXX = CC -DOPENMP -fopenmp -DUSE_MPI
 OPT = -dynamic -std=c++0x -g -O3 -mtune=native -msse4.2 #-ffast-math -funroll-loops
 INC = -I../include -I./include
 ARMA = -L../lib/ -larmadillo

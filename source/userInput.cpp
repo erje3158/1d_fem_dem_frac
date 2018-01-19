@@ -24,28 +24,30 @@ void femInput::readData(const char * inputFile)
   string line; ifstream input(inputFile);
   while ( getline(input,line) )
     {
-      if ( line == "$FEM Constitutive"  ) { input >> this->lambda     ;
-                                            input >> this->mu         ;
-                                            input >> this->rho        ;}
-      if ( line == "$Gravity"           ) { input >> this->grav       ;}
-      if ( line == "$FEM Geometry"      ) { input >> this->d          ;
-                                            input >> this->LDratio    ;}
-      if ( line == "$DEM Geometry"      ) { input >> this->h_DEM      ;
-                                            input >> this->w_DEM      ;
-                                            input >> this->l_DEM      ;}
-      if ( line == "$FEM Constants"     ) { input >> this->numips     ;
-                                            input >> this->nstress    ;
-                                            input >> this->nisv       ;
-                                            input >> this->ndof       ;
-                                            input >> this->nel        ;
-                                            input >> this->neldof     ;}
-      if ( line == "$Time Parameters"   ) { input >> this->t          ;
-                                            input >> this->dt         ;
-                                            input >> this->print_int  ;
-                                            input >> this->n_print    ;
-                                            input >> this->time_tot   ;}
-      if ( line == "$Strain Rate"       ) { input >> this->strainrate ;}
-      if ( line == "$Mass Damping"      ) { input >> this->alphaM     ;}
+      if ( line == "$FEM Constitutive"   ) { input >> this->lambda     ;
+                                             input >> this->mu         ;
+                                             input >> this->rho        ;}
+      if ( line == "$Gravity"            ) { input >> this->grav       ;}
+      if ( line == "$FEM Geometry"       ) { input >> this->d          ;
+                                             input >> this->LDratio    ;}
+      if ( line == "$DEM Geometry"       ) { input >> this->h_DEM      ;
+                                             input >> this->w_DEM      ;
+                                             input >> this->l_DEM      ;}
+      if ( line == "$FEM Constants"      ) { input >> this->numips     ;
+                                             input >> this->nstress    ;
+                                             input >> this->nisv       ;
+                                             input >> this->ndof       ;
+                                             input >> this->nel        ;
+                                             input >> this->neldof     ;}
+      if ( line == "$Time Parameters"    ) { input >> this->t          ;
+                                             input >> this->dt         ;
+                                             input >> this->print_int  ;
+                                             input >> this->n_print    ;
+                                             input >> this->time_tot   ;}
+      if ( line == "$Strain Rate"        ) { input >> this->strainrate ;}
+      if ( line == "$Mass Damping"       ) { input >> this->alphaM     ;}
+      if ( line == "$Finite Applied Disp") { this->whichDisp = 1       ;}
+      if ( line == "$SHPB Applied Disp"  ) { this->whichDisp = 2       ;}
     }
   input.close();
 }
@@ -95,8 +97,96 @@ void femInput::echoData()
   cout << endl;
   cout << "Mass Damping:"                             << endl;
   cout << "   alphaM         = " << this->alphaM      << endl;
+  cout << endl;
+  cout << "Which Displacement?"             << endl;
+  if (this->whichDisp == 1)
+  {
+    cout << "   applied finite displacement"          << endl;
+  } else if (this->whichDisp == 2)
+  {
+    cout << "   'correct' SHPB displacement"          << endl;
+  } else
+  {
+    cout << "   Error! No Specified Disp   "          << endl;
+  }
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << endl << endl << endl;
+}
+
+void femInput::checkData()
+{
+  if (this->d <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "Diameter must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->LDratio <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "LDratio must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->h_DEM <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "h_DEM must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->w_DEM <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "w_DEM must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->l_DEM <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "l_DEM must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->numips <= 1)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "numips must be >= 2" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->ndof <= 0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "ndof must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->nel <= 1)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "nel must be > 1" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->neldof <= 1)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "neldof must be > 1" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
 }
 
 demInput::~demInput(void)
@@ -153,6 +243,26 @@ void demInput::echoData()
   cout << "   sigmaF         = " << this->sigmaF      << endl;
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << endl << endl << endl;
+}
+
+void demInput::checkData()
+{
+  if (this->youngsMod <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "youngsMod must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
+  if (this->timestep <= 0.0)
+  {
+    cout << endl << endl;
+    cout << "ERROR! ~~~~~~~~~~~~~~~~" << endl;
+    cout << "timestep must be > 0" << endl;
+    cout << endl << endl;
+    exit(0);
+  }
 }
 
 

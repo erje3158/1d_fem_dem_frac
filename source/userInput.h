@@ -6,11 +6,11 @@ using namespace std;
 
 class femInput
 {
-	public:
+  public:
   
   double lambda;         // Pa
-	double mu;             // Pa
-	double rho;            // kg/m^3
+  double mu;             // Pa
+  double rho;            // kg/m^3
 
   double grav;           // m/s^2
 
@@ -38,11 +38,15 @@ class femInput
 
   double alphaM;         // Mass Proportional Parameter
 
+  int whichDisp;     // If 0 - error
+               // If 1 - applied finite displacement
+               // If 2 - "correct" SHPB displacement
+
   femInput()
   {
-  	lambda       = 0.0; 
-   	mu           = 0.0; 
-   	rho          = 0.0; 
+    lambda       = 0.0; 
+    mu           = 0.0; 
+    rho          = 0.0; 
 
     grav         = 0.0;
 
@@ -68,13 +72,16 @@ class femInput
     
     strainrate   = 0.0;
 
-   	alphaM       = 0.0; 
+    alphaM       = 0.0; 
+
+    whichDisp    = 0;
   }
 
   ~femInput();
 
   void readData(const char * inputFile);
   void echoData();
+  void checkData();
 
 };
 
@@ -118,5 +125,6 @@ public:
 
   void readData(const char * inputFile);
   void echoData();
+  void checkData();
 
 };

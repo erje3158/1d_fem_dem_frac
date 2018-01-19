@@ -59,8 +59,6 @@ void el_kd_g2int(rowvec coordsx,
     xi_vect(1) =  const0;
     weight(0) = 1.0;
     weight(1) = 1.0;
-
-cout << "Got to Here 2" << endl;
     
     for(ii = 0; ii < numips; ii++) {
         xi = xi_vect(ii);
@@ -71,8 +69,6 @@ cout << "Got to Here 2" << endl;
         
         dudX = Bu*d(span(0,1)).t();
         dudX1 = 1 + dudX;
-
-cout << "Got to Here 3" << endl;
         
         D11 = mu+1.0/(dudX1(0) * dudX1(0) * (lambda + mu - lambda*log(dudX1(0))));
         

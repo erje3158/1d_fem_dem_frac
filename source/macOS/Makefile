@@ -1,6 +1,7 @@
 programName = hu_code
-CXX =  mpicxx -DOPENMP -fopenmp -DUSE_MPI #icpc g++
-OPT = -std=c++0x -g -O3 -mtune=native -msse4.2#-dynamic -ffast-math -funroll-loops
+CXX = CC 
+#CXX = CC -DOPENMP -fopenmp -DUSE_MPI
+OPT = -dynamic -std=c++0x -g -O3 -mtune=native -msse4.2 
 INC = -I../include -I./include
 ARMA = -L../lib/ -larmadillo
 SOURCES = $(wildcard *.cpp)

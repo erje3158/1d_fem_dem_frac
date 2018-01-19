@@ -55,12 +55,15 @@ void el_stress_ellip3d(const char * outputDir,
     char cCurrentPath[FILENAME_MAX];
     
     getcwd(cCurrentPath, sizeof(cCurrentPath));
-    
+
+
+#ifdef OPENMP
 #pragma omp parallel
     num_threads = omp_get_num_threads();
 #pragma end omp parallel
 
     cout << "Number of threads = " << num_threads << endl;
+#endif
 
     sig11 = -1.0;
     mass  = -1.0;
@@ -83,7 +86,6 @@ void el_stress_ellip3d(const char * outputDir,
     
     nel = params(9);
     
-    
     // Initialize stress at Gauss points
     stress_el.zeros(nstress,numips,nel);
     isv_el.zeros(nisv,numips,nel);
@@ -96,8 +98,6 @@ void el_stress_ellip3d(const char * outputDir,
     gauss_loc(1) = el_mid + xi_vect(1) * (el_length/2.0);
         
     cout << "el_stress_ellip3d: Iteration " << ip+1 << " of " << numips << endl;
-        
-    //cout << "OMP_NUM_THREADS " << omp_get_num_threads() << endl;
         
     xi = xi_vect(ip);
     Bu.ones(2);

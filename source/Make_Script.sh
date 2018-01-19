@@ -45,6 +45,22 @@ if [ "$#" = 1 ]
 
 			rm Makefile
 
+	elif [ "$1" = "macOS" ]
+		then
+			echo "Compiling Hierarchical Upscaling Code on macOS"
+			cp macOS/Makefile ./
+
+			cd ../lib
+			export LD_LIBRARY_PATH="$(pwd):$LD_LIBRARY_PATH"
+			echo $LD_LIBRARY_PATH
+			cd ../source
+
+			rm *.o *~ hu_code
+			make
+			echo "Done!"
+
+			rm Makefile
+
 	else
 		echo "Don't recognize that platform..."
 		echo "Need to specify recognized platform: excalibur or topaz"
