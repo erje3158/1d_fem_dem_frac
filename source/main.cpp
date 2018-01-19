@@ -455,7 +455,7 @@ int main(int argc, char * argv[]) {
         F_S_el = fs_el.col(el);
                
         K_el = stiff_el.slice(el);
-                
+        
         temp = conv_to<vec>::from(LM.col(el));
         for(ii = 0; ii < neldof; ii++) {
             I = temp(ii);
