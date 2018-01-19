@@ -39,7 +39,24 @@ if [ "$#" = 2 ]
 				echo "--> List of available scripts: ./source/<platform>"
 				ls -l *.pbs
 			fi
+	elif [ "$1" = "macOS" ]
+		then
+			echo "Running Hierarchical Upscaling Code on macOS"
+			cd ./source/macOS/
 
+			if [ -f "$2" ]
+			then
+				cp ./"$2" ../../
+				cd ../../
+
+				./"$2" 
+				rm "$2"
+
+			else
+				echo "--> $2 is not the name of a currently existing submit script"
+				echo "--> List of available scripts: ./source/<platform>"
+				echo ls -l *.sh
+			fi
 	else
 		echo "--> Don't recognize that platform..."
 		echo "--> Need to specify recognized platform: excalibur or topaz"

@@ -226,8 +226,11 @@ int main(int argc, char * argv[]) {
 
     createCoords(coords,params,h);
     createLM(LM,params);
+
+#ifdef USE_MPI
     whichELIP(rank, el, ip);
-    
+#endif
+
     dispfun_time.zeros(nsteps);
     dispfun_disp.zeros(nsteps);
     dispfun_eps.zeros(nsteps);
@@ -404,72 +407,86 @@ int main(int argc, char * argv[]) {
             
         d_el_last.zeros(nel,neldof);
 
-        temp = conv_to<vec>::from(LM.col(el));
-        for(ii = 0; ii < neldof; ii++) {
-            I = temp(ii);
-            if(I > 0) {
-                d_el(el,ii) = dd(I-1);
-                d_el_last(el,ii) = d_last(I-1);
-            }
-            else {
-                d_el(el,ii) = g(ii,el);
-                d_el_last(el,ii) = g_n(ii,el);
-            }
-        }
-
-        if (n%print_int==0) {
-            n_print++;
-        }
-
-        if (femParams.whichConst == 1)
-        {
-            el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
-        } else if (femParams.whichConst == 2)
-        {
-            el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
-        } else
-        {
-            cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
-            exit(0);
-        }
-            
-#ifdef USE_MPI
-        MPI_Barrier(MPI_COMM_WORLD);
+#ifndef USE_MPI
+        for(el = 1; el <= nel; el++) {
 #endif
 
-        if (femParams.whichConst == 1)
-        {
-            el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
-        } else if (femParams.whichConst == 2)
-        {
-            el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
-        } else
-        {
-            cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
-            exit(0);
-        }
-        //does this need to be sent to each node?
-
-        fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
-            
-        F_S_el = fs_el.col(el);
-               
-        K_el = stiff_el.slice(el);
-        
-        temp = conv_to<vec>::from(LM.col(el));
-        for(ii = 0; ii < neldof; ii++) {
-            I = temp(ii);
-            if(I > 0) {
-                F_S(I-1) = F_S(I-1) + F_S_el(ii);
-                for(jj = 0; jj < neldof; jj++) {
-                    J = temp(jj);
-                    if(J > 0) {
-                        K(I-1,J-1) = K(I-1,J-1) + K_el(ii,jj);
-                    }
+            temp = conv_to<vec>::from(LM.col(el));
+            for(ii = 0; ii < neldof; ii++) {
+                I = temp(ii);
+                if(I > 0) {
+                    d_el(el,ii) = dd(I-1);
+                    d_el_last(el,ii) = d_last(I-1);
+                }
+                else {
+                    d_el(el,ii) = g(ii,el);
+                    d_el_last(el,ii) = g_n(ii,el);
                 }
             }
-        }
 
+            if (n%print_int==0) {
+                n_print++;
+            }
+
+            if (femParams.whichConst == 1)
+            {
+#ifndef USE_MPI
+                for(ip=1; ip <=numips; ip++){
+#endif
+                    el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
+#ifndef USE_MPI
+                }
+#endif
+            } else if (femParams.whichConst == 2)
+            {
+                el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+            } else
+            {
+                cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
+                exit(0);
+            }
+            
+#ifdef USE_MPI
+            MPI_Barrier(MPI_COMM_WORLD);
+#endif
+
+            //does this need to be sent to each node?
+            if (femParams.whichConst == 1)
+            {
+                el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
+            } else if (femParams.whichConst == 2)
+            {
+                el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
+            } else
+            {
+                cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
+                exit(0);
+            }
+
+            fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
+            
+            F_S_el = fs_el.col(el);
+               
+            K_el = stiff_el.slice(el);
+        
+            temp = conv_to<vec>::from(LM.col(el));
+            for(ii = 0; ii < neldof; ii++) {
+                I = temp(ii);
+                if(I > 0) {
+                    F_S(I-1) = F_S(I-1) + F_S_el(ii);
+                    for(jj = 0; jj < neldof; jj++) {
+                        J = temp(jj);
+                        if(J > 0) {
+                            K(I-1,J-1) = K(I-1,J-1) + K_el(ii,jj);
+                        }
+                   }
+               }
+            }
+#ifndef
+        }
+#endif
+
+#ifdef USE_MPI
         for(ii = 0; ii < K.n_rows; ii++) {
            	for(jj = 0; jj < K.n_cols; jj++) {
            		 MPI_Allreduce(&K(ii,jj),&K_total,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
@@ -481,10 +498,12 @@ int main(int argc, char * argv[]) {
            	MPI_Allreduce(&F_S(ii), &F_S_total, 1, MPI_DOUBLE, MPI_SUM,MPI_COMM_WORLD);
          	F_S(ii) = F_S_total;
         }
+#endif
 
         a = solve(M+gamma*dt*C,-(F_S-F_F-F_G)-C*v);
         v = v + dt*gamma*a;
         
+#ifdef
         for(ii = 0; ii < stress_el.n_rows; ii++) {
         	for(jj = 0; jj < stress_el.n_cols; jj++) {
         		for(kk = 0; kk < stress_el.n_slices; kk++) {
@@ -494,7 +513,6 @@ int main(int argc, char * argv[]) {
         	}
         }
 
-
         for(ii = 0; ii < isv_el.n_rows; ii++) {
          	for(jj = 0; jj < isv_el.n_cols; jj++) {
          		for(kk = 0; kk < isv_el.n_slices; kk++) {
@@ -502,9 +520,10 @@ int main(int argc, char * argv[]) {
          			isv_el(ii,jj,kk) = K_total;
          		}
          	}
-         }
+        }
+#endif
 
-         if(rank==0) {
+        if(rank==0) {
             cout << "dd = " << dd << endl;
             cout << "v = " << v << endl;
             cout << "a = " << a << endl;
@@ -512,7 +531,6 @@ int main(int argc, char * argv[]) {
             cout << "stress_el = " << stress_el << endl;
             cout << "isv_el = " << isv_el << endl;
             cout << "F_S = " << F_S << endl;
-         }
 
 #ifdef USE_MPI
          MPI_Barrier(MPI_COMM_WORLD);
