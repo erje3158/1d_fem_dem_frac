@@ -428,20 +428,17 @@ int main(int argc, char * argv[]) {
                 n_print++;
             }
 
-            if (femParams.whichConst == 1)
-            {
+            if (femParams.whichConst == 1) {
 #ifndef USE_MPI
-                for(ip=1; ip <=numips; ip++){
+                for (ip=1; ip <=numips; ip++) {
 #endif
                     el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
 #ifndef USE_MPI
                 }
 #endif
-            } else if (femParams.whichConst == 2)
-            {
+            } else if (femParams.whichConst == 2) {
                 el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
-            } else
-            {
+            } else {
                 cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
                 exit(0);
             }
@@ -451,14 +448,11 @@ int main(int argc, char * argv[]) {
 #endif
 
             //does this need to be sent to each node?
-            if (femParams.whichConst == 1)
-            {
+            if (femParams.whichConst == 1) {
                 el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
-            } else if (femParams.whichConst == 2)
-            {
+            } else if (femParams.whichConst == 2) {
                 el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
-            } else
-            {
+            } else {
                 cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
                 exit(0);
             }
@@ -482,7 +476,7 @@ int main(int argc, char * argv[]) {
                    }
                }
             }
-#ifndef
+#ifndef USE_MPI
         }
 #endif
 
@@ -503,7 +497,7 @@ int main(int argc, char * argv[]) {
         a = solve(M+gamma*dt*C,-(F_S-F_F-F_G)-C*v);
         v = v + dt*gamma*a;
         
-#ifdef
+#ifdef USE_MPI
         for(ii = 0; ii < stress_el.n_rows; ii++) {
         	for(jj = 0; jj < stress_el.n_cols; jj++) {
         		for(kk = 0; kk < stress_el.n_slices; kk++) {
@@ -531,6 +525,7 @@ int main(int argc, char * argv[]) {
             cout << "stress_el = " << stress_el << endl;
             cout << "isv_el = " << isv_el << endl;
             cout << "F_S = " << F_S << endl;
+        }
 
 #ifdef USE_MPI
          MPI_Barrier(MPI_COMM_WORLD);

@@ -16,7 +16,9 @@
 #include "armadillo"
 #include "routines.h"
 
+#ifdef USE_MPI
 #include "mpi.h"
+#endif
 
 using namespace arma;
 
@@ -258,7 +260,9 @@ void timestepping(const char * outputDir,
 		}
 	}
 	
+#ifdef USE_MPI
 	MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
     dsolve.row(n_stop*int(multi)) = d_stop.row(n_stop);
     vsolve.row(n_stop*int(multi)) = v_stop.row(n_stop);
@@ -306,9 +310,11 @@ void timestepping(const char * outputDir,
 		el = 1;
 		ip = 1;
 	}
-	
+
+#ifdef USE_MPI
 	MPI_Barrier(MPI_COMM_WORLD);
-    
+#endif
+
     for(n = nstart; n <= nend; n++) {
 		if (rank == 0) {
 			for(el = 1; el <= nel; el++) {
@@ -331,7 +337,9 @@ void timestepping(const char * outputDir,
 			}
 		}
 		
+#ifdef USE_MPI
 		MPI_Barrier(MPI_COMM_WORLD);
+#endif
 		
         *t = *t+dt;
         gd_n = gd;
@@ -408,7 +416,9 @@ void timestepping(const char * outputDir,
 				exit(1);
 			}
 			
+#ifdef USE_MPI
 			MPI_Barrier(MPI_COMM_WORLD);
+#endif
 	    // All sorts of needs fixing
             el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n_save, el, stiff_el.slice(el));
             fs_el.col(el) = el_f_g2int(coords.row(el), stress_el.slice(el), params);
@@ -430,6 +440,7 @@ void timestepping(const char * outputDir,
                 }
             }
 
+#ifdef USE_MPI
             for(ii = 0; ii < K.n_rows; ii++) {
             	for(jj = 0; jj < K.n_cols; jj++) {
             		 MPI_Allreduce(&K(ii,jj),&K_total,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
@@ -441,6 +452,7 @@ void timestepping(const char * outputDir,
             	MPI_Allreduce(&F_S(ii), &F_S_total, 1, MPI_DOUBLE, MPI_SUM,MPI_COMM_WORLD);
             	F_S(ii) = F_S_total;
             }
+#endif
 
             R = M*a + C*v + F_S - F_F - F_G;
             dR = M + dt*gamma*C + (dt*dt) * beta * K;
@@ -468,6 +480,7 @@ void timestepping(const char * outputDir,
                 }
             }
 
+#ifdef USE_MPI
 			for(ii = 0; ii < stress_el.n_rows; ii++) {
 				for(jj = 0; jj < stress_el.n_cols; jj++) {
 					for(kk = 0; kk < stress_el.n_slices; kk++) {
@@ -485,6 +498,7 @@ void timestepping(const char * outputDir,
 					}
 				}
 			}
+#endif
 
         }
 
