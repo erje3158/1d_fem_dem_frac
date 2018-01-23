@@ -66,7 +66,7 @@ if [ "$#" = 1 ]
 			echo "Compiling Hierarchical Upscaling Code on soilblast2.colorado.edu"
 			cp soilblast/Makefile ./
 
-			module load gcc-6.4.0
+			#module load gcc-6.4.0
 			module list
 
 			cd ../lib
