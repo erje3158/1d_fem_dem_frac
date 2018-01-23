@@ -4,7 +4,7 @@
 
 if [ "$#" = 1 ]
 	then
-	if   [ "$1" = "excalibur" ]
+	if [ "$1" = "excalibur" ]
 		then
 			echo "Compiling Hierarchical Upscaling Code on excalibur.arl.hpc.mil"
 			cp excalibur/Makefile ./
@@ -60,6 +60,25 @@ if [ "$#" = 1 ]
 			echo "Done!"
 
 			rm Makefile
+
+	elif [ "$1" = "soilblast" ]
+		then
+			echo "Compiling Hierarchical Upscaling Code on soilblast2.colorado.edu"
+			cp soilblast/Makefile ./
+
+			module load gcc-6.4.0
+			module list
+
+			cd ../lib
+			export LD_LIBRARY_PATH="$(pwd):$LD_LIBRARY_PATH"
+			echo $LD_LIBRARY_PATH
+			cd ../source
+
+			rm *.o *~ hu_code
+			make
+			echo "Done!"
+
+			rm Makefile 
 
 	else
 		echo "Don't recognize that platform..."

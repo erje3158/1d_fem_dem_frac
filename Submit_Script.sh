@@ -2,7 +2,7 @@
 
 if [ "$#" = 2 ]
 	then
-	if   [ "$1" = "excalibur" ]
+	if [ "$1" = "excalibur" ]
 		then
 			echo "Running Hierarchical Upscaling Code on excalibur.arl.hpc.mil"
 			cd ./source/excalibur/
@@ -39,6 +39,7 @@ if [ "$#" = 2 ]
 				echo "--> List of available scripts: ./source/<platform>"
 				ls -l *.pbs
 			fi
+
 	elif [ "$1" = "macOS" ]
 		then
 			echo "Running Hierarchical Upscaling Code on macOS"
@@ -56,6 +57,25 @@ if [ "$#" = 2 ]
 				echo "--> $2 is not the name of a currently existing submit script"
 				echo "--> List of available scripts: ./source/<platform>"
 				echo ls -l *.sh
+			fi
+
+	if [ "$1" = "soilblast" ]
+		then
+			echo "Running Hierarchical Upscaling Code on soilblast2.colorado.edu"
+			cd ./source/soilblast/
+
+			if [ -f "$2" ]
+			then
+				cp ./"$2" ../../
+				cd ../../
+
+				qsub "$2"
+				rm "$2"
+
+			else
+				echo "--> $2 is not the name of a currently existing PBS script"
+				echo "--> List of available scripts: ./source/<platform>"
+				ls -l *.pbs
 			fi
 	else
 		echo "--> Don't recognize that platform..."
