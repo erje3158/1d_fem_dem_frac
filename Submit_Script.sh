@@ -16,8 +16,11 @@ if [ "$#" = 2 ]
 				rm "$2"
 
 			else
-				echo "--> $2 is not the name of a currently existing PBS script"
+				echo
+				echo "--> '$2' is not the name of a currently existing PBS script"
+				echo
 				echo "--> List of available scripts: ./source/<platform>"
+				echo "--------------------------------------------------------------"
 				ls -l *.pbs
 			fi
 
@@ -35,8 +38,11 @@ if [ "$#" = 2 ]
 				rm "$2"
 				
 			else
-				echo "--> $2 is not the name of a currently existing PBS script"
+				echo
+				echo "--> '$2' is not the name of a currently existing PBS script"
+				echo
 				echo "--> List of available scripts: ./source/<platform>"
+				echo "--------------------------------------------------------------"
 				ls -l *.pbs
 			fi
 
@@ -54,12 +60,15 @@ if [ "$#" = 2 ]
 				rm "$2"
 
 			else
-				echo "--> $2 is not the name of a currently existing submit script"
+				echo
+				echo "--> '$2' is not the name of a currently existing submit script"
+				echo
 				echo "--> List of available scripts: ./source/<platform>"
-				echo ls -l *.sh
+				echo "--------------------------------------------------------------"
+				ls -l *.sh
 			fi
 
-	if [ "$1" = "soilblast" ]
+	elif [ "$1" = "soilblast" ]
 		then
 			echo "Running Hierarchical Upscaling Code on soilblast2.colorado.edu"
 			cd ./source/soilblast/
@@ -73,8 +82,11 @@ if [ "$#" = 2 ]
 				rm "$2"
 
 			else
-				echo "--> $2 is not the name of a currently existing PBS script"
+				echo
+				echo "--> '$2' is not the name of a currently existing PBS script"
+				echo
 				echo "--> List of available scripts: ./source/<platform>"
+				echo "--------------------------------------------------------------"
 				ls -l *.pbs
 			fi
 	else

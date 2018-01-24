@@ -111,6 +111,7 @@ void femInput::echoData()
   {
     cout << "   Error! No Specified Disp   "          << endl;
   }
+  cout << endl;
   cout << "Which Constitutive Model?"                 << endl;
   if (this->whichConst == 1)
   {

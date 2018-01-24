@@ -1,5 +1,5 @@
 programName = hu_code
-CXX = CC 
+CXX = g++ 
 OPT = -dynamic -std=c++0x -g -O3 -mtune=native -msse4.2 
 ARMA = -larmadillo
 SOURCES = $(wildcard *.cpp)

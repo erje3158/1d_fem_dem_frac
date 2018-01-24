@@ -75,7 +75,7 @@ int main(int argc, char * argv[]) {
     
     ofstream d_file, v_file, a_file, t_file, stress_file, isv_file, F_S_file;
     char cCurrentPath[FILENAME_MAX];
-    
+
 #ifdef USE_MPI
     // Initialize MPI
     rc = MPI_Init(&argc, &argv);
@@ -97,7 +97,7 @@ int main(int argc, char * argv[]) {
 	cout << "rank = " << rank << endl;
 	cout << "numtasks = " << numtasks << endl;
 #else
-    rank = 1;
+    rank = 0;
     numtasks = 1;
 #endif
 
@@ -288,7 +288,7 @@ int main(int argc, char * argv[]) {
         mass_el.slice(ii) = el_md_g1int((coords.row(ii)).t(), params);
         fg_el.col(ii)     = el_f_g4int( (coords.row(ii)).t(), params);
     }
-    
+
     for(kk = 0; kk < nel; kk++) {
         temp = conv_to<vec>::from(LM.col(kk));
         for(ii = 0; ii < neldof; ii++) {
@@ -347,7 +347,7 @@ int main(int argc, char * argv[]) {
     	}
 
     }
-	
+
 #ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
@@ -368,6 +368,7 @@ int main(int argc, char * argv[]) {
 #endif
 
     for(n = 1; n <= nsteps; n++) {
+
     	if(rank == 0) {
     		cout << "*** Current step = " << n << " ***" << endl;
     	}
@@ -388,6 +389,8 @@ int main(int argc, char * argv[]) {
         }
         
         createG(g, dispfun_disp, params, n);
+
+        cout << endl << "To Here 1" << endl;
         
         F_F = tract*Area;
         
@@ -407,6 +410,8 @@ int main(int argc, char * argv[]) {
             
         d_el_last.zeros(nel,neldof);
 
+        cout << endl << "To Here 2" << endl;
+
 #ifndef USE_MPI
         for(el = 1; el <= nel; el++) {
 #endif
@@ -424,6 +429,8 @@ int main(int argc, char * argv[]) {
                 }
             }
 
+            cout << endl << "To Here 3" << endl;
+
             if (n%print_int==0) {
                 n_print++;
             }
@@ -433,6 +440,8 @@ int main(int argc, char * argv[]) {
                 for (ip=1; ip <=numips; ip++) {
 #endif
                     el_stress_isv(coords.row(el), d_el.row(el), params, el, ip, stress_el, isv_el);
+                    cout << endl << "To Here 4" << endl;
+
 #ifndef USE_MPI
                 }
 #endif
@@ -449,7 +458,9 @@ int main(int argc, char * argv[]) {
 
             //does this need to be sent to each node?
             if (femParams.whichConst == 1) {
+                cout << endl << "To Here 4a" << endl;
                 el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
+                cout << endl << "To Here 4b" << endl;
             } else if (femParams.whichConst == 2) {
                 el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
             } else {
@@ -457,11 +468,17 @@ int main(int argc, char * argv[]) {
                 exit(0);
             }
 
+            cout << endl << "To Here 5" << endl;
+
+
             fs_el.col(el) = el_f_g2int(coords.row(el),stress_el.slice(el),params);
             
             F_S_el = fs_el.col(el);
                
             K_el = stiff_el.slice(el);
+
+            cout << endl << "To Here 6" << endl;
+
         
             temp = conv_to<vec>::from(LM.col(el));
             for(ii = 0; ii < neldof; ii++) {
@@ -478,6 +495,9 @@ int main(int argc, char * argv[]) {
             }
 #ifndef USE_MPI
         }
+
+        cout << endl << "To Here 7" << endl;
+
 #endif
 
 #ifdef USE_MPI
@@ -496,6 +516,8 @@ int main(int argc, char * argv[]) {
 
         a = solve(M+gamma*dt*C,-(F_S-F_F-F_G)-C*v);
         v = v + dt*gamma*a;
+
+        cout << endl << "To Here 8" << endl;
         
 #ifdef USE_MPI
         for(ii = 0; ii < stress_el.n_rows; ii++) {
