@@ -14,6 +14,15 @@ OUT=${LOCAL_DIR}/outputs
 LD_LIBRARY_PATH="${LIB}:$LD_LIBRARY_PATH"
 
 RUN_DIR=${OUT}/${NAME}
+
+if [ -d "$RUN_DIR" ]
+	then
+		echo "Removing previous run directory: "$RUN_DIR
+		rm -rf $RUN_DIR
+		pwd
+		ls $OUT/
+fi
+
 mkdir -p ${RUN_DIR}
 cp ${EXE}/hu_code ${RUN_DIR}
 cd ${RUN_DIR}
