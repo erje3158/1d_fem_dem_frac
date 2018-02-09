@@ -5,6 +5,8 @@ import os
 
 def plot_disp(path_to_data, num_of_fig, conv_factors):
 
+    print("----> Displacement Plot")
+
     base_dir = os.getcwd()
     os.chdir(path_to_data)
 

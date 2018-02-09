@@ -86,7 +86,8 @@ int main(int argc, char * argv[]) {
 #endif
 
     if(argc > 7 || argc < 7) {
-        cout << "Input Format: " << argv[0] << " <Path to Boundary Input File> <Path to Particle Input File> <Path to qdelauny> <Directory to Write Outputs> <Path to FEM Inputs> <Path to DEM Inputs>" << endl;
+        cout << "Input Format: " << argv[0] << " <Path to Boundary Input File> <Path to Particle Input File> "
+             << "<Path to qdelauny> <Directory to Write Outputs> <Path to FEM Inputs> <Path to DEM Inputs>" << endl;
         return -1;
     }
 
@@ -354,11 +355,11 @@ int main(int argc, char * argv[]) {
 
     if (rank == 0)
     {
-        femParams.echoData();
+        //femParams.echoData();
         femParams.checkData();
-        demParams.echoData();
+        //demParams.echoData();
         demParams.checkData();
-        printMesh(coords, LM, g);
+        //printMesh(coords, LM, g);
     }
 
     femParams.~femInput();
@@ -438,7 +439,8 @@ int main(int argc, char * argv[]) {
                 }
 #endif
             } else if (femParams.whichConst == 2) {
-                el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+                el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, 
+                                  n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
             } else {
                 cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
                 exit(0);
@@ -480,6 +482,8 @@ int main(int argc, char * argv[]) {
 #ifndef USE_MPI
         }
 #endif
+
+        cout << "To Here 4" << endl;
 
 #ifdef USE_MPI
         for(ii = 0; ii < K.n_rows; ii++) {
