@@ -439,8 +439,14 @@ int main(int argc, char * argv[]) {
                 }
 #endif
             } else if (femParams.whichConst == 2) {
-                el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, 
-                                  n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+#ifndef USE_MPI
+                for (ip = 0; ip < numips; ip++) {
+#endif
+                    el_stress_ellip3d(outputDir, coords.row(el), d_el.row(el), d_el_last.row(el), params, 
+                                      n_print, -1, -1, el, ip, stress_el, isv_el, dt, demParams);
+#ifndef USE_MPI
+                }
+#endif
             } else {
                 cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
                 exit(0);

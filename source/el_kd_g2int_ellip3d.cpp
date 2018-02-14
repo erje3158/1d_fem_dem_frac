@@ -67,8 +67,6 @@ void el_kd_g2int_ellip3d(const char * outputDir,
     //Loop through the Gauss Points
     for(ip = 0; ip < numips; ip++) {
         dirName = string(outputDir) + "/el" + to_string(el+1) + "_ip" + to_string(ip+1);
-
-        cout << "To Here 1" << endl;
         
         // Code to read comp_prgress to get value for D11
         std:ifstream infile(dirName + "/comp_progress");
@@ -83,8 +81,6 @@ void el_kd_g2int_ellip3d(const char * outputDir,
             if(ii == 130) D11 = trash;
         }
         infile.close();
-
-        cout << "To Here 2" << endl;
         
         xi = xi_vect(ip);
         Bu.ones(2);
