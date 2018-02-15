@@ -35,3 +35,7 @@ $Strain Rate
 
 $Mass Damping
 5e5
+
+$Finite Applied Disp
+
+$Ellip3D DEM
