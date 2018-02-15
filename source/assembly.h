@@ -44,7 +44,6 @@ class assembly{
     std::vector<RGDBDRY*>::iterator  rt;
     std::vector<FLBBDRY*>::iterator  ft;
     std::vector<spring*>::iterator st;
-    std::vector<cell*>::iterator ct;	// October 18, 2013
     // it is important to release memory pointed to by pointers in the container,
     // otherwise memory leaking occurs
     for(pt = ParticleVec.begin(); pt != ParticleVec.end(); ++pt)
@@ -55,21 +54,12 @@ class assembly{
       delete (*ft);
     for(st = SpringVec.begin(); st != SpringVec.end(); ++st)
       delete (*st);
-    for(ct = cellVec.begin(); ct != cellVec.end(); ++ct)	// October 18, 2013
-      delete (*ct);
-    for(ct = cellVec_init.begin(); ct != cellVec_init.end(); ++ct)	// October 18, 2013
-      delete (*ct);
-    for(pt = periodicParticleVec.begin(); pt != periodicParticleVec.end(); ++pt)
-      delete (*pt);
     
     // in case of consecutive simulations
     ParticleVec.clear();
     RBVec.clear();
     FBVec.clear();
     SpringVec.clear();
-    cellVec.clear();	// October 18, 2013
-    cellVec_init.clear();	// October 18, 2013
-    periodicParticleVec.clear();
   }
  
   void setContainer(rectangle &cont) {container = cont;} 
@@ -919,8 +909,8 @@ class assembly{
   std::vector<FLBBDRY*> FBVec; // a vector of pointers, each pointing to a flexible boundary surface
   std::map<int,std::vector<boundarytgt>  > BdryTgtMap; // a map to store particle-boundary contacts' tangential info
   std::map<edge, std::vector<cell> > edge_map;	// used to store the edge set from tessellation, for granular strain calculation
-  std::vector<cell*> cellVec;	// used to store cell info, for finite granular strain calculation, March 26, 2013
-  std::vector<cell*> cellVec_init;	// the initial cell vector, for lagrangian finite strain
+  std::vector<cell> cellVec;	// used to store cell info, for finite granular strain calculation, March 26, 2013
+  std::vector<cell> cellVec_init;	// the initial cell vector, for lagrangian finite strain
 
   matrix average_dudx_Bagi;	// used to test quadratic terms (dudx)^T*dudx, April 22, 2013
   matrix average_dudx_Lagrangian;

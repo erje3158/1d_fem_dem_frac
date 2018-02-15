@@ -863,9 +863,9 @@ void assembly::readTesse_finite(const char* str){
 		n = n+1;
 		i = i+1;
 		j = j+1;	// the ID from Qhull is starting from 0
-		cell* ptCell = new cell();
-		ptCell->setNodes(m,n,i,j);
-		cellVec.push_back(ptCell);
+    cell ptCell;
+    ptCell.setNodes(m,n,i,j);
+    cellVec.push_back(ptCell);
 	}
 	setNumberingOrder();	// this is important
 }
@@ -2845,24 +2845,24 @@ void assembly::setNumberingOrder() {
 //	REAL x3, y3, z3;	// the current position of node 3
 //	REAL x4, y4, z4;	// the current position of node 4
 	REAL cell_volume;	// area of triangle, volume of tet
-	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		nm = (*iter)->getm();
-		nn = (*iter)->getn();
-		ni = (*iter)->geti();
-		nj = (*iter)->getj();
+	for(std::vector<cell>::iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		nm = (iter)->getm();
+		nn = (iter)->getn();
+		ni = (iter)->geti();
+		nj = (iter)->getj();
 		// 1, choose m, n as node 1, 2
 		n1 = nm;
 		n2 = nn;
 		n3 = ni;
 		n4 = nj;
-		(*iter)->setNodes(n1,n2,n3,n4);
-		cell_volume = getCellVolume(**iter);
+		(iter)->setNodes(n1,n2,n3,n4);
+		cell_volume = getCellVolume(*iter);
 
 		if(cell_volume < 0){	// swap n2 and n3
 			n2 = ni;
 			n3 = nn;
-			(*iter)->setNodes(n1,n2,n3,n4);
-			cell_volume = getCellVolume(**iter);
+			(iter)->setNodes(n1,n2,n3,n4);
+			cell_volume = getCellVolume(*iter);
 		}
 		
 //		// get coordinates for node 1, 2
@@ -2918,10 +2918,10 @@ void assembly::setNumberingOrder() {
 			std::cout << "Error: nodes are not numbered counter-clockwise!" << std::endl;
 		}
 
-		(*iter)->setInitialCellVolume(cell_volume);
+		(iter)->setInitialCellVolume(cell_volume);
 		matrix bigB(4,3);
-		bigB = getBigB(**iter);
-		(*iter)->setInitialBigB(bigB);
+		bigB = getBigB(*iter);
+		(iter)->setInitialBigB(bigB);
 	}
 }
 
@@ -3272,9 +3272,9 @@ matrix assembly::getFiniteStrain(){
 	average_dudx_Lagrangian = finite_strain;	// used to test quadratic terms, April 22, 2013
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell*>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
-		temp_volume = (*iter)->getInitialCellVolume();
-		temp_dudx = getdudx(**iter);
+	for(std::vector<cell>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
+		temp_volume = (iter)->getInitialCellVolume();
+		temp_dudx = getdudx(*iter);
 //		finite_strain += temp_volume*(temp_dudx+temp_dudx.getTrans()+temp_dudx.getTrans()*temp_dudx); 
 		average_dudx_Lagrangian += temp_volume*temp_dudx;	// used to test quadratic terms
 		init_totalVolume += temp_volume;
@@ -3297,9 +3297,9 @@ matrix assembly::getHigherStrain() const{
 	}
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell*>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
-		temp_volume = (*iter)->getInitialCellVolume();
-		temp_dudx = getdudx(**iter);
+	for(std::vector<cell>::const_iterator iter=cellVec_init.begin(); iter!=cellVec_init.end(); iter++){
+		temp_volume = (iter)->getInitialCellVolume();
+		temp_dudx = getdudx(*iter);
 		higher_strain += temp_volume*(temp_dudx.getTrans()*temp_dudx); 
 	}
 	higher_strain = higher_strain/(2.0*initVolume);
@@ -3321,9 +3321,9 @@ matrix assembly::getEulerianStrain(){
 	average_dudx_Eulerian = eulerian_strain;	// used to test quadratic terms
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(**iter);
-		temp_dudx = getdudx_curr(**iter);
+	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(*iter);
+		temp_dudx = getdudx_curr(*iter);
 
 //		eulerian_strain += temp_volume*(temp_dudx+temp_dudx.getTrans()-temp_dudx.getTrans()*temp_dudx); 
 		average_dudx_Eulerian += temp_volume*temp_dudx;	// used to test quadratic terms
@@ -3348,9 +3348,9 @@ matrix assembly::getAverage_dvdx() const{
 	}
 	matrix temp_dvdx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(**iter);
-		temp_dvdx = getdvdx_curr(**iter);
+	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(*iter);
+		temp_dvdx = getdvdx_curr(*iter);
 
 		average_dvdx += temp_volume*temp_dvdx;	
 		curr_totalVolume += temp_volume;
@@ -3371,9 +3371,9 @@ matrix assembly::getEuler_HOT() const{
 	}
 	matrix temp_dudx(3,3);
 	REAL temp_volume;
-	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-		temp_volume = getCellVolume(**iter);
-		temp_dudx = getdudx_curr(**iter);
+	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+		temp_volume = getCellVolume(*iter);
+		temp_dudx = getdudx_curr(*iter);
 
 		eulerian_strain += temp_volume*(-1*temp_dudx.getTrans()*temp_dudx); 
 	}
@@ -14803,11 +14803,11 @@ void assembly::GrainSizeDistribution(int sieve_num,
 	ifs.close();
 */
 	int it_tet = 0;
-	for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++, it_tet++){
-		m = (*iter)->getm();
-		n = (*iter)->getn();
-		i = (*iter)->geti();
-		j = (*iter)->getj();
+	for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++, it_tet++){
+		m = (iter)->getm();
+		n = (iter)->getn();
+		i = (iter)->geti();
+		j = (iter)->getj();
 
 		ofs << setw(OWID) << it_tet+1 << ", "
 		    << setw(OWID) << m << ", " 
@@ -16874,8 +16874,8 @@ void assembly::calculateVolume(const char* iniptclefile){
     REAL curr_totalVolume = 0;	// the current summed volume of all cells
 
     REAL temp_volume;
-    for(std::vector<cell*>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
-	temp_volume = getCellVolume(**iter);
+    for(std::vector<cell>::const_iterator iter=cellVec.begin(); iter!=cellVec.end(); iter++){
+	temp_volume = getCellVolume(*iter);
 	curr_totalVolume += temp_volume;
     }
 
