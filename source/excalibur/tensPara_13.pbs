@@ -50,7 +50,8 @@ module swap PrgEnv-intel PrgEnv-gnu
 module list
 
 echo Simulation started at `date`
-aprun -n $NSLOTS ./hu_code ${INP}/input_boundary_file ${INP}/input_particle_file ${BIN}/qdelaunay . ${INP}/tensPara_fem_input_2el ${INP}/tensPara_dem_input_13
+aprun -n $NSLOTS ./hu_code ${INP}/input_boundary_file ${INP}/input_particle_file ${BIN}/qdelaunay . \
+      ${INP}/tensPara_fem_input_2el ${INP}/tensPara_dem_input_13
 echo Simulation finished at `date`
 
 # --- CLEAN UP ---
