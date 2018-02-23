@@ -489,8 +489,6 @@ int main(int argc, char * argv[]) {
         }
 #endif
 
-        cout << "To Here 4" << endl;
-
 #ifdef USE_MPI
         for(ii = 0; ii < K.n_rows; ii++) {
            	for(jj = 0; jj < K.n_cols; jj++) {
