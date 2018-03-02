@@ -1,0 +1,41 @@
+$FEM Constitutive
+3.13e8
+2.8e8
+1540.0
+
+$Gravity
+0.0
+
+$FEM Geometry
+0.0127
+0.81
+
+$DEM Geometry
+0.003
+0.003
+0.003
+
+$FEM Constants
+2
+6
+2
+1
+2
+2
+
+$Time Parameters
+0.0
+2.0e-8
+50
+1
+0.001
+
+$Strain Rate
+387.0
+
+$Mass Damping
+5e4
+
+$Finite Applied Disp
+
+$Ellip3D DEM
