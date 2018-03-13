@@ -31,7 +31,7 @@ REAL POISSON    = 0.18;    // quartz sand v  = 0.25
 const REAL Gs         = 2.65;    // quartz sand Gs = 2.65    
 
 // critical tensile stress for particle sub-division - original
-REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
+REAL sigma_critical = 2.7235e+7;	// pa, calculate from experiment
 
 // compressive strength for particle sub-division based on Hoek-Brown criterion
 REAL sigmaCompress = 200.5399e+7;	// calculated from experiment

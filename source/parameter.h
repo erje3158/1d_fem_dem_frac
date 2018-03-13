@@ -43,7 +43,7 @@ extern REAL POISSON;
 extern const REAL Gs;   
 
 // critical tensile stress for particle sub-division
-extern REAL sigmaCritical;	// calculated from experiment
+extern REAL sigma_critical;	// calculated from experiment
 
 // compressive strength for particle sub-division based on Hoek-Brown criterion
 extern REAL sigmaCompress;	// calculated from experiment

@@ -79,7 +79,7 @@ void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads,
     dem::YOUNG         = demParams.youngsMod;
     dem::POISSON       = demParams.poisRatio;
 
-    dem::sigmaCritical          = demParams.sigmaCrit; 
+    dem::sigma_critical          = demParams.sigmaCrit; 
     dem::sigmaCompress          = demParams.sigmaComp;
     dem::ContactTensileCritical = demParams.tensileCrit;
     dem::sigma_f                = demParams.sigmaF;
