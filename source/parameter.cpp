@@ -37,52 +37,6 @@ REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
 REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
 const REAL mi		  = 32.4;	// material const, for granite mi=32.4
 
-/*
-// critical tensile stress for particle sub-division - test 1
-const REAL sigmaCritical = 2.7235e+8;	// pa, calculate from experiment
-
-// compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+8;	// calculated from experiment
-const REAL mi		  = 32.4;	// material const, for granite mi=32.4
-*/
-
-/*
-// critical tensile stress for particle sub-division - test 2
-const REAL sigmaCritical = 2.7235e+9;	// pa, calculate from experiment
-
-// compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
-const REAL mi		  = 32.4;	// material const, for granite mi=32.4
-*/
-
-/*
-// critical tensile stress for particle sub-division - test 3
-const REAL sigmaCritical = 2.7235e+7;	// pa, calculate from experiment
-
-// compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+8;	// calculated from experiment
-const REAL mi		  = 32.4;	// material const, for granite mi=32.4
-*/
-
-/*
-// critical tensile stress for particle sub-division - test 4,5
-const REAL sigmaCritical = 2.7235e+9;	// pa, calculate from experiment
-
-// compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+9;	// calculated from experiment
-const REAL mi		  = 32.4;	// material const, for granite mi=32.4
-*/
-
-/*
-// critical tensile stress for particle sub-division - test 6
-const REAL sigmaCritical = 2.7235e+10;	// pa, calculate from experiment
-
-// compressive strength for particle sub-division based on Hoek-Brown criterion
-const REAL sigmaCompress = 200.5399e+10;	// calculated from experiment
-const REAL mi		  = 32.4;	// material const, for granite mi=32.4
-*/
-
-
 // critical maximum tensile stress for contact point criterion
 REAL ContactTensileCritical = 350.196e+7;	// calculated from experiment
 //const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
@@ -95,36 +49,6 @@ const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull fun
 REAL sigma_f = 4.13e7;	// soft criterion for spring
 const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
 				// the accurate propogate speed should be larger than this value
-
-/*
-// critical maximum tensile stress for contact point criterion - test 5
-const REAL ContactTensileCritical = 350.196e+9;	// calculated from experiment
-//const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
-
-// Weibull modulus used for particle strength
-const REAL weibullModulus = 0.5;
-const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
-
-// properties for the springs
-const REAL sigma_f = 4.13e9;	// soft criterion for spring
-const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
-				// the accurate propogate speed should be larger than this value
-*/
-
-/*
-// critical maximum tensile stress for contact point criterion - test 6,7
-const REAL ContactTensileCritical = 350.196e+10;	// calculated from experiment
-//const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
-
-// Weibull modulus used for particle strength
-const REAL weibullModulus = 0.5;
-const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
-
-// properties for the springs
-const REAL sigma_f = 4.13e10;	// soft criterion for spring
-const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
-				// the accurate propogate speed should be larger than this value
-*/
 
 // membrane particle material property
 const REAL memYOUNG   = 1.40e+6; // 1.4MPa

@@ -2264,10 +2264,10 @@ int particle::calculateBreakPlane(){
 
 //    //-------------- below is the maximum shear stress criterion --------------
 //    REAL tau = 0.5*(d[2]-d[0]); REAL p = 0.5*(d[2]+d[0]);
-//    if(2*tau-p<dem::sigma_critical) return -1;	// not break
+//  if(2*tau-p<dem::sigma_critical) return -1;	// not break
 //    // ------------- above is the maximum shear stress criterion --------------
 
-/*    //-------------- below is the Hoek-Brown criterion ------------------------
+    //-------------- below is the Hoek-Brown criterion ------------------------
     REAL sigma1 = -d[0]; REAL sigma3 = -d[2];	// in their notation, compression is positive, and sigma1 is the major stress
   if( sigma1 > sigma3+strengthHoek*sqrt(mi*sigma3/strengthHoek+1) ){	// break
     //-------------- agove is the Hoek-Brown criterion ------------------------
@@ -2353,7 +2353,7 @@ int particle::calculateBreakPlane(){
     }
   } // the Hoek-Brown sub-division criterion
   else
-*/ if(numCriticalContacts>=3){ // break
+ if(numCriticalContacts>=3){ // break
     dem::vec unitNormal = dem::normalize(dem::vec(contact1-contact2)*dem::vec(contact1-contact3)); // contact is global coordinate
     // if this is a spherical particle, then set its principal directions to be the same as the principal directions of stress
     if(aplus==aminus && bplus==bminus && cplus==cminus
