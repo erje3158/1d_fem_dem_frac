@@ -2263,8 +2263,8 @@ int particle::calculateBreakPlane(){
 // where tau = 0.5*(sigma_max-sigma_min) & p = 0.5*(sigma_max+sigma_min)
 
 //    //-------------- below is the maximum shear stress criterion --------------
-    REAL tau = 0.5*(d[2]-d[0]); REAL p = 0.5*(d[2]+d[0]);
-  if(2*tau-p<dem::sigma_critical) return -1;	// not break
+//    REAL tau = 0.5*(d[2]-d[0]); REAL p = 0.5*(d[2]+d[0]);
+//  if(2*tau-p<dem::sigma_critical) return -1;	// not break
 //    // ------------- above is the maximum shear stress criterion --------------
 
     //-------------- below is the Hoek-Brown criterion ------------------------
