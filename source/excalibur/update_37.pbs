@@ -1,0 +1,59 @@
+#!/bin/bash
+#PBS -N update_37
+#PBS -l select=4:ncpus=32:mpiprocs=1
+#PBS -l walltime=168:00:00
+#PBS -l place=scatter:excl
+#PBS -q frontier
+#PBS -j oe
+#PBS -V
+#PBS -A ARLAP01001YF6
+#PBS -m be
+#PBS -M jensen.erik.w@gmail.com
+
+# --- USER INPUT ---
+export PREFIX=$PBS_JOBNAME #PBS_JOBNAME is the name of the job that's been submitted
+export LOCAL_DIR=$PBS_O_WORKDIR #the directory where the script was run 
+export TMPD=$WORKDIR #my personal work directory on excalibur - data here is temp (15 days after run done)
+JOBNUM=`echo ${PBS_JOBID} | cut -d "." -f 1` #create variable out of job number PBS assigns this job
+
+export NSLOTS=`wc -l $PBS_NODEFILE | cut -f1 -d" "`
+echo NSLOTS = $NSLOTS
+
+export OMP_NUM_THREADS=32
+echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+
+# --- HARDCODED DIRECTORIES ---
+
+export EXE=${LOCAL_DIR}/source
+export BIN=${LOCAL_DIR}/bin
+export LIB=${LOCAL_DIR}/lib
+export INP=${LOCAL_DIR}/inputs
+export OUT=${LOCAL_DIR}/outputs
+
+# --- WORKING DIRECTORY ---
+
+export TMP_DIR=${TMPD}/${JOBNUM} #create directory to run the job in $WORKDIR/$JOBNUM
+mkdir -p ${TMP_DIR}
+mkdir -p ${OUT}/${PREFIX}/${JOBNUM}
+cp -r ${EXE}/hu_code ${TMP_DIR} #copies everything from the place this script is run into the work dir
+cd ${TMP_DIR}
+ln -s ${TMP_DIR} ${OUT}/${PREFIX}/${JOBNUM}/${JOBNUM} #create link to the work dir
+pwd
+
+# --- LD_LIBRARY_PATH ---
+
+export LD_LIBRARY_PATH="${LIB}:$LD_LIBRARY_PATH"
+echo $LD_LIBRARY_PATH
+
+# --- MACHINE SPECIFIC ---
+module swap PrgEnv-intel PrgEnv-gnu
+module list
+
+echo Simulation started at `date`
+aprun -n $NSLOTS ./hu_code ${INP}/input_boundary_file ${INP}/input_particle_file ${BIN}/qdelaunay . \
+      ${INP}/update_fem_37 ${INP}/update_dem_37
+echo Simulation finished at `date`
+
+# --- CLEAN UP ---
+#cp -r ${TMP_DIR}/* ${OUT}/${PREFIX}/${JOBNUM}
+
