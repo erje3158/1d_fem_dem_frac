@@ -350,7 +350,13 @@ void plnrgd_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){	// August 2
 	    vec global_p8 = posi + (*it)->globalVec(local_p8);
 
 	    // judge which boundary this is
-	    if(ndv.getx()>0){	// x+
+	    // now it can deal with boundaries that is not normal to axles
+	    // check if the eight corner points are all inside the boundary or not
+	    if(distToBdry(global_p1)<=0 && distToBdry(global_p2)<=0 && distToBdry(global_p3)<=0 && distToBdry(global_p4)<=0
+	    && distToBdry(global_p5)<=0 && distToBdry(global_p6)<=0 && distToBdry(global_p7)<=0 && distToBdry(global_p8)<=0 )
+		continue;
+
+/*	    if(ndv.getx()>0){	// x+
 		if(global_p1.getx() < pt.getx() && global_p2.getx() < pt.getx() && global_p3.getx() < pt.getx() && global_p4.getx() < pt.getx()
 		&& global_p5.getx() < pt.getx() && global_p6.getx() < pt.getx() && global_p7.getx() < pt.getx() && global_p8.getx() < pt.getx() ){
 		    // now is judge if the particle is inside too much, so we need to use <
@@ -392,7 +398,7 @@ void plnrgd_bdry<T>::findParticleOnBoundary(std::vector<T*>& ptcls){	// August 2
 		    continue;
 		}
 	    }
-
+*/
 
 	    /*
 	    g_debuginf<<"boundary.h: g_iter="<<g_iteration

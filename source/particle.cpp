@@ -62,7 +62,6 @@ void particle::init() {	// August 19, 2013
     x8 = 3.0/8.0*aplus; y8 = -3.0/8.0*bminus; z8 = -3.0/8.0*cminus;
 
     prev_position=curr_position;
-    init_position=curr_position;	// initial center for granular strain
     prev_direction_a=curr_direction_a;
     prev_direction_b=curr_direction_b;
     prev_direction_c=curr_direction_c;
@@ -269,7 +268,7 @@ particle::particle(int id, int tp, REAL raplus, REAL raminus, REAL rbplus, REAL 
     x7 = -3.0/8.0*aminus; y7 = -3.0/8.0*bminus; z7 = -3.0/8.0*cminus;
     x8 = 3.0/8.0*aplus; y8 = -3.0/8.0*bminus; z8 = -3.0/8.0*cminus;
     
-    curr_position=prev_position=init_position=position_geo;	// initial position for granular strain
+    curr_position=prev_position=position_geo;	// initial position for granular strain
     curr_direction_a=prev_direction_a=dirca;
     curr_direction_b=prev_direction_b=dircb;
     curr_direction_c=prev_direction_c=dircc;
@@ -408,7 +407,6 @@ particle::particle(const particle & pt, int break_plane){ // break_plane 1--ab p
 
     young = pt.young; poisson = pt.poisson;
     prev_position = pt.prev_position;
-    init_position = pt.init_position;
     prev_center_mass = pt.prev_center_mass;
     init_center_mass = pt.init_center_mass;	
     start_center_mass = pt.start_center_mass;
@@ -439,6 +437,7 @@ particle::particle(const particle & pt, int break_plane){ // break_plane 1--ab p
     numBroken = pt.numBroken+1;	// it is important that we create a sub-poly-ellipsoid first and then break itself
     typeBroken = pt.typeBroken;	// typeBroken has been determined in calculateBreakPlane()
 
+//    weibullPhi = ran(&idum);
     weibullPhi = pt.weibullPhi;
 
     matrix zero3x3(3,3);
@@ -760,6 +759,7 @@ void particle::breakItSelf(int break_plane){
 
     J=vec(Ixx,Iyy,Izz);    
 
+//    weibullPhi = ran(&idum);
     REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem::weibullModulus))
 			*pow(getAverageRadius()/dem::basicRadius, -2*dem::weibullModulus);
     strengthHoek = dem::sigmaCompress*tmp_parameter;
@@ -1046,7 +1046,7 @@ void   particle::getGlobCoef(REAL coef[], int num_oct) const{	// September 6, 20
                 coef[i]=this->coef8[i];
 	    break;
 	default:
-	    //std::cout << "number of octant is larger then 8 in getGlobCoef()!" << std::cout;
+	    std::cout << "number of octant is larger then 8 in getGlobCoef()!" << std::cout;
 	    exit(-1);
 	    break;
     }
@@ -1722,7 +1722,7 @@ bool particle::intersectWithLine(vec v, vec dirc, vec rt[], int num_oct) const{	
      	    j=coef8[9];
 	    break;
 	default:
-	    //std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
+	    std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
 	    exit(-1);
 	    break;
     }
@@ -2024,8 +2024,7 @@ dem::vec particle::calculateInitialCohesiveForce(){
 // central difference integration method
 void particle::update() {	// August 16, 2013
 
-    prev_positionPB=curr_position;	// for the fixed x and y boundaries
-    if (getType()==0 || getType()==5) { // 0-free, 1-fixed, 5-free bounary particle
+    if (getType()==0 || getType()==5 || getType()==7) { // 0-free, 1-fixed, 5-free bounary particle, 7-impacting ellipsoidal bullet
 	// It is important to distinguish global frame from local frame!
 	vec prev_local_omga;
 	vec curr_local_omga;
@@ -2066,6 +2065,11 @@ void particle::update() {	// August 16, 2013
 	curr_velocity=prev_velocity*(2-atf)/(2+atf)+force/(mass*MASS_SCL)*TIMESTEP*2/(2+atf);
 //curr_position = prev_position + curr_velocity*TIMESTEP;
 	curr_center_mass = prev_center_mass + curr_velocity*TIMESTEP;	// August 16, 2013
+//REAL move_dist = vfabs(curr_center_mass-prev_center_mass);
+//if(move_dist>0.02*getMinRadius()){
+//  curr_center_mass = prev_center_mass + 0.02*getMinRadius()*normalize(curr_center_mass-prev_center_mass);
+//}
+
 	curr_position = curr_center_mass + globalVec(-local_center_mass);
 
     }
@@ -2264,7 +2268,7 @@ int particle::calculateBreakPlane(){
 
 //    //-------------- below is the maximum shear stress criterion --------------
 //    REAL tau = 0.5*(d[2]-d[0]); REAL p = 0.5*(d[2]+d[0]);
-//  if(2*tau-p<dem::sigma_critical) return -1;	// not break
+//    if(2*tau-p<dem::sigma_critical) return -1;	// not break
 //    // ------------- above is the maximum shear stress criterion --------------
 
     //-------------- below is the Hoek-Brown criterion ------------------------
@@ -2707,19 +2711,28 @@ void particle::rotatePrincipalDirections(dem::vec unitN){
     REAL m1=unitN.gety();
     REAL n1=unitN.getz();
     REAL l2,m2,n2,A,B,C;
-    while (1) {
-      l2 = ran(&idum)*2 - 1;
-      // solve n2
-      A = m1*m1 + n1*n1;
-      B = 2 * l1 * l2 * n1;
-      C = l1*l1*l2*l2 + m1*m1*l2*l2 - m1*m1;
-      if (B*B - 4*A*C > EPS)
-	break;
+    REAL tmp_EPS = 1e-3;
+    if( (fabs(fabs(l1)-1)<tmp_EPS &&fabs(m1)<tmp_EPS && fabs(n1)<tmp_EPS)
+     || (fabs(l1)<tmp_EPS &&fabs(fabs(m1)-1)<tmp_EPS && fabs(n1)<tmp_EPS)
+     || (fabs(l1)<tmp_EPS &&fabs(m1)<tmp_EPS && fabs(fabs(n1)-1)<tmp_EPS) ){	// the ideal break plane is very close to the 
+	return;								// principle directions, no need to rotate
+    }
+    else{
+    	while (1) {
+      	    l2 = ran(&idum)*2 - 1;
+      	    // solve n2
+      	    A = m1*m1 + n1*n1;
+      	    B = 2 * l1 * l2 * n1;
+      	    C = l1*l1*l2*l2 + m1*m1*l2*l2 - m1*m1;
+      	    if (B*B - 4*A*C > EPS)
+		break;
+    	}
+
+    	int sign = 2*ran(&idum)-1 > 0 ? 1:-1;
+    	n2 = (-B + sign*sqrt(B*B - 4*A*C) ) / (2*A);
+    	m2 = - (l1*l2 + n1*n2) / m1;
     }
 
-    int sign = 2*ran(&idum)-1 > 0 ? 1:-1;
-    n2 = (-B + sign*sqrt(B*B - 4*A*C) ) / (2*A);
-    m2 = - (l1*l2 + n1*n2) / m1;
     curr_direction_a=vec(acos(l1), acos(m1), acos(n1));
     curr_direction_b=vec(acos(l2), acos(m2), acos(n2));
     curr_direction_c=vacos(normalize(vcos(curr_direction_a)*vcos(curr_direction_b)));
@@ -2749,7 +2762,7 @@ void particle::rotateToXYZDirections(){
 // since currently we can only subdivide the poly-ellipsoid along the principel directions
 void particle::rotateBreakPlaneRandomly(){
 
-    REAL theta_max = 0.785;	// unit rad, the maximum angle that we can rotate the break plane in x,y,z directions
+    REAL theta_max = 0.1745;	// unit rad, the maximum angle that we can rotate the break plane in x,y,z directions
     REAL num = ran(&idum);	// num belongs (0, 1)
     num = num*0.5;		// num belongs (0, 0.5)
     num = num+0.5;		// num belongs (0.5, 1)
@@ -2764,6 +2777,10 @@ void particle::rotateBreakPlaneRandomly(){
     num = ran(&idum)*0.5+0.5;	// num belongs (0.5,1)
     sign = 2*ran(&idum)-1 > 0 ? 1:-1;
     REAL gamma = num*sign*theta_max;	// rotation angle along z direction
+
+//    REAL alpha = 0.5*dem::PI;
+//    REAL beta  = 0.5*dem::PI;
+//    REAL gamma = 0.5*dem::PI;
 
     dem::vec a_prime = dem::vec(cos(beta)*cos(gamma), 
 			        cos(gamma)*sin(alpha)*sin(beta)-cos(alpha)*sin(gamma),
@@ -2918,7 +2935,7 @@ bool particle::nearestPTOnPlane(REAL p, REAL q, REAL r, REAL s, vec& ptnp, int n
      	    j=coef8[9];
 	    break;
 	default:
-	    //std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
+	    std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
 	    exit(-1);
 	    break;
     }
@@ -2989,6 +3006,21 @@ void particle::planeRBForce(plnrgd_bdry<particle>* plb,	// August 19, 2013. appl
 	vec global_cminus = curr_position+globalVec(local_cminus);
 
 	// cases for six different boundaries
+	// use plb->distToBdry to deal with the boundaries that are not normal to the axles
+	if( plb->distToBdry(global_aplus) > plb->distToBdry(global_aminus) )
+	    xsign = 1;	// notice that the dist will be negative if inside, and positive outside,
+	else		// so dist(aplus)>dist(aminus) means aplus is closer to the boundary than aminus
+	    xsign =-1;	// that is why ">" is used
+	if( plb->distToBdry(global_bplus) > plb->distToBdry(global_bminus) )
+	    ysign = 1;
+	else
+	    ysign =-1;
+	if( plb->distToBdry(global_cplus) > plb->distToBdry(global_cminus) )
+	    zsign = 1;
+	else
+	    zsign =-1;
+
+/*
 	if(p>0 && q==0 && r==0){	// right boundary, positive x
 		if(global_aplus.getx()>global_aminus.getx())
 			xsign = 1;
@@ -3079,7 +3111,7 @@ void particle::planeRBForce(plnrgd_bdry<particle>* plb,	// August 19, 2013. appl
 		std::cout << "Boundary is not parallel to the three axel faces" << std::endl;
 		exit(-1);
 	}
-
+*/
 	// get octant number
 	int num_oct = 1; 
 	if(xsign==1 && ysign==1 && zsign==1)
@@ -3208,7 +3240,7 @@ std::cout << "NormDirc in planeRBbdryForce(): " << -dirc.getx() << ", " << -dirc
 	REAL tmp_q0 = 3.0*vfabs(NormalForce)/(2.0*PI*contact_radius*contact_radius);	// q0 is the maximum normal pressure
 	tmp_tensileStress = (1.0-2.0*POISSON)/3.0*tmp_q0;
 
-	if(tmp_tensileStress>strengthContact){	// this contact point is critical point
+	if(tmp_tensileStress>ContactTensileCritical){	// this contact point is critical point
 	    addMaximuContactTensile(tmp_tensileStress, (pt1+pt2)*0.5);
     	}
 
@@ -3222,10 +3254,10 @@ std::cout << "NormDirc in planeRBbdryForce(): " << -dirc.getx() << ", " << -dirc
 	addForce(CntDampingForce);
 	addMoment(((pt1+pt2)*0.5-curr_center_mass)*CntDampingForce);
 
-	vec localCntForce = localVec(CntDampingForce);
-	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
-	tmp_stress = tmp_force*tmp_posi;
-	addStress(tmp_stress);
+//	vec localCntForce = localVec(CntDampingForce);
+//	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
+//	tmp_stress = tmp_force*tmp_posi;
+//	addStress(tmp_stress);
 
 	vec TgtForce = 0;
 	if (BDRYFRIC != 0){

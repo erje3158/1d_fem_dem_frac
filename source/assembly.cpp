@@ -1202,181 +1202,181 @@ void assembly::constructPeriodicParticles(){
 } // constructPeriodicParticles()
 
 
-void assembly::movePeriodicParticles(){
-    vec tmp_coord;
-    REAL tmp_x, tmp_y, tmp_z;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
-	tmp_coord = (*it)->getCurrPosition();
-	tmp_x = tmp_coord.getx(); 
-	tmp_y = tmp_coord.gety();
-	tmp_z = tmp_coord.getz();
+// void assembly::movePeriodicParticles(){
+//     vec tmp_coord;
+//     REAL tmp_x, tmp_y, tmp_z;
+//     for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+// 	tmp_coord = (*it)->getCurrPosition();
+// 	tmp_x = tmp_coord.getx(); 
+// 	tmp_y = tmp_coord.gety();
+// 	tmp_z = tmp_coord.getz();
 
-	tmp_coord = (*it)->getPrevPosition();
-	// 6 surfaces
-	if(tmp_x>Xmax){	// xmax surface    
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));	// for the first approach
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x<Xmin){	// xmin surface
-//std::cout << "Xmin: " << Xmin << std::endl;
-//std::cout << "before x: " << tmp_x << std::endl;
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
-//std::cout << "after x: " << (*it)->getCurrPosition().getx() << std::endl << std::endl;
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_y>Ymax){	// ymax surface
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_y<Ymin){	// ymin surface
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_z>Zmax){	// zmax surface
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_z<Zmin){	// zmin surface
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	// 12 edges, these edges and corners cases seldomly happen
-  	if(tmp_x<Xmin && tmp_y<Ymin){	// XminYmin edge
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x<Xmin && tmp_y>Ymax){	// XminYmax edge
-	    (*it)->setCurrPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
-	    (*it)->setInitPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
-	    (*it)->setPrevPosition((tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x<Xmin && tmp_z<Zmin){	// XminZmin edge
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x<Xmin && tmp_z>Zmax){	// XminZmax edge
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x>Xmax && tmp_y<Ymin){	// XmaxYmin edge
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x>Xmax && tmp_y>Ymax){	// XmaxYmax edge
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x>Xmax && tmp_z<Zmin){	// XmaxZmin edge
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_x<Xmax && tmp_z>Zmax){	// XmaxZmax edge
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_y<Ymin && tmp_z<Zmin){	// YminZmin edge
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_y<Ymin && tmp_z>Zmax){	// YminZmax edge
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_y>Ymax && tmp_z<Zmin){	// YmaxZmin edge
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-  	if(tmp_y>Ymax && tmp_z>Zmax){	// YmaxZmax edge
-	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	// 8 corners
-	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z<Zmin){	// XminYminZmin corner
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z>Zmax){	// XminYminZmax corner
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z<Zmin){	// XminYmaxZmin corner
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z>Zmax){	// XminYmaxZmax corner
-	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z<Zmin){	// XmaxYminZmin corner
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z>Zmax){	// XmaxYminZmax corner
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z<Zmin){	// XmaxYmaxZmin corner
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}
-	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z>Zmax){	// XminYminZmin corner
-	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
-	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-	}	    
-    }
+// 	tmp_coord = (*it)->getPrevPosition();
+// 	// 6 surfaces
+// 	if(tmp_x>Xmax){	// xmax surface    
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter, tmp_y, tmp_z));	// for the first approach
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x<Xmin){	// xmin surface
+// //std::cout << "Xmin: " << Xmin << std::endl;
+// //std::cout << "before x: " << tmp_x << std::endl;
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
+// //std::cout << "after x: " << (*it)->getCurrPosition().getx() << std::endl << std::endl;
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_y>Ymax){	// ymax surface
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_y<Ymin){	// ymin surface
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_z>Zmax){	// zmax surface
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_z<Zmin){	// zmin surface
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	// 12 edges, these edges and corners cases seldomly happen
+//   	if(tmp_x<Xmin && tmp_y<Ymin){	// XminYmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x<Xmin && tmp_y>Ymax){	// XminYmax edge
+// 	    (*it)->setCurrPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setInitPosition((tmp_x+Xinter,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setPrevPosition((tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x<Xmin && tmp_z<Zmin){	// XminZmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x<Xmin && tmp_z>Zmax){	// XminZmax edge
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x>Xmax && tmp_y<Ymin){	// XmaxYmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x>Xmax && tmp_y>Ymax){	// XmaxYmax edge
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x>Xmax && tmp_z<Zmin){	// XmaxZmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_x<Xmax && tmp_z>Zmax){	// XmaxZmax edge
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_y<Ymin && tmp_z<Zmin){	// YminZmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_y<Ymin && tmp_z>Zmax){	// YminZmax edge
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_y>Ymax && tmp_z<Zmin){	// YmaxZmin edge
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+//   	if(tmp_y>Ymax && tmp_z>Zmax){	// YmaxZmax edge
+// 	    (*it)->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	// 8 corners
+// 	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z<Zmin){	// XminYminZmin corner
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x<Xmin && tmp_y<Ymin && tmp_z>Zmax){	// XminYminZmax corner
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z<Zmin){	// XminYmaxZmin corner
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x<Xmin && tmp_y>Ymax && tmp_z>Zmax){	// XminYmaxZmax corner
+// 	    (*it)->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z<Zmin){	// XmaxYminZmin corner
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x>Xmax && tmp_y<Ymin && tmp_z>Zmax){	// XmaxYminZmax corner
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z<Zmin){	// XmaxYmaxZmin corner
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}
+// 	if(tmp_x>Xmax && tmp_y>Ymax && tmp_z>Zmax){	// XminYminZmin corner
+// 	    (*it)->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setInitPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
+// 	    (*it)->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+// 	}	    
+//     }
 
-} // movePeriodicParticles()
+// } // movePeriodicParticles()
 
 //start of def OPENMP 
 #ifdef OPENMP	
@@ -2618,19 +2618,19 @@ void assembly::callQhull() const{
 	system("./qdelaunay Qt i < input_for_Qhull TO tess_info");	// call the external command qdelaunay
 }
 
-matrix assembly::calculateStiffness(){
+// matrix assembly::calculateStiffness(){
 
-	matrix D(9,9);
-	// sum the D_each for each contact
- 	std::vector<CONTACT>::const_iterator it;
+// 	matrix D(9,9);
+// 	// sum the D_each for each contact
+//  	std::vector<CONTACT>::const_iterator it;
 
-	for (it=ContactVec.begin();it!=ContactVec.end();++it){
-		D = D+it->getStiffness();
-	}
+// 	for (it=ContactVec.begin();it!=ContactVec.end();++it){
+// 		D = D+it->getStiffness();
+// 	}
 
-	D = D/Volume;
-	return D;
-}
+// 	D = D/Volume;
+// 	return D;
+// }
 
 // calculate granular stress, written on Feb 13, 2013
 matrix assembly::getGranularStress() const{	// August 19, 2013
@@ -20031,8 +20031,7 @@ void assembly::unixialCompression(int   total_steps,
 		<< setw(OWID) << "bottom"
 		<< setw(OWID) << "bottom"
 		<< setw(OWID) << "top"
-		<< setw(OWID) << "top" 
-		<< setw(OWID) << "tangent" << endl
+		<< setw(OWID) << "top" << endl
 	        << setw(OWID) << "number"
 	        << setw(OWID) << "contacts"
 	        << setw(OWID) << "contacts"
@@ -20162,8 +20161,7 @@ void assembly::unixialCompression(int   total_steps,
 		<< setw(OWID) << "displacement"
 		<< setw(OWID) << "force"
 		<< setw(OWID) << "displacement"
-		<< setw(OWID) << "force" 
-                << setw(OWID) << "operator" << endl;
+		<< setw(OWID) << "force" << endl;
 
     std::ofstream balancedinf(balancedfile);
     if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
@@ -20276,9 +20274,6 @@ void assembly::unixialCompression(int   total_steps,
     matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
     matrix prev_strain_rate(3,3);
     matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
-   
-    matrix stiffnessD(9,9);
-    REAL D11;
 
     // initialize previousStrain(3,3)
     for(int i_ps=0; i_ps!=2; i_ps++){
@@ -20304,6 +20299,7 @@ void assembly::unixialCompression(int   total_steps,
 
     REAL avgNormal=0;
     REAL avgTangt=0;
+    REAL avgFracForce = 0;  // average fracture forces
     int         stepsnum=0;
     char        stepsstr[4];
     char        stepsfp[50];
@@ -20349,11 +20345,11 @@ void assembly::unixialCompression(int   total_steps,
 	// 4. calculate boundary forces/moments and apply them to particles
 	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
 
-//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
 						// two sub-poly-ellipsoids separately.
-//	addFractureForce(avgFracForce);
+	addFractureForce(avgFracForce);
 //
-//	eraseFracturePair();
+	eraseFracturePair();
 
 	// 5. update particles' velocity/omga/position/orientation based on force/moment
 	updateParticle();
@@ -20503,8 +20499,7 @@ void assembly::unixialCompression(int   total_steps,
 	    granularStress.clear();
 	    granularStress = getGranularStress();	// calculate granular stress
 
-	    stiffnessD = calculateStiffness();
-	    D11=stiffnessD(9,9);
+      calcNumSprings();
 
 	    gettimeofday(&time_w2,NULL);
 	    progressinf << setw(OWID) << g_iteration
@@ -20574,7 +20569,6 @@ void assembly::unixialCompression(int   total_steps,
 			<< setw(OWID) << vfabs(getNormalForce(6))
 			<< setw(OWID) << getApt(5).getz() - top_init
 			<< setw(OWID) << vfabs(getNormalForce(5))
-			<< setw(OWID) << D11
 		        << endl;
 //	    g_debuginf << setw(OWID) << g_iteration
 //		       << setw(OWID) << getTransEnergy()
@@ -20611,768 +20605,770 @@ void assembly::unixialCompression(int   total_steps,
 //    g_debuginf.close();
 } // unixialCompression
 
-void assembly::unixialCompressionPB1(int   total_steps,  
-			REAL topDispl,
-			REAL botDispl,
-			int   first_snapshot,
-			int   snapshots, 
-			int   interval,  
-			const char* iniptclfile, 
-			const char* inibdryfile,
-			const char* particlefile,
-			const char* progressfile,
-			const char* balancedfile,
-			const char* debugfile) 
-{
-    // pre_1: open streams for output
-    // particlefile and contactfile are used for snapshots at the end.
-    progressinf.open(progressfile);
-    if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
-    progressinf.setf(std::ios::scientific, std::ios::floatfield);
-    progressinf.precision(OPREC);
-    progressinf << setw(OWID) << "iteration"
-	        << setw(OWID) << "possible"
-	        << setw(OWID) << "actual"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-		<< setw(OWID) << "sample" // for new 3 sigma's
-		<< setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-		<< setw(OWID) << "sample"
-	        << setw(OWID) << "void"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "coordinate"
-	        << setw(OWID) << "vibra"
-	        << setw(OWID) << "impact"
-	        << setw(OWID) << "wall-clock" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "finite" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag" 
-		<< setw(OWID) << "H.O.T._Lag"
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "H.O.T._Euler" 
-		<< setw(OWID) << "Logarithmic" 	// for logarithmic strain
-		<< setw(OWID) << "Logarithmic"
-		<< setw(OWID) << "Logarithmic"
-		<< setw(OWID) << "Logarithmic" 
-		<< setw(OWID) << "Bagi" 	// for average_dudx_Bagi, used to test quadratic terms, April 22, 2013
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Bagi" 
-		<< setw(OWID) << "Lagrangian" 	// for average_dudx_Lagrangian, used to test quadratic terms
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian" 
-		<< setw(OWID) << "Lagrangian"
-		<< setw(OWID) << "Eulerian" 	// for average_dudx_Eulerian, used to test quadratic terms
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "Eulerian" 
-		<< setw(OWID) << "spatial" 	// for spatial velocity gradient tensor, deformation rate tensor
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial" 
-		<< setw(OWID) << "spatial"
-		<< setw(OWID) << "bottom"
-		<< setw(OWID) << "bottom"
-		<< setw(OWID) << "top"
-		<< setw(OWID) << "top" 
-		<< setw(OWID) << "tangent" << endl
-	        << setw(OWID) << "number"
-	        << setw(OWID) << "contacts"
-	        << setw(OWID) << "contacts"
-	        << setw(OWID) << "penetration"
-	        << setw(OWID) << "contact_normal"
-	        << setw(OWID) << "contact_tangt"
-	        << setw(OWID) << "velocity"
-	        << setw(OWID) << "omga"
-	        << setw(OWID) << "force"
-	        << setw(OWID) << "moment"
-	        << setw(OWID) << "density"
-		<< setw(OWID) << "sigma1_1"
-	        << setw(OWID) << "sigma1_2"
-	        << setw(OWID) << "sigma2_1"
-	        << setw(OWID) << "sigma2_2"
-	        << setw(OWID) << "sigma3_1"
-	        << setw(OWID) << "sigma3_2"
-	        << setw(OWID) << "sigma_11"
-	        << setw(OWID) << "sigma_12"
-	        << setw(OWID) << "sigma_13"
-	        << setw(OWID) << "sigma_21"
-	        << setw(OWID) << "sigma_22"
-	        << setw(OWID) << "sigma_23"
-	        << setw(OWID) << "sigma_31"
-	        << setw(OWID) << "sigma_32"
-	        << setw(OWID) << "sigma_33"
-	        << setw(OWID) << "mean_stress"
-	        << setw(OWID) << "width"
-	        << setw(OWID) << "length"
-	        << setw(OWID) << "height"
-	        << setw(OWID) << "volume"
-	        << setw(OWID) << "epsilon_w"
-	        << setw(OWID) << "epsilon_l"
-	        << setw(OWID) << "epsilon_h"
-	        << setw(OWID) << "epsilon_v"
-	        << setw(OWID) << "epsilon_11"
-	        << setw(OWID) << "epsilon_12"
-	        << setw(OWID) << "epsilon_13"
-	        << setw(OWID) << "epsilon_21"
-	        << setw(OWID) << "epsilon_22"
-	        << setw(OWID) << "epsilon_23"
-	        << setw(OWID) << "epsilon_31"
-	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33"
-	        << setw(OWID) << "ratio"
-	        << setw(OWID) << "porosity"
-	        << setw(OWID) << "number"
-	        << setw(OWID) << "t_step"
-	        << setw(OWID) << "t_step"
-	        << setw(OWID) << "time" 
-	        << setw(OWID) << "epsilon_11"	// for finite strain
-	        << setw(OWID) << "epsilon_12"
-	        << setw(OWID) << "epsilon_13"
-	        << setw(OWID) << "epsilon_21"
-	        << setw(OWID) << "epsilon_22"
-	        << setw(OWID) << "epsilon_23"
-	        << setw(OWID) << "epsilon_31"
-	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33"
-	        << setw(OWID) << "epsilon_11"	// for mixed finite strain
-	        << setw(OWID) << "epsilon_12"
-	        << setw(OWID) << "epsilon_13"
-	        << setw(OWID) << "epsilon_21"
-	        << setw(OWID) << "epsilon_22"
-	        << setw(OWID) << "epsilon_23"
-	        << setw(OWID) << "epsilon_31"
-	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33"
-	        << setw(OWID) << "epsilon_11"	// for eulerian finite strain
-	        << setw(OWID) << "epsilon_12"
-	        << setw(OWID) << "epsilon_13"
-	        << setw(OWID) << "epsilon_21"
-	        << setw(OWID) << "epsilon_22"
-	        << setw(OWID) << "epsilon_23"
-	        << setw(OWID) << "epsilon_31"
-	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33" 
-	        << setw(OWID) << "epsilon_11"	// for mixed eulerian finite strain
-	        << setw(OWID) << "epsilon_12"
-	        << setw(OWID) << "epsilon_13"
-	        << setw(OWID) << "epsilon_21"
-	        << setw(OWID) << "epsilon_22"
-	        << setw(OWID) << "epsilon_23"
-	        << setw(OWID) << "epsilon_31"
-	        << setw(OWID) << "epsilon_32"
-	        << setw(OWID) << "epsilon_33" 
-		<< setw(OWID) << "epsilon_w"	// for logranthmic strain
-	        << setw(OWID) << "epsilon_l"
-	        << setw(OWID) << "epsilon_h"
-	        << setw(OWID) << "epsilon_v" 
-	        << setw(OWID) << "dudx_11"	// for average_dudx_Bagi, used to test quadratic terms
-	        << setw(OWID) << "dudx_12"
-	        << setw(OWID) << "dudx_13"
-	        << setw(OWID) << "dudx_21"
-	        << setw(OWID) << "dudx_22"
-	        << setw(OWID) << "dudx_23"
-	        << setw(OWID) << "dudx_31"
-	        << setw(OWID) << "dudx_32"
-	        << setw(OWID) << "dudx_33" 
-	        << setw(OWID) << "dudx_11"	// for average_dudx_Lagrangian, used to test quadratic terms
-	        << setw(OWID) << "dudx_12"
-	        << setw(OWID) << "dudx_13"
-	        << setw(OWID) << "dudx_21"
-	        << setw(OWID) << "dudx_22"
-	        << setw(OWID) << "dudx_23"
-	        << setw(OWID) << "dudx_31"
-	        << setw(OWID) << "dudx_32"
-	        << setw(OWID) << "dudx_33" 
-	        << setw(OWID) << "dudx_11"	// for average_dudx_Eulerian, used to test quadratic terms
-	        << setw(OWID) << "dudx_12"
-	        << setw(OWID) << "dudx_13"
-	        << setw(OWID) << "dudx_21"
-	        << setw(OWID) << "dudx_22"
-	        << setw(OWID) << "dudx_23"
-	        << setw(OWID) << "dudx_31"
-	        << setw(OWID) << "dudx_32"
-	        << setw(OWID) << "dudx_33" 	        
-		<< setw(OWID) << "dvdx_11"	// for spatial velocity gradient tensor, deformation rate tensor
-	        << setw(OWID) << "dvdx_12"
-	        << setw(OWID) << "dvdx_13"
-	        << setw(OWID) << "dvdx_21"
-	        << setw(OWID) << "dvdx_22"
-	        << setw(OWID) << "dvdx_23"
-	        << setw(OWID) << "dvdx_31"
-	        << setw(OWID) << "dvdx_32"
-	        << setw(OWID) << "dvdx_33"
-		<< setw(OWID) << "displacement"
-		<< setw(OWID) << "force"
-		<< setw(OWID) << "displacement"
-		<< setw(OWID) << "force" 
-                << setw(OWID) << "operator" << endl;
+// void assembly::unixialCompressionPB1(int   total_steps,  
+// 			REAL topDispl,
+// 			REAL botDispl,
+// 			int   first_snapshot,
+// 			int   snapshots, 
+// 			int   interval,  
+// 			const char* iniptclfile, 
+// 			const char* inibdryfile,
+// 			const char* particlefile,
+// 			const char* progressfile,
+// 			const char* balancedfile,
+// 			const char* debugfile) 
+// {
+//     // pre_1: open streams for output
+//     // particlefile and contactfile are used for snapshots at the end.
+//     progressinf.open(progressfile);
+//     if(!progressinf) { cout << "stream error!" << endl; exit(-1);}
+//     progressinf.setf(std::ios::scientific, std::ios::floatfield);
+//     progressinf.precision(OPREC);
+//     progressinf << setw(OWID) << "iteration"
+// 	        << setw(OWID) << "possible"
+// 	        << setw(OWID) << "actual"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample" // for new 3 sigma's
+// 		<< setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 		<< setw(OWID) << "sample"
+// 	        << setw(OWID) << "void"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "coordinate"
+// 	        << setw(OWID) << "vibra"
+// 	        << setw(OWID) << "impact"
+// 	        << setw(OWID) << "wall-clock" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "finite" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag" 
+// 		<< setw(OWID) << "H.O.T._Lag"
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "H.O.T._Euler" 
+// 		<< setw(OWID) << "Logarithmic" 	// for logarithmic strain
+// 		<< setw(OWID) << "Logarithmic"
+// 		<< setw(OWID) << "Logarithmic"
+// 		<< setw(OWID) << "Logarithmic" 
+// 		<< setw(OWID) << "Bagi" 	// for average_dudx_Bagi, used to test quadratic terms, April 22, 2013
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Bagi" 
+// 		<< setw(OWID) << "Lagrangian" 	// for average_dudx_Lagrangian, used to test quadratic terms
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian" 
+// 		<< setw(OWID) << "Lagrangian"
+// 		<< setw(OWID) << "Eulerian" 	// for average_dudx_Eulerian, used to test quadratic terms
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "Eulerian" 
+// 		<< setw(OWID) << "spatial" 	// for spatial velocity gradient tensor, deformation rate tensor
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial" 
+// 		<< setw(OWID) << "spatial"
+// 		<< setw(OWID) << "bottom"
+// 		<< setw(OWID) << "bottom"
+// 		<< setw(OWID) << "top"
+// 		<< setw(OWID) << "top" 
+// 		<< setw(OWID) << "tangent" << endl
+// 	        << setw(OWID) << "number"
+// 	        << setw(OWID) << "contacts"
+// 	        << setw(OWID) << "contacts"
+// 	        << setw(OWID) << "penetration"
+// 	        << setw(OWID) << "contact_normal"
+// 	        << setw(OWID) << "contact_tangt"
+// 	        << setw(OWID) << "velocity"
+// 	        << setw(OWID) << "omga"
+// 	        << setw(OWID) << "force"
+// 	        << setw(OWID) << "moment"
+// 	        << setw(OWID) << "density"
+// 		<< setw(OWID) << "sigma1_1"
+// 	        << setw(OWID) << "sigma1_2"
+// 	        << setw(OWID) << "sigma2_1"
+// 	        << setw(OWID) << "sigma2_2"
+// 	        << setw(OWID) << "sigma3_1"
+// 	        << setw(OWID) << "sigma3_2"
+// 	        << setw(OWID) << "sigma_11"
+// 	        << setw(OWID) << "sigma_12"
+// 	        << setw(OWID) << "sigma_13"
+// 	        << setw(OWID) << "sigma_21"
+// 	        << setw(OWID) << "sigma_22"
+// 	        << setw(OWID) << "sigma_23"
+// 	        << setw(OWID) << "sigma_31"
+// 	        << setw(OWID) << "sigma_32"
+// 	        << setw(OWID) << "sigma_33"
+// 	        << setw(OWID) << "mean_stress"
+// 	        << setw(OWID) << "width"
+// 	        << setw(OWID) << "length"
+// 	        << setw(OWID) << "height"
+// 	        << setw(OWID) << "volume"
+// 	        << setw(OWID) << "epsilon_w"
+// 	        << setw(OWID) << "epsilon_l"
+// 	        << setw(OWID) << "epsilon_h"
+// 	        << setw(OWID) << "epsilon_v"
+// 	        << setw(OWID) << "epsilon_11"
+// 	        << setw(OWID) << "epsilon_12"
+// 	        << setw(OWID) << "epsilon_13"
+// 	        << setw(OWID) << "epsilon_21"
+// 	        << setw(OWID) << "epsilon_22"
+// 	        << setw(OWID) << "epsilon_23"
+// 	        << setw(OWID) << "epsilon_31"
+// 	        << setw(OWID) << "epsilon_32"
+// 	        << setw(OWID) << "epsilon_33"
+// 	        << setw(OWID) << "ratio"
+// 	        << setw(OWID) << "porosity"
+// 	        << setw(OWID) << "number"
+// 	        << setw(OWID) << "t_step"
+// 	        << setw(OWID) << "t_step"
+// 	        << setw(OWID) << "time" 
+// 	        << setw(OWID) << "epsilon_11"	// for finite strain
+// 	        << setw(OWID) << "epsilon_12"
+// 	        << setw(OWID) << "epsilon_13"
+// 	        << setw(OWID) << "epsilon_21"
+// 	        << setw(OWID) << "epsilon_22"
+// 	        << setw(OWID) << "epsilon_23"
+// 	        << setw(OWID) << "epsilon_31"
+// 	        << setw(OWID) << "epsilon_32"
+// 	        << setw(OWID) << "epsilon_33"
+// 	        << setw(OWID) << "epsilon_11"	// for mixed finite strain
+// 	        << setw(OWID) << "epsilon_12"
+// 	        << setw(OWID) << "epsilon_13"
+// 	        << setw(OWID) << "epsilon_21"
+// 	        << setw(OWID) << "epsilon_22"
+// 	        << setw(OWID) << "epsilon_23"
+// 	        << setw(OWID) << "epsilon_31"
+// 	        << setw(OWID) << "epsilon_32"
+// 	        << setw(OWID) << "epsilon_33"
+// 	        << setw(OWID) << "epsilon_11"	// for eulerian finite strain
+// 	        << setw(OWID) << "epsilon_12"
+// 	        << setw(OWID) << "epsilon_13"
+// 	        << setw(OWID) << "epsilon_21"
+// 	        << setw(OWID) << "epsilon_22"
+// 	        << setw(OWID) << "epsilon_23"
+// 	        << setw(OWID) << "epsilon_31"
+// 	        << setw(OWID) << "epsilon_32"
+// 	        << setw(OWID) << "epsilon_33" 
+// 	        << setw(OWID) << "epsilon_11"	// for mixed eulerian finite strain
+// 	        << setw(OWID) << "epsilon_12"
+// 	        << setw(OWID) << "epsilon_13"
+// 	        << setw(OWID) << "epsilon_21"
+// 	        << setw(OWID) << "epsilon_22"
+// 	        << setw(OWID) << "epsilon_23"
+// 	        << setw(OWID) << "epsilon_31"
+// 	        << setw(OWID) << "epsilon_32"
+// 	        << setw(OWID) << "epsilon_33" 
+// 		<< setw(OWID) << "epsilon_w"	// for logranthmic strain
+// 	        << setw(OWID) << "epsilon_l"
+// 	        << setw(OWID) << "epsilon_h"
+// 	        << setw(OWID) << "epsilon_v" 
+// 	        << setw(OWID) << "dudx_11"	// for average_dudx_Bagi, used to test quadratic terms
+// 	        << setw(OWID) << "dudx_12"
+// 	        << setw(OWID) << "dudx_13"
+// 	        << setw(OWID) << "dudx_21"
+// 	        << setw(OWID) << "dudx_22"
+// 	        << setw(OWID) << "dudx_23"
+// 	        << setw(OWID) << "dudx_31"
+// 	        << setw(OWID) << "dudx_32"
+// 	        << setw(OWID) << "dudx_33" 
+// 	        << setw(OWID) << "dudx_11"	// for average_dudx_Lagrangian, used to test quadratic terms
+// 	        << setw(OWID) << "dudx_12"
+// 	        << setw(OWID) << "dudx_13"
+// 	        << setw(OWID) << "dudx_21"
+// 	        << setw(OWID) << "dudx_22"
+// 	        << setw(OWID) << "dudx_23"
+// 	        << setw(OWID) << "dudx_31"
+// 	        << setw(OWID) << "dudx_32"
+// 	        << setw(OWID) << "dudx_33" 
+// 	        << setw(OWID) << "dudx_11"	// for average_dudx_Eulerian, used to test quadratic terms
+// 	        << setw(OWID) << "dudx_12"
+// 	        << setw(OWID) << "dudx_13"
+// 	        << setw(OWID) << "dudx_21"
+// 	        << setw(OWID) << "dudx_22"
+// 	        << setw(OWID) << "dudx_23"
+// 	        << setw(OWID) << "dudx_31"
+// 	        << setw(OWID) << "dudx_32"
+// 	        << setw(OWID) << "dudx_33" 	        
+// 		<< setw(OWID) << "dvdx_11"	// for spatial velocity gradient tensor, deformation rate tensor
+// 	        << setw(OWID) << "dvdx_12"
+// 	        << setw(OWID) << "dvdx_13"
+// 	        << setw(OWID) << "dvdx_21"
+// 	        << setw(OWID) << "dvdx_22"
+// 	        << setw(OWID) << "dvdx_23"
+// 	        << setw(OWID) << "dvdx_31"
+// 	        << setw(OWID) << "dvdx_32"
+// 	        << setw(OWID) << "dvdx_33"
+// 		<< setw(OWID) << "displacement"
+// 		<< setw(OWID) << "force"
+// 		<< setw(OWID) << "displacement"
+// 		<< setw(OWID) << "force" 
+//                 << setw(OWID) << "operator" << endl;
 
-    std::ofstream balancedinf(balancedfile);
-    if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
-    balancedinf.setf(std::ios::scientific, std::ios::floatfield);
-    balancedinf.precision(OPREC);
-    balancedinf << setw(OWID) << "iteration"
-	        << setw(OWID) << "possible"
-	        << setw(OWID) << "actual"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "average"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "void"
-	        << setw(OWID) << "sample"
-	        << setw(OWID) << "coordinate"
-	        << setw(OWID) << "vibra"
-	        << setw(OWID) << "impact"
-	        << setw(OWID) << "wall-clock" << endl
-	        << setw(OWID) << "number"
-	        << setw(OWID) << "contacts"
-	        << setw(OWID) << "contacts"
-	        << setw(OWID) << "penetration"
-	        << setw(OWID) << "contact_normal"
-	        << setw(OWID) << "contact_tangt"
-	        << setw(OWID) << "velocity"
-	        << setw(OWID) << "omga"
-	        << setw(OWID) << "force"
-	        << setw(OWID) << "moment"
-	        << setw(OWID) << "density"
-	        << setw(OWID) << "sigma1_1"
-	        << setw(OWID) << "sigma1_2"
-	        << setw(OWID) << "sigma2_1"
-	        << setw(OWID) << "sigma2_2"
-	        << setw(OWID) << "sigma3_1"
-	        << setw(OWID) << "sigma3_2"
-	        << setw(OWID) << "mean_stress"
-	        << setw(OWID) << "width"
-	        << setw(OWID) << "length"
-	        << setw(OWID) << "height"
-	        << setw(OWID) << "volume"
-	        << setw(OWID) << "epsilon_w"
-	        << setw(OWID) << "epsilon_l"
-	        << setw(OWID) << "epsilon_h"
-	        << setw(OWID) << "epsilon_v"
-	        << setw(OWID) << "ratio"
-	        << setw(OWID) << "porosity"
-	        << setw(OWID) << "number"
-	        << setw(OWID) << "t_step"
-	        << setw(OWID) << "t_step"
-	        << setw(OWID) << "time" << endl;
+//     std::ofstream balancedinf(balancedfile);
+//     if(!balancedinf) { cout << "stream error!" << endl; exit(-1);}
+//     balancedinf.setf(std::ios::scientific, std::ios::floatfield);
+//     balancedinf.precision(OPREC);
+//     balancedinf << setw(OWID) << "iteration"
+// 	        << setw(OWID) << "possible"
+// 	        << setw(OWID) << "actual"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "average"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "void"
+// 	        << setw(OWID) << "sample"
+// 	        << setw(OWID) << "coordinate"
+// 	        << setw(OWID) << "vibra"
+// 	        << setw(OWID) << "impact"
+// 	        << setw(OWID) << "wall-clock" << endl
+// 	        << setw(OWID) << "number"
+// 	        << setw(OWID) << "contacts"
+// 	        << setw(OWID) << "contacts"
+// 	        << setw(OWID) << "penetration"
+// 	        << setw(OWID) << "contact_normal"
+// 	        << setw(OWID) << "contact_tangt"
+// 	        << setw(OWID) << "velocity"
+// 	        << setw(OWID) << "omga"
+// 	        << setw(OWID) << "force"
+// 	        << setw(OWID) << "moment"
+// 	        << setw(OWID) << "density"
+// 	        << setw(OWID) << "sigma1_1"
+// 	        << setw(OWID) << "sigma1_2"
+// 	        << setw(OWID) << "sigma2_1"
+// 	        << setw(OWID) << "sigma2_2"
+// 	        << setw(OWID) << "sigma3_1"
+// 	        << setw(OWID) << "sigma3_2"
+// 	        << setw(OWID) << "mean_stress"
+// 	        << setw(OWID) << "width"
+// 	        << setw(OWID) << "length"
+// 	        << setw(OWID) << "height"
+// 	        << setw(OWID) << "volume"
+// 	        << setw(OWID) << "epsilon_w"
+// 	        << setw(OWID) << "epsilon_l"
+// 	        << setw(OWID) << "epsilon_h"
+// 	        << setw(OWID) << "epsilon_v"
+// 	        << setw(OWID) << "ratio"
+// 	        << setw(OWID) << "porosity"
+// 	        << setw(OWID) << "number"
+// 	        << setw(OWID) << "t_step"
+// 	        << setw(OWID) << "t_step"
+// 	        << setw(OWID) << "time" << endl;
 
-//    g_debuginf.open(debugfile);
-//    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
-//    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
+// //    g_debuginf.open(debugfile);
+// //    if(!g_debuginf) { cout << "stream error!" << endl; exit(-1);}
+// //    g_debuginf.setf(std::ios::scientific, std::ios::floatfield);
 
-    std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
-    temp_vec.push_back(0);
-    temp_vec.push_back(0);
-    temp_vec.push_back(0);
-    for(int i=0; i!=3; i++){
-	average_dudx_Bagi.appendRow(temp_vec);
-	average_dudx_Eulerian.appendRow(temp_vec);
-	average_dudx_Lagrangian.appendRow(temp_vec);
-    }
+//     std::vector<REAL> temp_vec;	// used to test quadratic terms, April 22, 2013
+//     temp_vec.push_back(0);
+//     temp_vec.push_back(0);
+//     temp_vec.push_back(0);
+//     for(int i=0; i!=3; i++){
+// 	average_dudx_Bagi.appendRow(temp_vec);
+// 	average_dudx_Eulerian.appendRow(temp_vec);
+// 	average_dudx_Lagrangian.appendRow(temp_vec);
+//     }
 
-    // pre_2. create particles and boundaries from files
-    readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
-    readBoundary(inibdryfile);   // create boundaries
+//     // pre_2. create particles and boundaries from files
+//     readSample(iniptclfile); // create container and particles, velocity and omga are set zero. 
+//     readBoundary(inibdryfile);   // create boundaries
 
-    // pre_3. define variables used in iterations
-    REAL W0 = getApt(2).gety()-getApt(4).gety();
-    REAL L0 = getApt(1).getx()-getApt(3).getx();
-    REAL H0 = getApt(5).getz()-getApt(6).getz();
-    initVolume = W0*L0*H0;
-    REAL l13, l24, l56, min_area, mid_area, max_area;
-    REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
-    matrix granularStress(3,3);
-    matrix granularStrain(3,3);	// granular strain
-    matrix previousStrain(3,3);
-    matrix previousEuler(3,3);
-    matrix finiteStrain(3,3);	// finite granular strain
-    matrix lag_HOT(3,3);	// mixed finite granular strain
-    matrix eulerianStrain(3,3);	// eulerian granular strain
-    matrix euler_HOT(3,3);
-    matrix previousEuler_HOT(3,3);
-    matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
-    matrix previousBagi_dudx(3,3);
-    matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
+//     // pre_3. define variables used in iterations
+//     REAL W0 = getApt(2).gety()-getApt(4).gety();
+//     REAL L0 = getApt(1).getx()-getApt(3).getx();
+//     REAL H0 = getApt(5).getz()-getApt(6).getz();
+//     initVolume = W0*L0*H0;
+//     REAL l13, l24, l56, min_area, mid_area, max_area;
+//     REAL sigma1_1, sigma1_2, sigma2_1, sigma2_2, sigma3_1, sigma3_2;
+//     matrix granularStress(3,3);
+//     matrix granularStrain(3,3);	// granular strain
+//     matrix previousStrain(3,3);
+//     matrix previousEuler(3,3);
+//     matrix finiteStrain(3,3);	// finite granular strain
+//     matrix lag_HOT(3,3);	// mixed finite granular strain
+//     matrix eulerianStrain(3,3);	// eulerian granular strain
+//     matrix euler_HOT(3,3);
+//     matrix previousEuler_HOT(3,3);
+//     matrix previousEuler_dudx(3,3);	// used to test quadratic terms, April 22, 2013
+//     matrix previousBagi_dudx(3,3);
+//     matrix spatial_dvdx(3,3);	// average spatial velocity gradient tensor
 
-    matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
-    matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
-    matrix prev_strain_rate(3,3);
-    matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
+//     matrix curr_rate(3,3);	// current spatial deformation rate tensor, July 8, 2013
+//     matrix curr_dvdx(3,3);	// current spatial velocity gradient tensor
+//     matrix prev_strain_rate(3,3);
+//     matrix curr_strain_rate(3,3);	// current strain based on deformation rate tensor
    
-    matrix stiffnessD(9,9);
-    REAL D11;
+//     matrix stiffnessD(9,9);
+//     REAL D11;
 
-    // initialize previousStrain(3,3)
-    for(int i_ps=0; i_ps!=2; i_ps++){
-	for(int j_ps=0; j_ps!=2; j_ps++){
-		previousStrain(i_ps+1,j_ps+1) = 0;
-		previousEuler(i_ps+1,j_ps+1) = 0;
-		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
-		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
-		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
-		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
-	}
-    }
+//     // initialize previousStrain(3,3)
+//     for(int i_ps=0; i_ps!=2; i_ps++){
+// 	for(int j_ps=0; j_ps!=2; j_ps++){
+// 		previousStrain(i_ps+1,j_ps+1) = 0;
+// 		previousEuler(i_ps+1,j_ps+1) = 0;
+// 		previousEuler_HOT(i_ps+1,j_ps+1) = 0;
+// 		previousEuler_dudx(i_ps+1,j_ps+1) = 0;	// used to test quadratic terms
+// 		previousBagi_dudx(i_ps+1,j_ps+1) = 0;
+// 		curr_strain_rate(i_ps+1,j_ps+1) = 0;	// calculate strain by rate, July 8, 2013
+// 	}
+//     }
     
-    // first tessellation
-    createInputForQhull();
-    callQhull();
-    readTesse("tess_info");
-    readTesse_finite("tess_info");
-    cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
+//     // first tessellation
+//     createInputForQhull();
+//     callQhull();
+//     readTesse("tess_info");
+//     readTesse_finite("tess_info");
+//     cellVec_init = cellVec;	// keep cellVec_init for lagrangian strain unchanged 
 
-    REAL epsilon_w, epsilon_l, epsilon_h;
-    REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
+//     REAL epsilon_w, epsilon_l, epsilon_h;
+//     REAL epsilon_w_log, epsilon_l_log, epsilon_h_log;	// lograthmic strain
 
-    REAL avgNormal=0;
-    REAL avgTangt=0;
-    int         stepsnum=0;
-    char        stepsstr[4];
-    char        stepsfp[50];
+//     REAL avgNormal=0;
+//     REAL avgTangt=0;
+//     int         stepsnum=0;
+//     char        stepsstr[4];
+//     char        stepsfp[50];
     
-    int         mid[2]={1,3};    // boundary 1 and 3
-    int         max[2]={2,4};    // boundary 2 and 4
-    int         min[2]={5,6};    // boundary 5 and 6
-    UPDATECTL   midctl[2];
-    UPDATECTL   maxctl[2];
-    UPDATECTL   minctl[2];
-    REAL void_ratio=0;
-    REAL bdry_penetr[7];
-    int         bdry_cntnum[7];
-    for (int i=0;i<7;++i){
-	bdry_penetr[i]=0; bdry_cntnum[i]=0;
-    }
+//     int         mid[2]={1,3};    // boundary 1 and 3
+//     int         max[2]={2,4};    // boundary 2 and 4
+//     int         min[2]={5,6};    // boundary 5 and 6
+//     UPDATECTL   midctl[2];
+//     UPDATECTL   maxctl[2];
+//     UPDATECTL   minctl[2];
+//     REAL void_ratio=0;
+//     REAL bdry_penetr[7];
+//     int         bdry_cntnum[7];
+//     for (int i=0;i<7;++i){
+// 	bdry_penetr[i]=0; bdry_cntnum[i]=0;
+//     }
 
-//    subDivision();	// at present, subdivide before simulation
-//printParticle("fractured_particles");
+// //    subDivision();	// at present, subdivide before simulation
+// //printParticle("fractured_particles");
 
-    // iterations start here...
-    g_iteration=0;
-    gettimeofday(&time_w1,NULL);
-    REAL top_disp = 0;	// displacement of top boundary
-    REAL bot_disp = 0;	// displacement of bottom boundary
-    REAL bottom_init = getApt(6).getz();
-    REAL top_init = getApt(5).getz();
-    REAL topCompressRate = topDispl/double(total_steps);
-    REAL botCompressRate = botDispl/double(total_steps);
-    vec tmp_pos, tmp_pos1;
-    calculatePeriodicParameters();
-    REAL dzOverZ0 = topCompressRate/Zinter;
-    REAL tmp_dispz, init_z;
-    do
-    {
-	// copy periodic boundary particles to provide periodic particle vector as boundary
-	constructPeriodicParticles();	
+//     // iterations start here...
+//     g_iteration=0;
+//     gettimeofday(&time_w1,NULL);
+//     REAL top_disp = 0;	// displacement of top boundary
+//     REAL bot_disp = 0;	// displacement of bottom boundary
+//     REAL bottom_init = getApt(6).getz();
+//     REAL top_init = getApt(5).getz();
+//     REAL topCompressRate = topDispl/double(total_steps);
+//     REAL botCompressRate = botDispl/double(total_steps);
+//     vec tmp_pos, tmp_pos1;
+//     calculatePeriodicParameters();
+//     REAL dzOverZ0 = topCompressRate/Zinter;
+//     REAL tmp_dispz, init_z;
+//     do
+//     {
+// 	// copy periodic boundary particles to provide periodic particle vector as boundary
+// 	constructPeriodicParticles();	
 
-	// 1. create possible boundary particles and contacts between particles
-	findContact();
-//	findParticleOnBoundary();
+// 	// 1. create possible boundary particles and contacts between particles
+// 	findContact();
+// //	findParticleOnBoundary();
 
-	// 2. set particles' forces/moments as zero before each re-calculation
-	clearForce();	
-	clearStress();	// clear average stress of each particle, April 23, 2014
+// 	// 2. set particles' forces/moments as zero before each re-calculation
+// 	clearForce();	
+// 	clearStress();	// clear average stress of each particle, April 23, 2014
 
-	// 3. calculate contact forces/moments and apply them to particles
-	internalForce(avgNormal, avgTangt);
+// 	// 3. calculate contact forces/moments and apply them to particles
+// 	internalForce(avgNormal, avgTangt);
 	
-	// 4. calculate boundary forces/moments and apply them to particles
-//	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
+// 	// 4. calculate boundary forces/moments and apply them to particles
+// //	rigidBoundaryForce(bdry_penetr, bdry_cntnum);
 
-//	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
-						// two sub-poly-ellipsoids separately.
-//	addFractureForce(avgFracForce);
-//
-//	eraseFracturePair();
+// //	calculateInitialCohesiveForce();	// calculate it here, since now we have the contact forces acting on the 
+// 						// two sub-poly-ellipsoids separately.
+// //	addFractureForce(avgFracForce);
+// //
+// //	eraseFracturePair();
 
-	// 5. update particles' velocity/omga/position/orientation based on force/moment
-	updateParticle();
-     	// apply boundary conditions directly on boundary particles
-     	for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
-	    tmp_pos = (*it)->getCurrPosition();
-	    tmp_pos1 = (*it)->getPrevPositionPB();	// position at last time step
+// 	// 5. update particles' velocity/omga/position/orientation based on force/moment
+// 	updateParticle();
+//      	// apply boundary conditions directly on boundary particles
+//      	for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+// 	    tmp_pos = (*it)->getCurrPosition();
+// 	    tmp_pos1 = (*it)->getPrevPositionPB();	// position at last time step
 
-	    init_z = (*it)->getInitPosition().getz();
-	    tmp_dispz = dzOverZ0*(init_z-Zmin);
-	    (*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
-	    (*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
+// 	    init_z = (*it)->getInitPosition().getz();
+// 	    tmp_dispz = dzOverZ0*(init_z-Zmin);
+// 	    (*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
+// 	    (*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos.getz()-tmp_dispz));
 
-	    tmp_pos = (*it)->getCurrPosition();
+// 	    tmp_pos = (*it)->getCurrPosition();
 
-	    if(tmp_pos.getz()<Zmin+0.5*cellSize){	// bot boundary particles
-		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
-		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
-	    }
-	    tmp_pos = (*it)->getCurrPosition();
-	    if(tmp_pos.getx()>Xmax-0.5*cellSize || tmp_pos.getx()<Xmin+0.5*cellSize){	// x boundaries
-		(*it)->setCurrPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));	// fixed in x direction
-		(*it)->setPrevPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));
-	    }
-	    tmp_pos = (*it)->getCurrPosition();
-	    if(tmp_pos.gety()>Ymax-0.5*cellSize || tmp_pos.gety()<Ymin+0.5*cellSize){	// y boundaries
-		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));	// fixed in y direction
-		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));
-	    }
-	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
-    	}
+// 	    if(tmp_pos.getz()<Zmin+0.5*cellSize){	// bot boundary particles
+// 		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
+// 		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos.gety(),tmp_pos1.getz()));
+// 	    }
+// 	    tmp_pos = (*it)->getCurrPosition();
+// 	    if(tmp_pos.getx()>Xmax-0.5*cellSize || tmp_pos.getx()<Xmin+0.5*cellSize){	// x boundaries
+// 		(*it)->setCurrPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));	// fixed in x direction
+// 		(*it)->setPrevPosition(vec(tmp_pos1.getx(),tmp_pos.gety(),tmp_pos.getz()));
+// 	    }
+// 	    tmp_pos = (*it)->getCurrPosition();
+// 	    if(tmp_pos.gety()>Ymax-0.5*cellSize || tmp_pos.gety()<Ymin+0.5*cellSize){	// y boundaries
+// 		(*it)->setCurrPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));	// fixed in y direction
+// 		(*it)->setPrevPosition(vec(tmp_pos.getx(),tmp_pos1.gety(),tmp_pos.getz()));
+// 	    }
+// 	    (*it)->GlobCoef();	// this is very important, since coef[] is based on curr_position
+//     	}
 
-  	// apply periodic boundary to move the particles out of left side to right side
-	movePeriodicParticles();
+//   	// apply periodic boundary to move the particles out of left side to right side
+// 	movePeriodicParticles();
 
-	subDivision();
+// 	subDivision();
 
-	// 6. update boundaries' position and orientation
-	l56=getApt(5).getz()-getApt(6).getz();
-	l24=getApt(2).gety()-getApt(4).gety();
-	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
-	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
-	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
-	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
-	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
-	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
-	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
-//std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
-//	granularStress.clear();
-//	granularStress = getGranularStress();	// calculate granular stress
+// 	// 6. update boundaries' position and orientation
+// 	l56=getApt(5).getz()-getApt(6).getz();
+// 	l24=getApt(2).gety()-getApt(4).gety();
+// 	l13=getApt(1).getx()-getApt(3).getx();    Volume=l13*l24*l56;
+// 	min_area=l13*l24;    mid_area=l56*l24;    max_area=l56*l13;
+// 	setArea(5,min_area); setArea(6,min_area); setArea(1,mid_area);
+// 	setArea(3,mid_area); setArea(2,max_area); setArea(4,max_area);
+// 	sigma1_1=vfabs(getNormalForce(2))/max_area; sigma1_2=vfabs(getNormalForce(4))/max_area;
+// 	sigma2_1=vfabs(getNormalForce(1))/mid_area; sigma2_2=vfabs(getNormalForce(3))/mid_area;
+// 	sigma3_1=vfabs(getNormalForce(5))/min_area; sigma3_2=vfabs(getNormalForce(6))/min_area;
+// //std::cout << "sigma3_1: " << sigma3_1 << "  , sigma3_2: " << sigma3_2 << std::endl;
+// //	granularStress.clear();
+// //	granularStress = getGranularStress();	// calculate granular stress
 
-	void_ratio=Volume/getParticleVolume()-1;
+// 	void_ratio=Volume/getParticleVolume()-1;
 
-	// displacement control
-	minctl[0].tran=vec(0,0,-topCompressRate);
-	minctl[1].tran=vec(0,0, botCompressRate);	// move bottom boundary up
+// 	// displacement control
+// 	minctl[0].tran=vec(0,0,-topCompressRate);
+// 	minctl[1].tran=vec(0,0, botCompressRate);	// move bottom boundary up
 
-	top_disp += topCompressRate;
-	bot_disp += botCompressRate;
+// 	top_disp += topCompressRate;
+// 	bot_disp += botCompressRate;
 
-	midctl[0].tran=vec(0,0,0);
-	midctl[1].tran=vec(0,0,0);
+// 	midctl[0].tran=vec(0,0,0);
+// 	midctl[1].tran=vec(0,0,0);
 
-	maxctl[0].tran=vec(0,0,0);	
-	maxctl[1].tran=vec(0,0,0);
+// 	maxctl[0].tran=vec(0,0,0);	
+// 	maxctl[1].tran=vec(0,0,0);
 
 
-/*
-	// force control
-	if (sigma2_1<sigma_a)
-	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
-	else
-	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
+// /*
+// 	// force control
+// 	if (sigma2_1<sigma_a)
+// 	    midctl[0].tran=vec(-TIMESTEP*COMPRESS_RATE,0,0);
+// 	else
+// 	    midctl[0].tran=vec(TIMESTEP*RELEASE_RATE,0,0);
 	
-	if (sigma2_2<sigma_a)
-	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
-	else
-	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
+// 	if (sigma2_2<sigma_a)
+// 	    midctl[1].tran=vec(TIMESTEP*COMPRESS_RATE,0,0);
+// 	else
+// 	    midctl[1].tran=vec(-TIMESTEP*RELEASE_RATE,0,0);
 	
-	if (sigma1_1<sigma_a)
-	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
-	else
-	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
+// 	if (sigma1_1<sigma_a)
+// 	    maxctl[0].tran=vec(0,-TIMESTEP*COMPRESS_RATE,0);
+// 	else
+// 	    maxctl[0].tran=vec(0,TIMESTEP*RELEASE_RATE,0);
 	
-	if (sigma1_2<sigma_a)
-	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
-	else
-	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
+// 	if (sigma1_2<sigma_a)
+// 	    maxctl[1].tran=vec(0,TIMESTEP*COMPRESS_RATE,0);
+// 	else
+// 	    maxctl[1].tran=vec(0,-TIMESTEP*RELEASE_RATE,0);
 
-*/
+
 
 	
-//	updateRB(min,minctl,2);
-//	updateRB(mid,midctl,2);
-//	updateRB(max,maxctl,2);
-//	updateRB6();
+// //	updateRB(min,minctl,2);
+// //	updateRB(mid,midctl,2);
+// //	updateRB(max,maxctl,2);
+// //	updateRB6();
 	
-	// 7. (1) output particles and contacts information
-	if (g_iteration % (total_steps/snapshots) == 0){
-	    sprintf(stepsstr, "%03d", stepsnum+first_snapshot); 
-	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
-	    printParticle(stepsfp);    
-	    time(&timeStamp);
-	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
-	    ++stepsnum;
-	}
+// 	// 7. (1) output particles and contacts information
+// 	if (g_iteration % (total_steps/snapshots) == 0){
+// 	    sprintf(stepsstr, "%03d", stepsnum+first_snapshot); 
+// 	    strcpy(stepsfp,particlefile); strcat(stepsfp, "_"); strcat(stepsfp, stepsstr);
+// 	    printParticle(stepsfp);    
+// 	    time(&timeStamp);
+// 	    g_timeinf << setw(4) << stepsnum << " " << ctime(&timeStamp) << flush;
+// 	    ++stepsnum;
+// 	}
 
-	// 7. (2) output stress and strain info
-	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
-	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
-	if (g_iteration % interval == 0 ){
+// 	// 7. (2) output stress and strain info
+// 	epsilon_w = (W0-l24)/W0; epsilon_l = (L0-l13)/L0; epsilon_h = (H0-l56)/H0;
+// 	epsilon_w_log = log(l24/W0); epsilon_l_log = log(l13/L0); epsilon_h_log = log(l56/H0);
+// 	if (g_iteration % interval == 0 ){
 
-//	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
-//	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
-//	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
-//			resetStartCenterMass();	// reset initial position
-			// tessellate again
-			createInputForQhull();
-			callQhull();
-			readTesse("tess_info");
-			readTesse_finite("tess_info");
-//	    }
+// //	    if(eulerianStrain(1,1)-previousEuler(1,1)>strainThreshold ||
+// //	       eulerianStrain(2,2)-previousEuler(2,2)>strainThreshold ||
+// //	       eulerianStrain(3,3)-previousEuler(3,3)>strainThreshold ){	// need to tessellate again
+// //			resetStartCenterMass();	// reset initial position
+// 			// tessellate again
+// 			createInputForQhull();
+// 			callQhull();
+// 			readTesse("tess_info");
+// 			readTesse_finite("tess_info");
+// //	    }
 
-	// calculate strain by rate
-	prev_strain_rate.clear();
-	prev_strain_rate = curr_strain_rate;	// set previous strain
+// 	// calculate strain by rate
+// 	prev_strain_rate.clear();
+// 	prev_strain_rate = curr_strain_rate;	// set previous strain
 	
-	// calculate spatial velocity gradient tensor
-	spatial_dvdx.clear();
-	spatial_dvdx = getAverage_dvdx();
-	curr_dvdx.clear();
-	curr_dvdx = spatial_dvdx;
+// 	// calculate spatial velocity gradient tensor
+// 	spatial_dvdx.clear();
+// 	spatial_dvdx = getAverage_dvdx();
+// 	curr_dvdx.clear();
+// 	curr_dvdx = spatial_dvdx;
 	
-	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
+// 	curr_rate = 0.5*(curr_dvdx+curr_dvdx.getTrans());	// current spatial deformation rate
 
-	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
-
-
-	    // calculate granular strain and Euler strain
-	    average_dudx_Bagi.clear();	// used to test quadratic terms
-	    average_dudx_Eulerian.clear();
-
-	    granularStrain.clear();
-	    eulerianStrain.clear();
-	    euler_HOT.clear();
-//	    granularStrain = getGranularStrain()+previousStrain;
-//	    eulerianStrain = getEulerianStrain()+previousEuler;
-//	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
-//
-//	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
-//	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
-
-	    granularStrain = getGranularStrain();
-	    eulerianStrain = getEulerianStrain();
-	    euler_HOT = getEuler_HOT();
-
-	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
-	    average_dudx_Eulerian = average_dudx_Eulerian;
-
-	    // update previousStrain
-	    previousStrain = granularStrain;
-	    previousEuler = eulerianStrain;
-	    previousEuler_HOT = euler_HOT;
-	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
-	    previousEuler_dudx = average_dudx_Eulerian;
-
-	    // calculate finite granular strain
-	    finiteStrain.clear();
-	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
-	    finiteStrain = getFiniteStrain();
-	    // calculate mixed finite granular strain
-	    lag_HOT.clear();
-	    lag_HOT = getHigherStrain();
+// 	curr_strain_rate = prev_strain_rate+(curr_rate-curr_dvdx.getTrans()*prev_strain_rate-prev_strain_rate*curr_dvdx)*TIMESTEP*interval;
 
 
-	    granularStress.clear();
-	    granularStress = getGranularStress();	// calculate granular stress
+// 	    // calculate granular strain and Euler strain
+// 	    average_dudx_Bagi.clear();	// used to test quadratic terms
+// 	    average_dudx_Eulerian.clear();
 
-	    stiffnessD = calculateStiffness();
-	    D11=stiffnessD(9,9);
+// 	    granularStrain.clear();
+// 	    eulerianStrain.clear();
+// 	    euler_HOT.clear();
+// //	    granularStrain = getGranularStrain()+previousStrain;
+// //	    eulerianStrain = getEulerianStrain()+previousEuler;
+// //	    euler_HOT = getEuler_HOT()+previousEuler_HOT;
+// //
+// //	    average_dudx_Bagi = average_dudx_Bagi+previousBagi_dudx;	// used to test quadratic terms
+// //	    average_dudx_Eulerian = average_dudx_Eulerian+previousEuler_dudx;
 
-	    gettimeofday(&time_w2,NULL);
-	    progressinf << setw(OWID) << g_iteration
-		        << setw(OWID) << getPossCntctNum()
-		        << setw(OWID) << getActualCntctNum()
-		        << setw(OWID) << getAveragePenetration()
-		        << setw(OWID) << avgNormal
-		        << setw(OWID) << avgTangt
-		        << setw(OWID) << getAverageVelocity() 
-		        << setw(OWID) << getAverageOmga()
-		        << setw(OWID) << getAverageForce()   
-		        << setw(OWID) << getAverageMoment()
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
-			<< setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
-		        << setw(OWID) << granularStress(1,1) << setw(OWID) << granularStress(1,2) << setw(OWID) << granularStress(1,3)
-		        << setw(OWID) << granularStress(2,1) << setw(OWID) << granularStress(2,2) << setw(OWID) << granularStress(2,3)
-		        << setw(OWID) << granularStress(3,1) << setw(OWID) << granularStress(3,2) << setw(OWID) << granularStress(3,3)
-		        << setw(OWID) << getAverageRigidPressure()
-		        << setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-			<< setw(OWID) << granularStrain(1,1) << setw(OWID) << granularStrain(1,2) << setw(OWID) << granularStrain(1,3)
-		        << setw(OWID) << granularStrain(2,1) << setw(OWID) << granularStrain(2,2) << setw(OWID) << granularStrain(2,3)
-		        << setw(OWID) << granularStrain(3,1) << setw(OWID) << granularStrain(3,2) << setw(OWID) << granularStrain(3,3)
-		        << setw(OWID) << void_ratio
-		        << setw(OWID) << void_ratio/(1+void_ratio)
-		        << setw(OWID) << 2.0*(getActualCntctNum()
-					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
-					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
-	                << setw(OWID) << getVibraTimeStep()
-	                << setw(OWID) << getImpactTimeStep()
-		        << setw(OWID) << timediffsec(time_w1,time_w2)
-			<< setw(OWID) << finiteStrain(1,1) << setw(OWID) << finiteStrain(1,2) << setw(OWID) << finiteStrain(1,3)
-		        << setw(OWID) << finiteStrain(2,1) << setw(OWID) << finiteStrain(2,2) << setw(OWID) << finiteStrain(2,3)
-		        << setw(OWID) << finiteStrain(3,1) << setw(OWID) << finiteStrain(3,2) << setw(OWID) << finiteStrain(3,3)
-			<< setw(OWID) << lag_HOT(1,1) << setw(OWID) << lag_HOT(1,2) << setw(OWID) << lag_HOT(1,3)
-		        << setw(OWID) << lag_HOT(2,1) << setw(OWID) << lag_HOT(2,2) << setw(OWID) << lag_HOT(2,3)
-		        << setw(OWID) << lag_HOT(3,1) << setw(OWID) << lag_HOT(3,2) << setw(OWID) << lag_HOT(3,3)
-			<< setw(OWID) << eulerianStrain(1,1) << setw(OWID) << eulerianStrain(1,2) << setw(OWID) << eulerianStrain(1,3)
-		        << setw(OWID) << eulerianStrain(2,1) << setw(OWID) << eulerianStrain(2,2) << setw(OWID) << eulerianStrain(2,3)
-		        << setw(OWID) << eulerianStrain(3,1) << setw(OWID) << eulerianStrain(3,2) << setw(OWID) << eulerianStrain(3,3)
-			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
-		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
-		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-		        << setw(OWID) << 0
-			<< setw(OWID) << average_dudx_Bagi(1,1) << setw(OWID) << average_dudx_Bagi(1,2) << setw(OWID) << average_dudx_Bagi(1,3)
-		        << setw(OWID) << average_dudx_Bagi(2,1) << setw(OWID) << average_dudx_Bagi(2,2) << setw(OWID) << average_dudx_Bagi(2,3)
-		        << setw(OWID) << average_dudx_Bagi(3,1) << setw(OWID) << average_dudx_Bagi(3,2) << setw(OWID) << average_dudx_Bagi(3,3)
+// 	    granularStrain = getGranularStrain();
+// 	    eulerianStrain = getEulerianStrain();
+// 	    euler_HOT = getEuler_HOT();
+
+// 	    average_dudx_Bagi = average_dudx_Bagi;	// used to test quadratic terms
+// 	    average_dudx_Eulerian = average_dudx_Eulerian;
+
+// 	    // update previousStrain
+// 	    previousStrain = granularStrain;
+// 	    previousEuler = eulerianStrain;
+// 	    previousEuler_HOT = euler_HOT;
+// 	    previousBagi_dudx = average_dudx_Bagi;	// used to test quadratic terms
+// 	    previousEuler_dudx = average_dudx_Eulerian;
+
+// 	    // calculate finite granular strain
+// 	    finiteStrain.clear();
+// 	    average_dudx_Lagrangian.clear();	// used to test quadratic terms
+// 	    finiteStrain = getFiniteStrain();
+// 	    // calculate mixed finite granular strain
+// 	    lag_HOT.clear();
+// 	    lag_HOT = getHigherStrain();
+
+
+// 	    granularStress.clear();
+// 	    granularStress = getGranularStress();	// calculate granular stress
+
+// 	    stiffnessD = calculateStiffness();
+// 	    D11=stiffnessD(9,9);
+
+// 	    gettimeofday(&time_w2,NULL);
+// 	    progressinf << setw(OWID) << g_iteration
+// 		        << setw(OWID) << getPossCntctNum()
+// 		        << setw(OWID) << getActualCntctNum()
+// 		        << setw(OWID) << getAveragePenetration()
+// 		        << setw(OWID) << avgNormal
+// 		        << setw(OWID) << avgTangt
+// 		        << setw(OWID) << getAverageVelocity() 
+// 		        << setw(OWID) << getAverageOmga()
+// 		        << setw(OWID) << getAverageForce()   
+// 		        << setw(OWID) << getAverageMoment()
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
+// 			<< setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
+// 		        << setw(OWID) << granularStress(1,1) << setw(OWID) << granularStress(1,2) << setw(OWID) << granularStress(1,3)
+// 		        << setw(OWID) << granularStress(2,1) << setw(OWID) << granularStress(2,2) << setw(OWID) << granularStress(2,3)
+// 		        << setw(OWID) << granularStress(3,1) << setw(OWID) << granularStress(3,2) << setw(OWID) << granularStress(3,3)
+// 		        << setw(OWID) << getAverageRigidPressure()
+// 		        << setw(OWID) << 0 << setw(OWID) << 0 << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 			<< setw(OWID) << granularStrain(1,1) << setw(OWID) << granularStrain(1,2) << setw(OWID) << granularStrain(1,3)
+// 		        << setw(OWID) << granularStrain(2,1) << setw(OWID) << granularStrain(2,2) << setw(OWID) << granularStrain(2,3)
+// 		        << setw(OWID) << granularStrain(3,1) << setw(OWID) << granularStrain(3,2) << setw(OWID) << granularStrain(3,3)
+// 		        << setw(OWID) << void_ratio
+// 		        << setw(OWID) << void_ratio/(1+void_ratio)
+// 		        << setw(OWID) << 2.0*(getActualCntctNum()
+// 					+bdry_cntnum[1]+bdry_cntnum[2]+bdry_cntnum[3]
+// 					+bdry_cntnum[4]+bdry_cntnum[5]+bdry_cntnum[6])/TotalNum
+// 	                << setw(OWID) << getVibraTimeStep()
+// 	                << setw(OWID) << getImpactTimeStep()
+// 		        << setw(OWID) << timediffsec(time_w1,time_w2)
+// 			<< setw(OWID) << finiteStrain(1,1) << setw(OWID) << finiteStrain(1,2) << setw(OWID) << finiteStrain(1,3)
+// 		        << setw(OWID) << finiteStrain(2,1) << setw(OWID) << finiteStrain(2,2) << setw(OWID) << finiteStrain(2,3)
+// 		        << setw(OWID) << finiteStrain(3,1) << setw(OWID) << finiteStrain(3,2) << setw(OWID) << finiteStrain(3,3)
+// 			<< setw(OWID) << lag_HOT(1,1) << setw(OWID) << lag_HOT(1,2) << setw(OWID) << lag_HOT(1,3)
+// 		        << setw(OWID) << lag_HOT(2,1) << setw(OWID) << lag_HOT(2,2) << setw(OWID) << lag_HOT(2,3)
+// 		        << setw(OWID) << lag_HOT(3,1) << setw(OWID) << lag_HOT(3,2) << setw(OWID) << lag_HOT(3,3)
+// 			<< setw(OWID) << eulerianStrain(1,1) << setw(OWID) << eulerianStrain(1,2) << setw(OWID) << eulerianStrain(1,3)
+// 		        << setw(OWID) << eulerianStrain(2,1) << setw(OWID) << eulerianStrain(2,2) << setw(OWID) << eulerianStrain(2,3)
+// 		        << setw(OWID) << eulerianStrain(3,1) << setw(OWID) << eulerianStrain(3,2) << setw(OWID) << eulerianStrain(3,3)
+// 			<< setw(OWID) << euler_HOT(1,1) << setw(OWID) << euler_HOT(1,2) << setw(OWID) << euler_HOT(1,3)
+// 		        << setw(OWID) << euler_HOT(2,1) << setw(OWID) << euler_HOT(2,2) << setw(OWID) << euler_HOT(2,3)
+// 		        << setw(OWID) << euler_HOT(3,1) << setw(OWID) << euler_HOT(3,2) << setw(OWID) << euler_HOT(3,3)
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 		        << setw(OWID) << 0
+// 			<< setw(OWID) << average_dudx_Bagi(1,1) << setw(OWID) << average_dudx_Bagi(1,2) << setw(OWID) << average_dudx_Bagi(1,3)
+// 		        << setw(OWID) << average_dudx_Bagi(2,1) << setw(OWID) << average_dudx_Bagi(2,2) << setw(OWID) << average_dudx_Bagi(2,3)
+// 		        << setw(OWID) << average_dudx_Bagi(3,1) << setw(OWID) << average_dudx_Bagi(3,2) << setw(OWID) << average_dudx_Bagi(3,3)
 		        
-			<< setw(OWID) << average_dudx_Lagrangian(1,1) << setw(OWID) << average_dudx_Lagrangian(1,2) << setw(OWID) << average_dudx_Lagrangian(1,3)
-		        << setw(OWID) << average_dudx_Lagrangian(2,1) << setw(OWID) << average_dudx_Lagrangian(2,2) << setw(OWID) << average_dudx_Lagrangian(2,3)
-		        << setw(OWID) << average_dudx_Lagrangian(3,1) << setw(OWID) << average_dudx_Lagrangian(3,2) << setw(OWID) << average_dudx_Lagrangian(3,3)
-			<< setw(OWID) << average_dudx_Eulerian(1,1) << setw(OWID) << average_dudx_Eulerian(1,2) << setw(OWID) << average_dudx_Eulerian(1,3)
-		        << setw(OWID) << average_dudx_Eulerian(2,1) << setw(OWID) << average_dudx_Eulerian(2,2) << setw(OWID) << average_dudx_Eulerian(2,3)
-		        << setw(OWID) << average_dudx_Eulerian(3,1) << setw(OWID) << average_dudx_Eulerian(3,2) << setw(OWID) << average_dudx_Eulerian(3,3)
-			<< setw(OWID) << spatial_dvdx(1,1) << setw(OWID) << spatial_dvdx(1,2) << setw(OWID) << spatial_dvdx(1,3)
-		        << setw(OWID) << spatial_dvdx(2,1) << setw(OWID) << spatial_dvdx(2,2) << setw(OWID) << spatial_dvdx(2,3)
-		        << setw(OWID) << spatial_dvdx(3,1) << setw(OWID) << spatial_dvdx(3,2) << setw(OWID) << spatial_dvdx(3,3)
-			<< setw(OWID) << getApt(6).getz() - bottom_init
-			<< setw(OWID) << vfabs(getNormalForce(6))
-			<< setw(OWID) << getApt(5).getz() - top_init
-			<< setw(OWID) << vfabs(getNormalForce(5))
-			<< setw(OWID) << D11
-		        << endl;
-//	    g_debuginf << setw(OWID) << g_iteration
-//		       << setw(OWID) << getTransEnergy()
-//		       << setw(OWID) << getRotatEnergy()
-//		       << setw(OWID) << bdry_penetr[1]
-//		       << setw(OWID) << bdry_penetr[2]
-//		       << setw(OWID) << bdry_penetr[3]
-//		       << setw(OWID) << bdry_penetr[4]
-//		       << setw(OWID) << bdry_penetr[5]
-//		       << setw(OWID) << bdry_penetr[6]
-//		       << setw(OWID) << bdry_cntnum[1]
-//		       << setw(OWID) << bdry_cntnum[2]
-//		       << setw(OWID) << bdry_cntnum[3]
-//		       << setw(OWID) << bdry_cntnum[4]
-//		       << setw(OWID) << bdry_cntnum[5]
-//		       << setw(OWID) << bdry_cntnum[6]
-//		       << endl;
-	}
+// 			<< setw(OWID) << average_dudx_Lagrangian(1,1) << setw(OWID) << average_dudx_Lagrangian(1,2) << setw(OWID) << average_dudx_Lagrangian(1,3)
+// 		        << setw(OWID) << average_dudx_Lagrangian(2,1) << setw(OWID) << average_dudx_Lagrangian(2,2) << setw(OWID) << average_dudx_Lagrangian(2,3)
+// 		        << setw(OWID) << average_dudx_Lagrangian(3,1) << setw(OWID) << average_dudx_Lagrangian(3,2) << setw(OWID) << average_dudx_Lagrangian(3,3)
+// 			<< setw(OWID) << average_dudx_Eulerian(1,1) << setw(OWID) << average_dudx_Eulerian(1,2) << setw(OWID) << average_dudx_Eulerian(1,3)
+// 		        << setw(OWID) << average_dudx_Eulerian(2,1) << setw(OWID) << average_dudx_Eulerian(2,2) << setw(OWID) << average_dudx_Eulerian(2,3)
+// 		        << setw(OWID) << average_dudx_Eulerian(3,1) << setw(OWID) << average_dudx_Eulerian(3,2) << setw(OWID) << average_dudx_Eulerian(3,3)
+// 			<< setw(OWID) << spatial_dvdx(1,1) << setw(OWID) << spatial_dvdx(1,2) << setw(OWID) << spatial_dvdx(1,3)
+// 		        << setw(OWID) << spatial_dvdx(2,1) << setw(OWID) << spatial_dvdx(2,2) << setw(OWID) << spatial_dvdx(2,3)
+// 		        << setw(OWID) << spatial_dvdx(3,1) << setw(OWID) << spatial_dvdx(3,2) << setw(OWID) << spatial_dvdx(3,3)
+// 			<< setw(OWID) << getApt(6).getz() - bottom_init
+// 			<< setw(OWID) << vfabs(getNormalForce(6))
+// 			<< setw(OWID) << getApt(5).getz() - top_init
+// 			<< setw(OWID) << vfabs(getNormalForce(5))
+// 			<< setw(OWID) << D11
+// 		        << endl;
+// //	    g_debuginf << setw(OWID) << g_iteration
+// //		       << setw(OWID) << getTransEnergy()
+// //		       << setw(OWID) << getRotatEnergy()
+// //		       << setw(OWID) << bdry_penetr[1]
+// //		       << setw(OWID) << bdry_penetr[2]
+// //		       << setw(OWID) << bdry_penetr[3]
+// //		       << setw(OWID) << bdry_penetr[4]
+// //		       << setw(OWID) << bdry_penetr[5]
+// //		       << setw(OWID) << bdry_penetr[6]
+// //		       << setw(OWID) << bdry_cntnum[1]
+// //		       << setw(OWID) << bdry_cntnum[2]
+// //		       << setw(OWID) << bdry_cntnum[3]
+// //		       << setw(OWID) << bdry_cntnum[4]
+// //		       << setw(OWID) << bdry_cntnum[5]
+// //		       << setw(OWID) << bdry_cntnum[6]
+// //		       << endl;
+// 	}
 
-	// 9. loop break condition: through displacement control mechanism
+// 	// 9. loop break condition: through displacement control mechanism
 	
-    } while (++g_iteration < total_steps);
+//     } while (++g_iteration < total_steps);
 
-    // post_1. store the final snapshot of particles, contacts and boundaries.
-    printParticle(iniptclfile);
+//     // post_1. store the final snapshot of particles, contacts and boundaries.
+//     printParticle(iniptclfile);
 
-    g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
+//     g_timeinf << setw(4) << "end" << " " << ctime(&timeStamp) << flush;
 
-    printBoundary(inibdryfile);
+//     printBoundary(inibdryfile);
     
-    // post_2. close streams
-    progressinf.close();
-    balancedinf.close();
-//    g_debuginf.close();
-} // unixialCompression
+//     // post_2. close streams
+//     progressinf.close();
+//     balancedinf.close();
+// //    g_debuginf.close();
+// } // unixialCompression
+
+
 
 } // namespace dem

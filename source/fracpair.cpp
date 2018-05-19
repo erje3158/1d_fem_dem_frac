@@ -115,11 +115,12 @@ fracpair::fracpair(particle* t1, particle* t2, int break_plane){
 
     // initialize num_springs
     num_springs = 4;
-    d[0]=0; d[1]=0; d[2]=0; d[3]=0;
+//    d[0]=0; d[1]=0; d[2]=0; d[3]=0;
     fc_init[0]=0; fc_init[1]=0; fc_init[2]=0; fc_init[3]=0;	// the initial cohesive foce will be calculated next step
     isInitialForce = false;					// after calculate contact forces and before update, since 
     num_broken = 0;	// number of broken springs		// we need the separate forces acting on this part
-
+    isLive[0]=true; isLive[1]=true;
+    isLive[2]=true; isLive[3]=true;
 
     // get initial spring distance, since some numerical problem, these distance are not zero exactly.
     // then we need to store the initial values to be compared
@@ -196,11 +197,10 @@ void fracpair::calculateResultant(REAL &fracForce){
     vec l_spring;	// vector of spring, pointing from point 1 to point 2
     REAL delta_x;	// l-l0 of spring
 
-    REAL d_critical = 0.4;
     fracForce = 0;
     for(int i=0; i!=4; i++){
 	// for non-broken springs
-	if(d[i]<=d_critical){
+	if(isLive[i]){
 	    // get normalized direction of springs
 	    l_spring = (global2_points[i] - global1_points[i]);
 	    delta_x = vfabs(l_spring) - l0_spring[i];
@@ -208,24 +208,17 @@ void fracpair::calculateResultant(REAL &fracForce){
 	    if(delta_x<=0){	// spring is in compression, no cohesive force
 		continue;
 	    }
-	    //calculate trial force in springs
-	    REAL ftrial = (1-d[i])*k0_spring[i]*delta_x;
-	    if(ftrial>dem::sigma_f*area*0.25){	// spring meets soften criterion
-		REAL xi = zr/dem::Cf;	// where Cf is the crack propagation speed
-		d[i] = d[i]+TIMESTEP/xi;
-		// check if we can break this spring
-	        if(d[i]>d_critical){	// then break
-		    num_broken++;
-		    num_springs--;
-		    continue;
-	    	}
-std::cout << "d[0]: " << d[0] << ",    d[1]: " << d[1] << ",    d[2]: " << d[2] << ",   d[3]: " << d[3] << std::endl;
 
+	    REAL fc_norm = vfabs(fc_init[i])-k0_spring[i]*delta_x;	// cohesive force in spring
+
+	    vec fc = fc_norm*normalize(fc_init[i]);	// pointing from point 1 to point 2
+	    if(fc_norm<=0){
+		isLive[i]=false;	// no spring force, break the spring
+		num_broken++;
+		num_springs--;
+		continue;
 	    }
 
-	    REAL fc_norm = (1-d[i])*k0_spring[i]*delta_x;	// cohesive force in spring
-
-	    vec fc = fc_init[i]+fc_norm*normalize(l_spring);	// pointing from point 1 to point 2
 	    p1->addForce(fc);			// don't need to consider these forces in the average stress, since 
 	    p2->addForce(-fc);			// when there are springs for this particle, it can not be sub-divided further
 	    p1->addMoment( (global1_points[i]-p1->getCurrCenterMass())* fc );

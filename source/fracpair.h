@@ -30,7 +30,7 @@ class fracpair{
 	vec local1_points[4];	// the three spring points on particle 1
 	vec local2_points[4];	// the three spring points on particle 2, the other four points can be generated based on the three
 	REAL k0_spring[4];	// the initial stiffness of the springs, k0=EA/nsl, we do not distinguish normal or tangential
-	REAL d[4];		// breakage parameter of each spring
+//	REAL d[4];		// breakage parameter of each spring
 	REAL l0_spring[4]; 	// the initial spring vector w.r.t. p1p2
    	dem::vec fc_init[4];	// the initial cohesive force in each spring
 				// force in the springs are in the same direction as acting on particle p1, 
@@ -42,6 +42,7 @@ class fracpair{
 	int num_springs;	// the number of non-broken springs
 	int num_broken;	// the number of springs broken 
 	bool isInitialForce;	// is applied initial force or not, false: not, true: yes 
+        bool isLive[4];	// spring is still live or not
 
 //	REAL shear_strength;
 //	REAL normal_strength;

@@ -57,7 +57,6 @@ public:
     REAL getE0() const {return E0;}
     REAL getVibraTimeStep() const {return vibraTimeStep;}
     REAL getImpactTimeStep() const {return impactTimeStep;}
-    matrix getStiffness() const {return D_each;}
     
     bool isOverlapped();
     void Hopkin_contact(vec& oct1, vec& oct2);	// pre-detect which octants in Hopkin's algorithm. August 27, 2013
@@ -110,8 +109,6 @@ public:
     REAL TgtPeak;       
 
     vec  spin_res;
-
-    matrix D_each;	// stiffness tensor
 };
 
 
@@ -1348,16 +1345,6 @@ void contact<T>::contactForce(bool &exceed){	// exceed August, 19. 2013 apply mo
 	p1->inContact = true;
 	p2->inContact = true;
 
-	// .....
-	// variables for the calculation of stiffness tensor D
-    	matrix nc(3,1);
-    	matrix dc(1,3);
-    	matrix tc(3,1);
-    	REAL kt=0;
-
-  	vec dc_tmp = p2->getCurrPosition()-p1->getCurrPosition(); // .....
-	dc(1,1) = dc_tmp.getx(); dc(1,2) = dc_tmp.gety(); dc(1,3) = dc_tmp.getz(); //.....
-
 	R0=radius1*radius2/(radius1+radius2);
 	E0=0.5*YOUNG/(1-POISSON*POISSON);
 	REAL allowedOverlap = 2.0 * fmin(radius1,radius2) * MAXOVERLAP;
@@ -1377,22 +1364,6 @@ void contact<T>::contactForce(bool &exceed){	// exceed August, 19. 2013 apply mo
 	NormDirc=normalize(point1-point2);         // NormDirc points out of particle 1
 	NormalForce= -sqrt(penetration*penetration*penetration)*sqrt(R0)*4*E0/3* NormDirc; // NormalForce pointing to particle 1
 	// pow(penetration, 1.5)
-
-	// .....
- 	nc(1,1) = -NormDirc.getx(); nc(2,1) = -NormDirc.gety(); nc(3,1) = -NormDirc.getz();	// nc is pointing from particle 2 to particle 1
-	vec c_tmp;	// a vector that is not collinear with nc
-	if(nc(2,1)!=0 || nc(3,1)!=0){
-	    c_tmp = vec(1,0,0);
-	}
-	else{
-	    c_tmp = vec(0,1,0);
-	}
-	vec tc_tmp = vec(nc(1,1),nc(2,1),nc(3,1))*c_tmp;	// cross product of nc and c_tmp
-	tc(1,1) = tc_tmp.getx(); tc(2,1) = tc_tmp.gety(); tc(3,1) = tc_tmp.getz();// find an arbitrary tc which is orthogonal to nc
-	matrix ncdc = nc*dc;
-	matrix ncdc_ncdc = kroneckerProduct(ncdc,ncdc);
-	matrix tcdc = tc*dc;
-	matrix tcdc_tcdc = kroneckerProduct(tcdc,tcdc);
 
         // apply cohesion force
 	CohesionForce=PI*(penetration*R0)*COHESION*NormDirc;
@@ -1471,15 +1442,15 @@ void contact<T>::contactForce(bool &exceed){	// exceed August, 19. 2013 apply mo
 	p1->addMoment( ( (point1+point2)/2-p1->getCurrCenterMass() ) * (-CntDampingForce) );
 	p2->addMoment( ( (point1+point2)/2-p2->getCurrCenterMass() ) * CntDampingForce );
 
-	vec localCntForce = p1->localVec(-CntDampingForce);
-	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
-	tmp_stress = tmp_force*tmp_posi_p1;
-	p1->addStress(tmp_stress);
-
-	localCntForce = p2->localVec(CntDampingForce);
-	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
-	tmp_stress = tmp_force*tmp_posi_p2;
-	p2->addStress(tmp_stress);
+//	vec localCntForce = p1->localVec(-CntDampingForce);
+//	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
+//	tmp_stress = tmp_force*tmp_posi_p1;
+//	p1->addStress(tmp_stress);
+//
+//	localCntForce = p2->localVec(CntDampingForce);
+//	tmp_force(1,1) = localCntForce.getx(); tmp_force(2,1) = localCntForce.gety(); tmp_force(3,1) = localCntForce.getz();
+//	tmp_stress = tmp_force*tmp_posi_p2;
+//	p2->addStress(tmp_stress);
 
 
 	if (FRICTION != 0) {
@@ -1641,11 +1612,7 @@ void contact<T>::contactForce(bool &exceed){	// exceed August, 19. 2013 apply mo
 	    tmp_stress = tmp_force*tmp_posi_p2;
 	    p2->addStress(tmp_stress);
 
-	    kt = ks;
-
 	}
-	//.......
-	D_each = kn*ncdc_ncdc+kt*tcdc_tcdc;
 	
     }
     else {

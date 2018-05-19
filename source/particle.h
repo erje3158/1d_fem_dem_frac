@@ -71,8 +71,6 @@ namespace dem {
     REAL getStrengthContact() const {return strengthContact;}
     vec  getCurrPosition() const {return curr_position;}
     vec  getPrevPosition() const {return prev_position;}
-    vec  getPrevPositionPB() const {return prev_positionPB;}
-    vec  getInitPosition() const {return init_position;}	// initial position for granular strain
     vec  getInitCenterMass() const {return init_center_mass;}	// initial position for granular strain
     vec  getStartCenterMass() const {return start_center_mass;}
     vec  getCurrCenterMass() const {return curr_center_mass;}	// August 19, 2013
@@ -127,8 +125,6 @@ namespace dem {
     void expand(REAL percent) {aplus *= (1+percent); aminus *= (1+percent); bplus *= (1+percent); bminus *= (1+percent); cplus *= (1+percent); cminus *= (1+percent);}	// August 16, 2013
     void setCurrPosition(vec vv){curr_position=vv;}
     void setPrevPosition(vec vv){prev_position=vv;}
-    void setPrevPositionPB(vec vv){prev_positionPB=vv;}
-    void setInitPosition(vec vv){init_position=vv;}	// initial center for granular strain
     void setCurrCenterMass(vec vv){curr_center_mass=vv;}	// August 19, 2013
     void setPrevCenterMass(vec vv){prev_center_mass=vv;}
     void setInitCenterMass(vec vv){init_center_mass=vv;}	// initial center for granular strain
@@ -220,8 +216,6 @@ namespace dem {
     REAL poisson;
     vec curr_position;   // particle center, center of geometry August 16, 2013
     vec prev_position;
-    vec prev_positionPB; // for periodic boundary conditions implementation
-    vec init_position;	// initial center
     vec local_center_mass;	// local coordinate of mass center with center_geo as origin and princinpal directions as axels, unchanged. August 16, 2013
     vec prev_center_mass;
     vec curr_center_mass;	//global coordinates of previous and current center of mass
