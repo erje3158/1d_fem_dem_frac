@@ -1046,7 +1046,7 @@ void   particle::getGlobCoef(REAL coef[], int num_oct) const{	// September 6, 20
                 coef[i]=this->coef8[i];
 	    break;
 	default:
-	    std::cout << "number of octant is larger then 8 in getGlobCoef()!" << std::cout;
+	    cout << "number of octant is larger then 8 in getGlobCoef()!" << endl;
 	    exit(-1);
 	    break;
     }
@@ -1722,7 +1722,7 @@ bool particle::intersectWithLine(vec v, vec dirc, vec rt[], int num_oct) const{	
      	    j=coef8[9];
 	    break;
 	default:
-	    std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
+	    cout << "number of octant exceeds 8 in intersectWithLine()!" << endl;
 	    exit(-1);
 	    break;
     }
@@ -2935,7 +2935,7 @@ bool particle::nearestPTOnPlane(REAL p, REAL q, REAL r, REAL s, vec& ptnp, int n
      	    j=coef8[9];
 	    break;
 	default:
-	    std::cout << "number of octant exceeds 8 in intersectWithLine()!" << std::cout;
+	    cout << "number of octant exceeds 8 in intersectWithLine()!" << endl;
 	    exit(-1);
 	    break;
     }
