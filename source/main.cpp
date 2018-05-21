@@ -460,6 +460,7 @@ int main(int argc, char * argv[]) {
             if (femParams.whichConst == 1) {
                 el_kd_g2int(coords.row(el), d_el.row(el), params, el, stiff_el.slice(el));
             } else if (femParams.whichConst == 2) {
+                //ellip3D DOESN'T CURRENTLY OUTPUT D11!!!!!!! HAD TO CHANGE WHEN UPDATED FRACTURE CODE
                 el_kd_g2int_ellip3d(outputDir, coords.row(el), d_el.row(el), params, n, el, stiff_el.slice(el));
             } else {
                 cout << "ERROR: NO SPECIFICED CONSTITUTIVE MODEL" << endl;
