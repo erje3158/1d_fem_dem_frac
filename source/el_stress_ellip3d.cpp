@@ -137,7 +137,7 @@ void el_stress_ellip3d(const char * outputDir,
     string lastLine = getLastLine(infile);
 
     // This loop goes through the last line of comp_progress and parses out the approrpriate parts
-    for(ii = 0; ii < 131; ii++) {
+    for(ii = 0; ii < 130; ii++) {
         if(ii == 0)
             trash = stod(lastLine, &sz);
         else {
