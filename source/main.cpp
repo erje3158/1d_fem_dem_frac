@@ -355,11 +355,11 @@ int main(int argc, char * argv[]) {
 
     if (rank == 0)
     {
-        //femParams.echoData();
+        femParams.echoData();
         femParams.checkData();
-        //demParams.echoData();
+        demParams.echoData();
         demParams.checkData();
-        //printMesh(coords, LM, g);
+        printMesh(coords, LM, g);
     }
 
     femParams.~femInput();

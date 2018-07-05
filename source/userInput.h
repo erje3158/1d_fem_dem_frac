@@ -108,6 +108,8 @@ public:
   double tensileCrit;
   double fracTough;
 
+  int    whichSeed; 
+
   demInput()
   {
     maxOverlap   = 0.0;
@@ -123,6 +125,8 @@ public:
     sigmaComp    = 0.0;
     tensileCrit  = 0.0;
     fracTough    = 0.0;
+
+    whichSeed    = 0;
   }
 
   ~demInput();

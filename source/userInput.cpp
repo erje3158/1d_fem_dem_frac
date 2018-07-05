@@ -223,6 +223,8 @@ void demInput::readData(const char * inputFile)
       if ( line == "$Particle Fracture" ) { input >> this->sigmaComp  ;
                                             input >> this->tensileCrit;
                                             input >> this->fracTough  ;}
+      if ( line == "$Random Seed"       ) { this->whichSeed = 1       ;}
+      if ( line == "$Constant Seed"     ) { this->whichSeed = 2       ;}
     }
   input.close();
 }
@@ -253,6 +255,17 @@ void demInput::echoData()
   cout << "   sigmaComp      = " << this->sigmaComp   << endl;
   cout << "   tensileCrit    = " << this->tensileCrit << endl;
   cout << "   fracTough      = " << this->fracTough   << endl;
+  cout << "Which Random Number Seed?"                 << endl;
+  if (this->whichSeed == 1)
+  {
+    cout << "   Uses Computer Clock for Random Seed"  << endl;
+  } else if (this->whichSeed == 2)
+  {
+    cout << "   Seed set to the constant -1"          << endl;
+  } else
+  {
+    cout << "   Error! No Specified Random # Seed"    << endl;
+  }
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << endl << endl << endl;
 }

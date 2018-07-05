@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <time.h>
 #include "userInput.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,14 @@ void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads,
     dem::sigmaCompress          = demParams.sigmaComp;
     dem::ContactTensileCritical = demParams.tensileCrit;
     dem::fracTough              = demParams.fracTough;
+
+    if (demParams.whichSeed == 1) {
+      dem::idum = -time(NULL);
+    } else if (demParams.whichSeed == 2) {
+      dem::idum = -1;
+    } else {
+      exit(0);
+    }
 
     dem::assembly A;
 
