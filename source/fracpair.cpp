@@ -1,5 +1,6 @@
 #include "fracpair.h"
 #include "matrix.h"
+#include <math.h>
 #include <iostream>
 #include <cstdlib>
 
@@ -53,7 +54,8 @@ fracpair::fracpair(particle* t1, particle* t2, int break_plane){
 	    // get spring stiffness
 	    area = 0.25*PI*( p1->getAplus()*p1->getBplus() + p1->getAplus()*p1->getBminus() + p1->getAminus()*p1->getBplus() + p1->getAminus()*p1->getBminus() );
 	    l = p1->getCminus() + p1->getCplus() + p2->getCminus() + p2->getCplus();
-	    k0_spring[0] = p1->getYoung()*area/4.0/l;	// 4.0 means 4 spring points
+	    k0_spring[0] = p1->getYoung() / (2.0*(1-pow(p1->getYoung(),2.0))*area*pow(dem::fracTough,2.0));
+//	    k0_spring[0] = p1->getYoung()*area/4.0/l;	// 4.0 means 4 spring points
 //	    kt_spring[0] = 0.5*p1->getYoung()/(1+p1->getPoisson())*area/4.0/l;
 
 	    break;
@@ -72,7 +74,8 @@ fracpair::fracpair(particle* t1, particle* t2, int break_plane){
 	    // get spring stiffness
 	    area = 0.25*PI*( p1->getAplus()*p1->getCplus() + p1->getAplus()*p1->getCminus() + p1->getAminus()*p1->getCplus() + p1->getAminus()*p1->getCminus() );
 	    l = p1->getBminus() + p1->getBplus() + p2->getBminus() + p2->getBplus();
-	    k0_spring[0] = p1->getYoung()*area*0.25/l;
+	    k0_spring[0] = p1->getYoung() / (2.0*(1-pow(p1->getYoung(),2.0))*area*pow(dem::fracTough,2.0));
+//	    k0_spring[0] = p1->getYoung()*area*0.25/l;
 //	    kt_spring[0] = 0.5*p1->getYoung()/(1+p1->getPoisson())*area/4.0/l;
 
 	    break;
@@ -91,7 +94,8 @@ fracpair::fracpair(particle* t1, particle* t2, int break_plane){
 	    // get spring stiffness
 	    area = 0.25*PI*( p1->getBplus()*p1->getCplus() + p1->getBplus()*p1->getCminus() + p1->getBminus()*p1->getCplus() + p1->getBminus()*p1->getCminus() );
 	    l = p1->getAminus() + p1->getAplus() + p2->getAminus() + p2->getAplus();
-	    k0_spring[0] = p1->getYoung()*area/4.0/l;
+	    k0_spring[0] = p1->getYoung() / (2.0*(1-pow(p1->getYoung(),2.0))*area*pow(dem::fracTough,2.0));
+//	    k0_spring[0] = p1->getYoung()*area/4.0/l;
 //	    kt_spring[0] = 0.5*p1->getYoung()/(1+p1->getPoisson())*area/4.0/l;
 
 	    break;
@@ -209,7 +213,7 @@ void fracpair::calculateResultant(REAL &fracForce){
 		continue;
 	    }
 
-	    REAL fc_norm = vfabs(fc_init[i])-k0_spring[i]*delta_x;	// cohesive force in spring
+	    REAL fc_norm = vfabs(fc_init[i])-pow(vfabs(fc_init[i]),2.0)*k0_spring[i]*delta_x;	// cohesive force in spring
 
 	    vec fc = fc_norm*normalize(fc_init[i]);	// pointing from point 1 to point 2
 	    if(fc_norm<=0){

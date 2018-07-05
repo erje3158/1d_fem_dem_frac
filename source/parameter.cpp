@@ -1,4 +1,5 @@
 #include "parameter.h"
+#include <time.h>
 
 namespace dem { 
 
@@ -23,15 +24,12 @@ REAL MAXOVERLAP = 5.0e-1;	// origin is 1.0e-2
 const REAL MEPS       = 1.0e-8;  // 0.1 micron or 0.01 micron
 
 // random number seed
-long idum             = -1;      // not a constant
+long idum             = -time(NULL);      // not a constant
 
 // particle material property
 REAL YOUNG      = 8e+9;	 // quartz sand E  = 29GPa
 REAL POISSON    = 0.18;    // quartz sand v  = 0.25     
 const REAL Gs         = 2.65;    // quartz sand Gs = 2.65    
-
-// critical tensile stress for particle sub-division - original
-REAL sigma_critical = 2.7235e+7;	// pa, calculate from experiment
 
 // compressive strength for particle sub-division based on Hoek-Brown criterion
 REAL sigmaCompress = 200.5399e+7;	// calculated from experiment
@@ -41,14 +39,11 @@ const REAL mi		  = 32.4;	// material const, for granite mi=32.4
 REAL ContactTensileCritical = 350.196e+7;	// calculated from experiment
 //const REAL ContactTensile_critical = 0;	// in order to print out the maximum contact stress vs displacement
 
+REAL fracTough = 1.77e+6;
+
 // Weibull modulus used for particle strength
 const REAL weibullModulus = 0.5;
 const REAL basicRadius = 3e-4;	// the radius of the base particle in weibull function
-
-// properties for the springs
-REAL sigma_f = 4.13e7;	// soft criterion for spring
-const REAL Cf = 1.0739e+2;	// crack propagate speed, not accurate, since only point to calculate this speed
-				// the accurate propogate speed should be larger than this value
 
 // membrane particle material property
 const REAL memYOUNG   = 1.40e+6; // 1.4MPa

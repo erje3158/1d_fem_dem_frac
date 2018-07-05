@@ -42,9 +42,6 @@ extern REAL YOUNG;
 extern REAL POISSON;      
 extern const REAL Gs;   
 
-// critical tensile stress for particle sub-division
-extern REAL sigma_critical;	// calculated from experiment
-
 // compressive strength for particle sub-division based on Hoek-Brown criterion
 extern REAL sigmaCompress;	// calculated from experiment
 extern const REAL mi;			// material const, for granite mi=32.4
@@ -52,13 +49,11 @@ extern const REAL mi;			// material const, for granite mi=32.4
 // critical maximum tensile stress for contact point criterion
 extern REAL ContactTensileCritical;	// calculated from experiment
 
+extern REAL fracTough;
+
 // Weibull modulus used for particle strength
 extern const REAL weibullModulus;
 extern const REAL basicRadius;	// the radius of the base particle in weibull function
-
-// properties for the springs
-extern REAL sigma_f;	// soft criterion for spring, need to be calibrated
-extern const REAL Cf;		// crack propagate speed, calculated from experiment
 
 // membrane particle material property
 extern const REAL memYOUNG;

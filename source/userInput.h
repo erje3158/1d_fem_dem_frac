@@ -104,10 +104,9 @@ public:
   double damping;
   double friction;
 
-  double sigmaCrit;
   double sigmaComp;
   double tensileCrit;
-  double sigmaF;
+  double fracTough;
 
   demInput()
   {
@@ -121,10 +120,9 @@ public:
     damping      = 0.0;
     friction     = 0.0;
 
-    sigmaCrit    = 0.0;
     sigmaComp    = 0.0;
     tensileCrit  = 0.0;
-    sigmaF       = 0.0;
+    fracTough    = 0.0;
   }
 
   ~demInput();

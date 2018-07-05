@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="debug"
+NAME="debug_ellip3d"
 
 # Should be where ./Submit_Script is run
 LOCAL_DIR=$(pwd)
