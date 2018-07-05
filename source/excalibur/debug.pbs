@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -N huC++_DEM
-#PBS -l select=8:ncpus=32:mpiprocs=1
+#PBS -N debug
+#PBS -l select=4:ncpus=32:mpiprocs=1
 #PBS -l walltime=1:00:00
 #PBS -l place=scatter:excl
 #PBS -q debug
@@ -51,9 +51,10 @@ module list
 
 echo Simulation started at `date`
 aprun -n $NSLOTS ./hu_code ${INP}/input_boundary_file ${INP}/input_particle_file ${BIN}/qdelaunay . \
-      ${INP}/test_fem_input_4el ${INP}/test_dem_input
+      ${INP}/debug_fem ${INP}/debug_dem
 echo Simulation finished at `date`
 
 # --- CLEAN UP ---
 #cp -r ${TMP_DIR}/* ${OUT}/${PREFIX}/${JOBNUM}
+
 
