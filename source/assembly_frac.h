@@ -3,13 +3,13 @@
 
 #include "realtypes.h"
 #include "vec.h"
-#include "gradation.h"
-#include "particle.h"
-#include "contact.h"
-#include "boundary.h"
+#include "gradation_frac.h"
+#include "particle_frac.h"
+#include "contact_frac.h"
+#include "boundary_frac.h"
 #include "rectangle.h"
 #include "cylinder.h"
-#include "spring.h"
+#include "spring_frac.h"
 #include "matrix.h"
 #include "cell.h"
 #include "edge.h"
@@ -21,13 +21,13 @@
 
 namespace dem {
 
-class assembly{
-  typedef contact<particle>  CONTACT;
-  typedef rgd_bdry<particle> RGDBDRY;
-  typedef flb_bdry<particle> FLBBDRY;
+class assembly_frac{
+  typedef contact<particle_frac>  CONTACT;
+  typedef rgd_bdry<particle_frac> RGDBDRY;
+  typedef flb_bdry<particle_frac> FLBBDRY;
   
  public:
-  assembly(){
+  assembly_frac(){
     TotalNum = 0;
     trimHistoryNum = 0;
     Volume = 0;
@@ -39,8 +39,8 @@ class assembly{
     NumErasedFrac = 0;
   }
   
-  ~assembly(){
-    std::vector<particle*>::iterator pt;
+  ~assembly_frac(){
+    std::vector<particle_frac*>::iterator pt;
     std::vector<RGDBDRY*>::iterator  rt;
     std::vector<FLBBDRY*>::iterator  ft;
     std::vector<spring*>::iterator st;
@@ -882,13 +882,13 @@ class assembly{
   int  trimHistoryNum;                // record history maximum numbering before trimming
   int  PossCntctNum;                  // possible contact number based on spherical distances
   int  ActualCntctNum;                // actual contact number based on solution of 6th order equations
-  std::vector<particle*> ParticleVec; // a vector of pointers, each pointing to a particle
+  std::vector<particle_frac*> ParticleVec; // a vector of pointers, each pointing to a particle
   std::vector<CONTACT>   ContactVec;  // a vector of contacts
   std::vector<cnttgt>    CntTgtVec;   // a vector to store tangential contact force and displacement
-  std::vector< std::vector< std::vector<particle*>  >  >   MemBoundary;  // a vector to store six boundaries
+  std::vector< std::vector< std::vector<particle_frac*>  >  >   MemBoundary;  // a vector to store six boundaries
   std::vector<spring*>   SpringVec;   // a vector to store springs;
-  std::vector<particle*> periodicParticleVec; // newly generated periodic particles, which are pointing to the new periodic particles
-  std::vector<particle*> totalParticleVec; // total particles, including original particles and periodic particles, i.e. ParticleVec + periodicParticleVec
+  std::vector<particle_frac*> periodicParticleVec; // newly generated periodic particles, which are pointing to the new periodic particles
+  std::vector<particle_frac*> totalParticleVec; // total particles, including original particles and periodic particles, i.e. ParticleVec + periodicParticleVec
   gradation              gradInfo;    // particles gradation
   std::list<fracpair> fracPairList;  // for fracture model, store fracture pair. October 18, 2013
 

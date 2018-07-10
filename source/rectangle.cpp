@@ -1,5 +1,5 @@
 #include "rectangle.h"
-#include "parameter.h"
+#include "parameter_frac.h"
 #include "ran.h"
 #include <iostream>
 

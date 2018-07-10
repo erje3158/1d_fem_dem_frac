@@ -3,8 +3,8 @@
 
 #include "realtypes.h"
 #include "vec.h"
-#include "particle.h"
-#include "parameter.h"
+#include "particle_frac.h"
+#include "parameter_frac.h"
 
 // fracture pair store the two particles that are attached to the same common plane with 7 springs.
 // And calculate the spring based on compression and tension displacement and to apply these spring resultants.
@@ -24,8 +24,8 @@ namespace dem{
 class fracpair{
 
     private:
-	particle * p1;	// particle 1, the positive sub-particle
-	particle * p2;	// particle 2, the negative sub-particle
+	particle_frac * p1;	// particle 1, the positive sub-particle
+	particle_frac * p2;	// particle 2, the negative sub-particle
 	int type;
 	vec local1_points[4];	// the three spring points on particle 1
 	vec local2_points[4];	// the three spring points on particle 2, the other four points can be generated based on the three
@@ -51,14 +51,14 @@ class fracpair{
 
     public:
 	fracpair();
-	fracpair(particle* t1, particle* t2, int break_plane);	// the break_plane means which is the break plane
+	fracpair(particle_frac* t1, particle_frac* t2, int break_plane);	// the break_plane means which is the break plane
 //	~fracpair();	
 
-	particle * getP1() const {return p1;}
-	particle * getP2() const {return p2;}
+	particle_frac * getP1() const {return p1;}
+	particle_frac * getP2() const {return p2;}
 	int getNumSprings() const {return num_springs;}
 	int getNumBroken() const {return num_broken;}
-	bool isIn(particle * t1);	// jugde if particle t1 is in this fracture pair based on the value of address
+	bool isIn(particle_frac * t1);	// jugde if particle t1 is in this fracture pair based on the value of address
 	bool getIsInitialForce() const {return isInitialForce;}	// return isInitialForce
 	void setIsInitialForceTrue() {isInitialForce=true;}	// set isInitialForce = true
 	void calcInitialCohesiveForce();	// calculate and apply initial cohesive force on p1 & p2

@@ -1,5 +1,5 @@
 #include "vec.h"
-#include "parameter.h"
+#include "parameter_frac.h"
 #include <iostream>
 
 namespace dem {

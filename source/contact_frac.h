@@ -6,8 +6,8 @@
 #define CONTACT_H
 
 #include "realtypes.h"
-#include "parameter.h"
-#include "root6.h"
+#include "parameter_frac.h"
+#include "root6_frac.h"
 #include "matrix.h"
 #include <vector>
 #include <iostream>

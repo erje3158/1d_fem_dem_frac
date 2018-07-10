@@ -1,7 +1,7 @@
-#include "particle.h"
-#include "parameter.h"
+#include "particle_frac.h"
+#include "parameter_frac.h"
 #include "ran.h"
-#include "root6.h"
+#include "root6_frac.h"
 #include "eig3.h"
 #include <iostream>
 #include <math.h>
@@ -19,7 +19,7 @@ const int START = 10000;  // at which time step to apply moment? for moment rota
 
 namespace dem {
 
-void particle::init() {	// August 19, 2013
+void particle_frac::init() {	// August 19, 2013
     // generate orientation of axle a/b/c
     REAL l1, m1, n1, l2, m2, n2, mod, A, B, C;
     
@@ -186,19 +186,19 @@ void particle::init() {	// August 19, 2013
 			    + aminus*bminus*cminus*cminus*cminus + aplus*bminus*cminus*cminus*cminus );
 }
 
-particle::particle(int n, int tp, vec center_geo, REAL r, REAL yng, REAL poi)	// August 16, 2013
+particle_frac::particle_frac(int n, int tp, vec center_geo, REAL r, REAL yng, REAL poi)	// August 16, 2013
   :ID(n), type(tp), curr_position(center_geo), aplus(r), aminus(r), bplus(r), bminus(r), cplus(r), cminus(r), young(yng), poisson(poi) {
   init ();
 }
 
 
-particle::particle(int n, int tp, vec center_geo, REAL raplus, REAL raminus, REAL rbplus, REAL rbminus, REAL rcplus, REAL rcminus, REAL yng, REAL poi)	// August 16, 2013
+particle_frac::particle_frac(int n, int tp, vec center_geo, REAL raplus, REAL raminus, REAL rbplus, REAL rbminus, REAL rcplus, REAL rcminus, REAL yng, REAL poi)	// August 16, 2013
   :ID(n), type(tp), curr_position(center_geo), aplus(raplus), aminus(raminus), bplus(rbplus), bminus(rbminus), cplus(rcplus), cminus(rcminus), young(yng), poisson(poi) {
   init ();
 }
 
 
-particle::particle(int n, int tp, vec center, gradation& grad, REAL yng, REAL poi)
+particle_frac::particle_frac(int n, int tp, vec center, gradation& grad, REAL yng, REAL poi)
   :ID(n), type(tp), curr_position(center), young(yng), poisson(poi) {	// August 19, 2013
 
   REAL atotal, btotal, ctotal;	// aplus+aminus, bplus+bminus, cplus+cminus
@@ -247,7 +247,7 @@ particle::particle(int n, int tp, vec center, gradation& grad, REAL yng, REAL po
 }
 
 
-particle::particle(int id, int tp, REAL raplus, REAL raminus, REAL rbplus, REAL rbminus, REAL rcplus, REAL rcminus, vec position_geo, vec dirca, vec dircb, vec dircc, REAL yng, REAL poi)	// August 16, 2013
+particle_frac::particle_frac(int id, int tp, REAL raplus, REAL raminus, REAL rbplus, REAL rbminus, REAL rcplus, REAL rcminus, vec position_geo, vec dirca, vec dircb, vec dircc, REAL yng, REAL poi)	// August 16, 2013
   :ID(id), type(tp), young(yng), poisson(poi) {
     aplus=raplus;
     aminus=raminus;
@@ -400,8 +400,8 @@ particle::particle(int id, int tp, REAL raplus, REAL raminus, REAL rbplus, REAL 
 // this will create the sub-particle which is the sub-poly-ellipsoid in the negative axle of the two sub-poly-ellipsoids that are 
 // broken from the original particle along the break plane
 // the sub-poly-ellipsoid which is in the positive axle is used to change the original particle, this process is defined
-// in the function particle::breakItSelf(int break_plane)
-particle::particle(const particle & pt, int break_plane){ // break_plane 1--ab plane, 2--ac plane, 3--bc plane
+// in the function particle_frac::breakItSelf(int break_plane)
+particle_frac::particle_frac(const particle_frac & pt, int break_plane){ // break_plane 1--ab plane, 2--ac plane, 3--bc plane
     ID = pt.ID;
     type = pt.type;
 
@@ -624,7 +624,7 @@ particle::particle(const particle & pt, int break_plane){ // break_plane 1--ab p
 
 // change the particle itself to the fractured particle which is breaked by the break_plane of the original particle
 // and also in the positive part, September 22, 2014. 
-void particle::breakItSelf(int break_plane){	
+void particle_frac::breakItSelf(int break_plane){	
 
     cntnum = 0;
     inContact = false; // in contact with other particle or boundary
@@ -820,7 +820,7 @@ void particle::breakItSelf(int break_plane){
 // to normal shaped poly-ellipsoids, suggested by Dr. Fu at LLNL
 // make sure this transition (movement of centroid) will not introduce 
 // dditional velocity to the system
-void particle::shapeTransition(){
+void particle_frac::shapeTransition(){
 
   bool isTransit = false;
 
@@ -873,7 +873,7 @@ void particle::shapeTransition(){
 } // shapeTransition()
 
 
-void particle::calculateGeometry(){
+void particle_frac::calculateGeometry(){
     // calculate mass, volume, J
    
     // local coordinate of center_geo of every octant
@@ -945,7 +945,7 @@ void particle::calculateGeometry(){
 } // calculateGeometry()
 
 
-REAL particle::getMaxRadius() const{	// August 21, 2013
+REAL particle_frac::getMaxRadius() const{	// August 21, 2013
 	REAL temp;
 	temp = aplus;
 	if(temp < aminus)
@@ -962,7 +962,7 @@ REAL particle::getMaxRadius() const{	// August 21, 2013
 	return temp;
 }
 
-REAL particle::getMinRadius() const{	// August 27, 2013
+REAL particle_frac::getMinRadius() const{	// August 27, 2013
 	REAL temp;
 	temp = aplus;
 	if(temp > aminus)
@@ -983,12 +983,12 @@ REAL particle::getMinRadius() const{	// August 27, 2013
 //    is expressed in local frame.
 // 2. angular velocities in global frame needs to be converted to those
 //    in local frame.
-REAL particle::getTransEnergy() const{
+REAL particle_frac::getTransEnergy() const{
     return mass*pow(vfabs(curr_velocity),2)/2;
 }
 
 
-REAL particle::getRotatEnergy() const{
+REAL particle_frac::getRotatEnergy() const{
     vec curr_local_omga, tmp;
 
     tmp=vcos(curr_direction_a); curr_local_omga.setx(tmp%curr_omga);
@@ -1001,17 +1001,17 @@ REAL particle::getRotatEnergy() const{
 }
 
 
-REAL particle::getKinetEnergy() const{
+REAL particle_frac::getKinetEnergy() const{
     return getTransEnergy() + getRotatEnergy();
 }
 
 
-REAL particle::getPotenEnergy(REAL ref) const{	// August 16, 2013
+REAL particle_frac::getPotenEnergy(REAL ref) const{	// August 16, 2013
     return G*mass*(curr_center_mass.getz() - ref);
 }
 
 
-void   particle::getGlobCoef(REAL coef[], int num_oct) const{	// September 6, 2013
+void   particle_frac::getGlobCoef(REAL coef[], int num_oct) const{	// September 6, 2013
     switch (num_oct){
     	case 1:
 	    for (int i=0;i<10;i++)
@@ -1053,7 +1053,7 @@ void   particle::getGlobCoef(REAL coef[], int num_oct) const{	// September 6, 20
 }
 
 
-void particle::print() const{	//August 16, 2013
+void particle_frac::print() const{	//August 16, 2013
          std::cout<<"aplus="<<aplus<<'\t'<<"aminus="<<aminus<<'\t'<<"bplus="<<bplus<<'\t'<<"bminus="<<bminus<<'\t'<<"cplus="<<cplus<<'\t'<<"cminus="<<cminus<<std::endl;
     std::cout<<"curr_direction_a=";
     vcos(curr_direction_a).print();
@@ -1066,7 +1066,7 @@ void particle::print() const{	//August 16, 2013
 }
 
 
-REAL particle::surfaceError(vec pt) const{
+REAL particle_frac::surfaceError(vec pt) const{
     REAL x=pt.getx();
     REAL y=pt.gety();
     REAL z=pt.getz();
@@ -1075,8 +1075,8 @@ REAL particle::surfaceError(vec pt) const{
 }
 
 
-//void particle::GlobCoef(int asign, int bsign, int csign){	// August 21, 2013. September 6, 2013
-void particle::GlobCoef(){	// September 6, 2013
+//void particle_frac::GlobCoef(int asign, int bsign, int csign){	// August 21, 2013. September 6, 2013
+void particle_frac::GlobCoef(){	// September 6, 2013
     //coef[0]--x^2, coef[1]--y^2, coef[2]--z^2, coef[3]--xy, coef[4]--yz, coef[5]--xz
     //coef[6]--x, coef[7]--y, coef[8]--z, coef[9]--const
     REAL a, b, c;
@@ -1616,7 +1616,7 @@ void particle::GlobCoef(){	// September 6, 2013
 }
 
 
-bool particle::intersectWithLine(vec v, vec dirc, vec rt[], int num_oct) const{	// September 6, 2013
+bool particle_frac::intersectWithLine(vec v, vec dirc, vec rt[], int num_oct) const{	// September 6, 2013
     REAL x0=v.getx();
     REAL y0=v.gety();
     REAL z0=v.getz();
@@ -1766,8 +1766,8 @@ bool particle::intersectWithLine(vec v, vec dirc, vec rt[], int num_oct) const{	
 //    4. When a point is close to the equator, for example, fabs(z)==0,
 //       float exception is prone to occurring, then a switch is needed
 //       as above.
-REAL particle::getRadius(vec v, int asign, int bsign, int csign) const{
-//REAL particle::getRadius(vec v){
+REAL particle_frac::getRadius(vec v, int asign, int bsign, int csign) const{
+//REAL particle_frac::getRadius(vec v){
     REAL a, b, c;
     switch (asign){
 	case 1:
@@ -1872,8 +1872,8 @@ REAL particle::getRadius(vec v, int asign, int bsign, int csign) const{
 }
 
 /////////////////////////////////////
-//REAL particle::getRadius(vec v, int asign, int bsign, int csign) const{
-//REAL particle::getRadius(vec v){
+//REAL particle_frac::getRadius(vec v, int asign, int bsign, int csign) const{
+//REAL particle_frac::getRadius(vec v){
 //    REAL a, b, c;
 /*    switch (asign){
 	case 1:
@@ -1979,7 +1979,7 @@ REAL particle::getRadius(vec v, int asign, int bsign, int csign) const{
 /////////////////////////////////////////////
 
 
-void particle::clearForce(){
+void particle_frac::clearForce(){
     force=const_force;
     moment=const_moment;
 
@@ -2010,7 +2010,7 @@ void particle::clearForce(){
 #endif
 }
 
-dem::vec particle::calculateInitialCohesiveForce(){
+dem::vec particle_frac::calculateInitialCohesiveForce(){
     dem::vec fc_tmp;
 
     REAL atf=DMP_F*TIMESTEP; 
@@ -2022,7 +2022,7 @@ dem::vec particle::calculateInitialCohesiveForce(){
 
 
 // central difference integration method
-void particle::update() {	// August 16, 2013
+void particle_frac::update() {	// August 16, 2013
 
     if (getType()==0 || getType()==5 || getType()==7) { // 0-free, 1-fixed, 5-free bounary particle, 7-impacting ellipsoidal bullet
 	// It is important to distinguish global frame from local frame!
@@ -2165,7 +2165,7 @@ void particle::update() {	// August 16, 2013
 
 // calculate the average stress for the particle
 // April 25, 2014
-void particle::calcStress(){
+void particle_frac::calcStress(){
 
     // calculate the average stress caused by body force, i.e. gravity here
     vec grav_global = vec(0,0,-G*mass*GRVT_SCL);
@@ -2242,7 +2242,7 @@ void particle::calcStress(){
 } // calcStress()
 
 
-int particle::calculateBreakPlane(){
+int particle_frac::calculateBreakPlane(){
 
     if(isAbleDivide==false) return -1; // cannot be sub-divided
 
@@ -2670,7 +2670,7 @@ int particle::calculateBreakPlane(){
 
 
 // rotate the principal directions of sphere to be the same as the principal directions of stress
-void particle::rotatePrincipalDirections(REAL V[3][3]){
+void particle_frac::rotatePrincipalDirections(REAL V[3][3]){
     // the principal directions of stress calculated as V[3][3] are currently in local coordinate
     dem::vec v1 = globalVec( vec(V[0][0],V[1][0],V[2][0]) );	// principal direction of d[0]
     dem::vec v2 = globalVec( vec(V[0][1],V[1][1],V[2][1]) );	// principal direction of d[1]
@@ -2705,7 +2705,7 @@ void particle::rotatePrincipalDirections(REAL V[3][3]){
 // determined by the maximum tensile stress in contacts
 // after this rotation, the curr_direction_a is the same as unitN, which is orthogonal to the 
 // break plane.
-void particle::rotatePrincipalDirections(dem::vec unitN){
+void particle_frac::rotatePrincipalDirections(dem::vec unitN){
     // generate the other two directions orthogonal to the unitN randomly
     REAL l1=unitN.getx();
     REAL m1=unitN.gety();
@@ -2745,7 +2745,7 @@ void particle::rotatePrincipalDirections(dem::vec unitN){
 } // rotatePrincipalDirections
 
 
-void particle::rotateToXYZDirections(){
+void particle_frac::rotateToXYZDirections(){
     curr_direction_a=vec(acos(1), acos(0), acos(0));
     curr_direction_b=vec(acos(0), acos(1), acos(0));
     curr_direction_c=vec(acos(0), acos(0), acos(1));
@@ -2760,7 +2760,7 @@ void particle::rotateToXYZDirections(){
 // rotate the break plane of spheres randomly a little,
 // rotation of break plane actually is converted to the rotation of principel directions,
 // since currently we can only subdivide the poly-ellipsoid along the principel directions
-void particle::rotateBreakPlaneRandomly(){
+void particle_frac::rotateBreakPlaneRandomly(){
 
     REAL theta_max = 0.1745;	// unit rad, the maximum angle that we can rotate the break plane in x,y,z directions
     REAL num = ran(&idum);	// num belongs (0, 1)
@@ -2808,7 +2808,7 @@ void particle::rotateBreakPlaneRandomly(){
 } // rotateBreakPlaneRandomly
 
 
-vec particle::localVec(vec v) const{
+vec particle_frac::localVec(vec v) const{
     // v is a vector in global coordinates, it is to be transformed into local coordinates
     vec l=vcos(vec(curr_direction_a.getx(),curr_direction_b.getx(),curr_direction_c.getx()));
     vec m=vcos(vec(curr_direction_a.gety(),curr_direction_b.gety(),curr_direction_c.gety()));
@@ -2817,7 +2817,7 @@ vec particle::localVec(vec v) const{
 }
 
 
-vec particle::globalVec(vec v) const{
+vec particle_frac::globalVec(vec v) const{
     vec l=vcos(curr_direction_a);
     vec m=vcos(curr_direction_b);
     vec n=vcos(curr_direction_c);
@@ -2825,7 +2825,7 @@ vec particle::globalVec(vec v) const{
 }
 
 
-bool particle::nearestPTOnPlane(REAL p, REAL q, REAL r, REAL s, vec& ptnp, int num_oct) const {	// August 19, 2013. September 6, 2013
+bool particle_frac::nearestPTOnPlane(REAL p, REAL q, REAL r, REAL s, vec& ptnp, int num_oct) const {	// August 19, 2013. September 6, 2013
     if(aplus==aminus && aminus==bplus && bplus==bminus && bminus==cplus && cplus==cminus){
       vec tnm=vec(p,q,r)/sqrt(p*p+q*q+r*r);
       // signed distance from particle center to plane
@@ -2975,7 +2975,7 @@ bool particle::nearestPTOnPlane(REAL p, REAL q, REAL r, REAL s, vec& ptnp, int n
 }
 
 
-void particle::planeRBForce(plnrgd_bdry<particle>* plb,	// August 19, 2013. apply moment on the mass center. August 22, 2013. September 6, 2013
+void particle_frac::planeRBForce(plnrgd_bdry<particle_frac>* plb,	// August 19, 2013. apply moment on the mass center. August 22, 2013. September 6, 2013
 			    std::map<int,std::vector<boundarytgt> >& BdryTgtMap,
 			    std::vector<boundarytgt>& vtmp,
 			    REAL &penetr){
@@ -3411,7 +3411,7 @@ std::cout << "NormDirc in planeRBbdryForce(): " << -dirc.getx() << ", " << -dirc
 }
 
 
-vec particle::cylinderRBForce(int bdry_id, const cylinder& S, int side){	// August 19, 2013. August 22, 2013. September 6, 2013
+vec particle_frac::cylinderRBForce(int bdry_id, const cylinder& S, int side){	// August 19, 2013. August 22, 2013. September 6, 2013
 	//side=-1, the particles are inside the cylinder
 	//side=+1, the particles are outside the cylinder
 	REAL x0=S.getCenter().getx();
@@ -3543,7 +3543,7 @@ vec particle::cylinderRBForce(int bdry_id, const cylinder& S, int side){	// Augu
 }
 
 
-bool particle::isCLongEnough() const{	// if c^+ + c^- > 1.2max(A_max, B_max)
+bool particle_frac::isCLongEnough() const{	// if c^+ + c^- > 1.2max(A_max, B_max)
 
     REAL amax = (aplus>aminus?aplus:aminus);
     REAL bmax = (bplus>bminus?bplus:bminus);
@@ -3555,7 +3555,7 @@ bool particle::isCLongEnough() const{	// if c^+ + c^- > 1.2max(A_max, B_max)
 
 } // end isCLongEnough()
 
-bool particle::isBLongEnough() const{	// if b^+ + b^- > 1.2max(A_max, C_max)
+bool particle_frac::isBLongEnough() const{	// if b^+ + b^- > 1.2max(A_max, C_max)
 
     REAL amax = (aplus>aminus?aplus:aminus);
     REAL cmax = (cplus>cminus?cplus:cminus);
@@ -3567,7 +3567,7 @@ bool particle::isBLongEnough() const{	// if b^+ + b^- > 1.2max(A_max, C_max)
 
 } // end isBLongEnough()
 
-bool particle::isALongEnough() const{	// if a^+ + a^- > 1.2max(B_max, C_max)
+bool particle_frac::isALongEnough() const{	// if a^+ + a^- > 1.2max(B_max, C_max)
 
     REAL bmax = (bplus>bminus?bplus:bminus);
     REAL cmax = (cplus>cminus?cplus:cminus);
@@ -3583,7 +3583,7 @@ bool particle::isALongEnough() const{	// if a^+ + a^- > 1.2max(B_max, C_max)
 // determine which plane is the break plane based on the particle average stress 
 // as the method shown in the week summary of 2014_09_19.
 // return value: 1--ab plane, 2--ac plane, 3 --bc plane
-int particle::getBreakPlane(){
+int particle_frac::getBreakPlane(){
 
 /*
     matrix trans_Q(3,3); // the transformation tensor
@@ -3626,7 +3626,7 @@ int particle::getBreakPlane(){
 // one axle of the break plane
 // input: 1--axle a, 2--axle b, 3--axle c
 // return: 1--ab plane, 2--ac plane, 3--bc plane
-int particle::getBreakPlane(int abc){
+int particle_frac::getBreakPlane(int abc){
 
 /*
     matrix trans_Q(3,3); // the transformation tensor
@@ -3706,7 +3706,7 @@ int particle::getBreakPlane(int abc){
 } // end getBreakPlane()
 
 // clear average stress after the end of each step, April 23, 2014, also clear contact stresses
-void particle::clearStress(){
+void particle_frac::clearStress(){
     matrix zero3x3(3,3); 
     average_stress = zero3x3;
 
@@ -3725,7 +3725,7 @@ void particle::clearStress(){
 
 } // clearStress()
 
-void particle::addMaximuContactTensile(REAL tmp_stress, dem::vec tmp_contact){
+void particle_frac::addMaximuContactTensile(REAL tmp_stress, dem::vec tmp_contact){
     // check if this critical contact point is larger than the existing three ones
     if(tmp_stress>stress1){	// this tensile stress is larger than the current largest one
 	numCriticalContacts++;

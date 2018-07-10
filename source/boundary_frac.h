@@ -17,7 +17,7 @@
 
 #include "realtypes.h"
 #include "vec.h"
-#include "parameter.h"
+#include "parameter_frac.h"
 #include "cylinder.h"
 #include "boundarytgt.h"
 #include <map>

@@ -7,10 +7,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // header files
 #include "realtypes.h"
-#include "parameter.h"
-#include "gradation.h"
+#include "parameter_frac.h"
+#include "gradation_frac.h"
 #include "rectangle.h"
-#include "assembly.h"
+#include "assembly_frac.h"
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // main program
-void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads, std::string dirName, double dt, demInput demParams)
+void main_ellip3d_frac(float disp_top, float disp_bot, int num_runs, int num_threads, std::string dirName, double dt, demInput demParams)
 {
     // the number of arguments is 3/4
     // serial: ./ellip3d topDisplacement bottomDisplacement numberOfCalls
@@ -92,7 +92,7 @@ void main_ellip3d(float disp_top, float disp_bot, int num_runs, int num_threads,
       exit(0);
     }
 
-    dem::assembly A;
+    dem::assembly_frac A;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Part 2: set up a simulation to run

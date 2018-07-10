@@ -2,7 +2,8 @@
 #define CYLINDER_H
 
 #include "realtypes.h"
-#include "parameter.h"
+//#include "parameter.h"
+#include "parameter_frac.h"
 #include "vec.h"
 #include "shape.h"
 

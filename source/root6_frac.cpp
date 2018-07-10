@@ -16,8 +16,8 @@
 //      false - non-overlapped
 //      true  - overlapped and vector point returns the deepest penetrated point.
 
-#include "root6.h"
-#include "parameter.h"
+#include "root6_frac.h"
+#include "parameter_frac.h"
 #include "nr.h"
 #include <iostream>
 #include <fstream>

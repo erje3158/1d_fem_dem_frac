@@ -31,8 +31,8 @@
 //    int min[2]={5,6};    // boundary 5 and 6
 //    min/mid/max does not mean actual magnitude of values, just signs
 
-#include "assembly.h"
-#include "parameter.h"
+#include "assembly_frac.h"
+#include "parameter_frac.h"
 #include "timefunc.h"
 #include <iostream>
 #include <fstream>
@@ -76,7 +76,7 @@ namespace dem {
   
 std::ofstream progressinf;
   
-void assembly::printParticle(const char* str) const {	// August 19, 2013
+void assembly_frac::printParticle(const char* str) const {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -129,7 +129,7 @@ void assembly::printParticle(const char* str) const {	// August 19, 2013
       << endl;
   
   vec tmp;
-  std::vector<particle*>::const_iterator  it;
+  std::vector<particle_frac*>::const_iterator  it;
   for (it=ParticleVec.begin();it!=ParticleVec.end();++it)  {
     ofs << setw(OWID) << (*it)->getID()
 	<< setw(OWID) << (*it)->getType()
@@ -190,7 +190,7 @@ void assembly::printParticle(const char* str) const {	// August 19, 2013
 }
 
   // used to plot the kinetic information of DEM particles in one file for tecplot
-  void  assembly::openDEMTecplot(std::ofstream &ofs, const char *str) {
+  void  assembly_frac::openDEMTecplot(std::ofstream &ofs, const char *str) {
     ofs.open(str);
     if(!ofs) { std::cout << "stream error: openDEMTecplot" << std::endl; exit(-1); }
     ofs.setf(std::ios::scientific, std::ios::floatfield);
@@ -201,11 +201,11 @@ void assembly::printParticle(const char* str) const {	// August 19, 2013
 	<< std::endl;
   }
 
-  void assembly::printDEMTecplot(std::ofstream &ofs, int iframe) {
+  void assembly_frac::printDEMTecplot(std::ofstream &ofs, int iframe) {
 	ofs << "ZONE T =\" " << iframe << "-th Load Step\" "<< std::endl;
 	vec tmp;
 	// Output the coordinates and the array information
-	for(std::vector<particle*>::iterator it = ParticleVec.begin(); it!= ParticleVec.end(); it++) {
+	for(std::vector<particle_frac*>::iterator it = ParticleVec.begin(); it!= ParticleVec.end(); it++) {
     	    tmp=(*it)->getCurrPosition();
     	    ofs << setw(OWID) << tmp.getx()
 	        << setw(OWID) << tmp.gety()
@@ -237,7 +237,7 @@ void assembly::printParticle(const char* str) const {	// August 19, 2013
   }
 
 
-void assembly::plotBoundary(const char *str) const {
+void assembly_frac::plotBoundary(const char *str) const {
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -268,7 +268,7 @@ void assembly::plotBoundary(const char *str) const {
 }
 
 
-void assembly::plotCavity(const char *str) const {
+void assembly_frac::plotCavity(const char *str) const {
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -299,7 +299,7 @@ void assembly::plotCavity(const char *str) const {
 }
 
 
-void assembly::plotSpring(const char *str) const {
+void assembly_frac::plotSpring(const char *str) const {
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -314,7 +314,7 @@ void assembly::plotSpring(const char *str) const {
 	++totalMemParticle;
   int totalSpring = SpringVec.size();
   ofs << "ZONE N=" << totalMemParticle << ", E=" << totalSpring << ", DATAPACKING=POINT, ZONETYPE=FELINESEG" << endl;
-  particle *pt = NULL;
+  particle_frac *pt = NULL;
   vec vt;
   for (int i = 0; i < MemBoundary.size(); ++i) 
     for (int j = 0; j < MemBoundary[i].size(); ++j) 
@@ -330,7 +330,7 @@ void assembly::plotSpring(const char *str) const {
   ofs.close();
 }  
 
-void assembly::printMemParticle(const char* str) const  {	// August 19, 2013
+void assembly_frac::printMemParticle(const char* str) const  {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -386,7 +386,7 @@ void assembly::printMemParticle(const char* str) const  {	// August 19, 2013
       << setw(OWID) << "moment_z"
       << endl;
   
-  particle *it = NULL;
+  particle_frac *it = NULL;
   vec tmp;
   for (int i = 0; i < MemBoundary.size(); ++i) 
     for (int j = 0; j < MemBoundary[i].size(); ++j) 
@@ -451,9 +451,9 @@ void assembly::printMemParticle(const char* str) const  {	// August 19, 2013
 // y2: inner, outer
 // z1: inner, outer
 // z2: inner, outer
-void assembly::checkMembrane(vector<REAL> &vx ) const {
-  vector<particle*> vec1d;  // 1-dimension
-  vector< vector<particle*>  > vec2d; // 2-dimension
+void assembly_frac::checkMembrane(vector<REAL> &vx ) const {
+  vector<particle_frac*> vec1d;  // 1-dimension
+  vector< vector<particle_frac*>  > vec2d; // 2-dimension
   REAL in, out, tmp;
   REAL x1_in, x1_out, x2_in, x2_out;
   REAL y1_in, y1_out, y2_in, y2_out;
@@ -556,7 +556,7 @@ void assembly::checkMembrane(vector<REAL> &vx ) const {
 
 }
   
-void assembly::printRectPile(const char* str)
+void assembly_frac::printRectPile(const char* str)
 {
     std::ofstream ofs(str, std::ios_base::app);
     if(!ofs) {
@@ -621,7 +621,7 @@ void assembly::printRectPile(const char* str)
 //  4. a const_iterator such as it also guarantees that (*it) will NOT
 //     change any data. if (*it) call a modification function, the 
 //     compiler will give errors.
-void assembly::printContact(const char* str) const
+void assembly_frac::printContact(const char* str) const
 {
     std::ofstream ofs(str);
     if(!ofs) {
@@ -694,7 +694,7 @@ void assembly::printContact(const char* str) const
 }
 
 	
-void assembly::readSample(const char* str){
+void assembly_frac::readSample(const char* str){
     std::ifstream ifs(str);
     if(!ifs) {
 	cout << "stream error!" << endl; exit(-1);
@@ -719,7 +719,7 @@ void assembly::readSample(const char* str){
     for (int i=0;i<TotalNum;i++){
 	ifs>>ID>>type>>aplus>>aminus>>bplus>>bminus>>cplus>>cminus>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
 	   >>vx>>vy>>vz>>omx>>omy>>omz>>fx>>fy>>fz>>mx>>my>>mz;
-	particle* pt= new particle(ID,type,aplus,aminus,bplus,bminus,cplus,cminus,vec(px,py,pz),vec(dax,day,daz),vec(dbx,dby,dbz),vec(dcx,dcy,dcz),YOUNG,POISSON);
+	particle_frac* pt= new particle_frac(ID,type,aplus,aminus,bplus,bminus,cplus,cminus,vec(px,py,pz),vec(dax,day,daz),vec(dbx,dby,dbz),vec(dcx,dcy,dcz),YOUNG,POISSON);
 
 //      optional settings for a particle's initial status
 //	pt->setPrevVelocity(vec(vx,vy,vz));
@@ -734,7 +734,7 @@ void assembly::readSample(const char* str){
     ifs.close();
 }
 
-void assembly::readSampleRandom(const char* str){
+void assembly_frac::readSampleRandom(const char* str){
     std::ifstream ifs(str);
     if(!ifs) {
 	cout << "stream error!" << endl; exit(-1);
@@ -759,7 +759,7 @@ void assembly::readSampleRandom(const char* str){
     for (int i=0;i<TotalNum;i++){
 	ifs>>ID>>type>>aplus>>aminus>>bplus>>bminus>>cplus>>cminus>>px>>py>>pz>>dax>>day>>daz>>dbx>>dby>>dbz>>dcx>>dcy>>dcz
 	   >>vx>>vy>>vz>>omx>>omy>>omz>>fx>>fy>>fz>>mx>>my>>mz;
-	particle* pt= new particle(ID,type,vec(px,py,pz),aplus,aminus,bplus,bminus,cplus,cminus,YOUNG,POISSON);
+	particle_frac* pt= new particle_frac(ID,type,vec(px,py,pz),aplus,aminus,bplus,bminus,cplus,cminus,YOUNG,POISSON);
 
 //      optional settings for a particle's initial status
 //	pt->setPrevVelocity(vec(vx,vy,vz));
@@ -774,7 +774,7 @@ void assembly::readSampleRandom(const char* str){
     ifs.close();
 }
 
-void assembly::convertEricSample(const char* iniptclfile,
+void assembly_frac::convertEricSample(const char* iniptclfile,
 			 	 const char* particlefile){
 
     std::ifstream ifs(iniptclfile);
@@ -792,7 +792,7 @@ void assembly::convertEricSample(const char* iniptclfile,
     for (int i=0;i<TotalNum;i++){
 	ID++;
 	ifs>>tmp>>radius>>radius>>radius>>px>>py>>pz>>tmp>>tmp>>tmp>>tmp;
-	particle* pt= new particle(ID,0,vec(px,py,pz)*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,YOUNG,POISSON);
+	particle_frac* pt= new particle_frac(ID,0,vec(px,py,pz)*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,radius*0.001,YOUNG,POISSON);
 	ParticleVec.push_back(pt);
     }
     ifs.close();
@@ -803,7 +803,7 @@ void assembly::convertEricSample(const char* iniptclfile,
 
 // read tessellation information from Qhull output file for granular strain calculation
 // written on Feb 18, 2013
-void assembly::readTesse(const char* str){
+void assembly_frac::readTesse(const char* str){
 	std::ifstream ifs(str);
 	std::cout << "Read tessellation begin!" << std::endl;
     	if(!ifs) {
@@ -846,7 +846,7 @@ void assembly::readTesse(const char* str){
 
 // read cell information into std::vector<cell> cellVec from Qhull output file, for finite granular strain calculation
 // written on March 26, 2013
-void assembly::readTesse_finite(const char* str){
+void assembly_frac::readTesse_finite(const char* str){
 	std::ifstream ifs(str);
 	std::cout << "Read cell information begin!" << std::endl;
 	if(!ifs) {
@@ -870,7 +870,7 @@ void assembly::readTesse_finite(const char* str){
 	setNumberingOrder();	// this is important
 }
 
-void assembly::calculatePeriodicParameters(){
+void assembly_frac::calculatePeriodicParameters(){
 
     Ymax = getApt(2).gety(); Ymin = getApt(4).gety();
     Xmax = getApt(1).getx(); Xmin = getApt(3).getx();
@@ -880,7 +880,7 @@ void assembly::calculatePeriodicParameters(){
     Zinter = Zmax - Zmin;
     cellSize = 0;
     REAL tmp_a;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	tmp_a = (*it)->getMaxRadius();
 	if(tmp_a>cellSize)
 	    cellSize = tmp_a;
@@ -889,9 +889,9 @@ void assembly::calculatePeriodicParameters(){
 }
 
 
-void assembly::constructPeriodicParticles(){
+void assembly_frac::constructPeriodicParticles(){
 
-    for(std::vector<particle*>::iterator it=periodicParticleVec.begin(); it!=periodicParticleVec.end();it++)
+    for(std::vector<particle_frac*>::iterator it=periodicParticleVec.begin(); it!=periodicParticleVec.end();it++)
 	delete (*it);
     periodicParticleVec.clear();
     totalParticleVec.clear();
@@ -900,7 +900,7 @@ void assembly::constructPeriodicParticles(){
     vec tmp_coord;
     REAL tmp_x, tmp_y, tmp_z;
     int numPeriodic = 0;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	tmp_coord = (*it)->getCurrPosition();
 	tmp_x = tmp_coord.getx(); 
 	tmp_y = tmp_coord.gety();
@@ -909,7 +909,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x>Xmax-cellSize){	// xmax surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()));
@@ -920,7 +920,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x<Xmin+cellSize){	// xmin surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 //std::cout << "Xmin+cellSize: " << Xmin+cellSize << std::endl;
 //std::cout << "curr x: " << tmp_x << std::endl;
 	    pt->setID(TotalNum+numPeriodic);
@@ -934,7 +934,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_y>Ymax-cellSize){	// ymax surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()));
@@ -945,7 +945,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_y<Ymin+cellSize){	// ymin surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()));
@@ -956,7 +956,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_z>Zmax-cellSize){	// zmax surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()-Zinter));
@@ -967,7 +967,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_z<Zmin+cellSize){	// zmin surface
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety(),tmp_coord.getz()+Zinter));
@@ -979,7 +979,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize){	// XminYmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
@@ -990,7 +990,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize){	// XminYmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
@@ -1001,7 +1001,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x<Xmin+cellSize && tmp_z<Zmin+cellSize){	// XminZmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
@@ -1012,7 +1012,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x<Xmin+cellSize && tmp_z>Zmax-cellSize){	// XminZmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
@@ -1023,7 +1023,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize){	// XmaxYmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()));
@@ -1034,7 +1034,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize){	// XmaxYmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()));
@@ -1045,7 +1045,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x>Xmax-cellSize && tmp_z<Zmin+cellSize){	// XmaxZmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()+Zinter));
@@ -1056,7 +1056,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_x<Xmax-cellSize && tmp_z>Zmax-cellSize){	// XmaxZmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety(),tmp_coord.getz()-Zinter));
@@ -1067,7 +1067,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// YminZmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
@@ -1078,7 +1078,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// YminZmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
@@ -1089,7 +1089,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// YmaxZmin edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y+Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
@@ -1100,7 +1100,7 @@ void assembly::constructPeriodicParticles(){
   	if(tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// YmaxZmax edge
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x,tmp_y-Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx(),tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
@@ -1112,7 +1112,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// XminYminZmin corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
@@ -1123,7 +1123,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x<Xmin+cellSize && tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// XminYminZmax corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y+Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
@@ -1134,7 +1134,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// XminYmaxZmin corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
@@ -1145,7 +1145,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x<Xmin+cellSize && tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// XminYmaxZmax corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x+Xinter,tmp_y-Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()+Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
@@ -1156,7 +1156,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize && tmp_z<Zmin+cellSize){	// XmaxYminZmin corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()+Zinter));
@@ -1167,7 +1167,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x>Xmax-cellSize && tmp_y<Ymin+cellSize && tmp_z>Zmax-cellSize){	// XmaxYminZmax corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y+Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()+Yinter,tmp_coord.getz()-Zinter));
@@ -1178,7 +1178,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize && tmp_z<Zmin+cellSize){	// XmaxYmaxZmin corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z+Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()+Zinter));
@@ -1189,7 +1189,7 @@ void assembly::constructPeriodicParticles(){
 	if(tmp_x>Xmax-cellSize && tmp_y>Ymax-cellSize && tmp_z>Zmax-cellSize){	// XminYminZmin corner
 	    tmp_coord = (*it)->getPrevPosition();
 	    numPeriodic++;
-	    particle* pt= new particle(**it);
+	    particle_frac* pt= new particle_frac(**it);
 	    pt->setID(TotalNum+numPeriodic);
 	    pt->setCurrPosition(vec(tmp_x-Xinter,tmp_y-Yinter,tmp_z-Zinter));
 	    pt->setPrevPosition(vec(tmp_coord.getx()-Xinter,tmp_coord.gety()-Yinter,tmp_coord.getz()-Zinter));
@@ -1202,7 +1202,7 @@ void assembly::constructPeriodicParticles(){
 } // constructPeriodicParticles()
 
 
-// void assembly::movePeriodicParticles(){
+// void assembly_frac::movePeriodicParticles(){
 //     vec tmp_coord;
 //     REAL tmp_x, tmp_y, tmp_z;
 //     for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
@@ -1384,7 +1384,7 @@ void assembly::constructPeriodicParticles(){
 #if OPENMP_IMPL == 0
 // OpenMP implementation 0: ts partitions, each thread handles a partition, max diff = n*n*(1-1/ts)/ts
 // implementation is based on linked list, also works for vector but not efficient.
-void assembly::findContact() { 	// August 21, 2013
+void assembly_frac::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1458,7 +1458,7 @@ void assembly::findContact() { 	// August 21, 2013
 #elif OPENMP_IMPL == 1
 // OpenMP implementation 1: ts partitions, each thread handles a partition, max diff = n*n*(1-1/ts)/ts
 // implementation is based on vector index.
-void assembly::findContact() { 	// August 21, 2013
+void assembly_frac::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1510,7 +1510,7 @@ void assembly::findContact() { 	// August 21, 2013
 
 #elif OPENMP_IMPL == 2
 // OpenMP implementation 2: no partitions, each thread leaps by ts until completed, max diff = n*(ts-1)/ts
-void assembly::findContact() { 	// August 21, 2013
+void assembly_frac::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1558,7 +1558,7 @@ void assembly::findContact() { 	// August 21, 2013
 
 #elif OPENMP_IMPL == 3
 // OpenMP implementation 3: no partitions, each thread leaps by ts until num/2 and handles two particles, max diff = 0
-void assembly::findContact() { 	// August 21, 2013
+void assembly_frac::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1610,7 +1610,7 @@ void assembly::findContact() { 	// August 21, 2013
 
 #elif OPENMP_IMPL == 4
 // OpenMP implementation 4: no partitions, parallel for, various loop scheduling: (static), (static,1), (dynamic), (dynamic,1)
-void assembly::findContact() { 	// August 21, 2013
+void assembly_frac::findContact() { 	// August 21, 2013
   ContactVec.clear();
   int possContact = 0;
   
@@ -1656,7 +1656,7 @@ void assembly::findContact() { 	// August 21, 2013
 
 //start of ndef BINNING
 #ifndef BINNING
-void assembly::findContact(){ // serial version, O(n x n), n is the number of particles. August 21, 2013
+void assembly_frac::findContact(){ // serial version, O(n x n), n is the number of particles. August 21, 2013
     ContactVec.clear();
     PossCntctNum = 0;
 
@@ -1664,7 +1664,7 @@ void assembly::findContact(){ // serial version, O(n x n), n is the number of pa
     double time_r = 0; // time consumed in contact resolution, i.e., tmpct.isOverlapped()
     gettimeofday(&time_p1,NULL); 
 #endif
-    std::vector<particle*>::iterator it, pt;
+    std::vector<particle_frac*>::iterator it, pt;
     vec u,v;
     for (it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	u=(*it)->getCurrPosition();
@@ -1674,7 +1674,7 @@ void assembly::findContact(){ // serial version, O(n x n), n is the number of pa
 		&& ( (*it)->getType() !=  1 || (*pt)->getType() != 1  )      // not both are fixed particles
 		&& ( (*it)->getType() !=  5 || (*pt)->getType() != 5  )      // not both are free boundary particles
 		&& ( (*it)->getType() != 10 || (*pt)->getType() != 10 )  ) { // not both are ghost particles
-		contact<particle> tmpct(*it, *pt); // a local and temparory object
+		contact<particle_frac> tmpct(*it, *pt); // a local and temparory object
 		++PossCntctNum;
 #ifdef TIME_PROFILE
 		gettimeofday(&time_r1,NULL); 
@@ -1699,7 +1699,7 @@ void assembly::findContact(){ // serial version, O(n x n), n is the number of pa
 
 //else of ndef BINNING
 #else
-void assembly::findContact(){ // serial version, binning methods, cell slightly larger than maximum particle. August 21, 2013
+void assembly_frac::findContact(){ // serial version, binning methods, cell slightly larger than maximum particle. August 21, 2013
   ContactVec.clear();
   PossCntctNum = 0;
   
@@ -1853,16 +1853,16 @@ void assembly::findContact(){ // serial version, binning methods, cell slightly 
 //end of def OPENMP 
 #endif
 
-REAL assembly::getDensity() const{
+REAL assembly_frac::getDensity() const{
     REAL dens=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	dens+=(*it)->getMass();
     return dens/=Volume;
 }
 
 
-REAL assembly::getAveragePenetration() const{
+REAL assembly_frac::getAveragePenetration() const{
     int totalcntct = ContactVec.size();
     if (totalcntct==0)
 	return 0;
@@ -1875,7 +1875,7 @@ REAL assembly::getAveragePenetration() const{
 }
 
 
-REAL assembly::getVibraTimeStep() const {
+REAL assembly_frac::getVibraTimeStep() const {
     int totalcntct = ContactVec.size();
     if (totalcntct == 0)
 	return 0;
@@ -1891,7 +1891,7 @@ REAL assembly::getVibraTimeStep() const {
 }
 
 
-REAL assembly::getImpactTimeStep() const {
+REAL assembly_frac::getImpactTimeStep() const {
     int totalcntct = ContactVec.size();
     if (totalcntct == 0)
 	return 0;
@@ -1907,10 +1907,10 @@ REAL assembly::getImpactTimeStep() const {
 }
  
 
-REAL assembly::getAverageVelocity() const{
+REAL assembly_frac::getAverageVelocity() const{
     REAL avgv=0;
     int count=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==0) {
 	    avgv+=vfabs((*it)->getCurrVelocity());
@@ -1920,10 +1920,10 @@ REAL assembly::getAverageVelocity() const{
 }
 
 
-REAL assembly::getAverageOmga() const{
+REAL assembly_frac::getAverageOmga() const{
     REAL avgv=0;
     int count=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==0){
 	    avgv+=vfabs((*it)->getCurrOmga());
@@ -1933,10 +1933,10 @@ REAL assembly::getAverageOmga() const{
 }
 
 
-REAL assembly::getAverageForce() const{
+REAL assembly_frac::getAverageForce() const{
     REAL avgv=0;
     int count=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==0){
 	    avgv+=vfabs((*it)->getForce());
@@ -1946,10 +1946,10 @@ REAL assembly::getAverageForce() const{
 }
 
 
-REAL assembly::getAverageMoment() const{
+REAL assembly_frac::getAverageMoment() const{
     REAL avgv=0;
     int count=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==0){
 	    avgv+=vfabs((*it)->getMoment());
@@ -1959,9 +1959,9 @@ REAL assembly::getAverageMoment() const{
 }
 
 
-REAL assembly::getParticleVolume() const{
+REAL assembly_frac::getParticleVolume() const{
     REAL avgv=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==0)
 	    avgv+=(*it)->getVolume();
@@ -1969,8 +1969,8 @@ REAL assembly::getParticleVolume() const{
 }
 
 
-vec assembly::getTopFreeParticlePosition() const{	
-    std::vector<particle*>::const_iterator it,jt,kt;
+vec assembly_frac::getTopFreeParticlePosition() const{	
+    std::vector<particle_frac*>::const_iterator it,jt,kt;
     it=ParticleVec.begin();
     while (it!=ParticleVec.end() && (*it)->getType()!=0)   // find the 1st free particle
 	++it;
@@ -2001,8 +2001,8 @@ vec assembly::getTopFreeParticlePosition() const{
 
 }
 
-REAL assembly::getMaxCenterHeight() const {	
-  std::vector<particle*>::const_iterator it = ParticleVec.begin();
+REAL assembly_frac::getMaxCenterHeight() const {	
+  std::vector<particle_frac*>::const_iterator it = ParticleVec.begin();
   REAL z0 = (*it)->getCurrPosition().getz();
   for (; it != ParticleVec.end(); ++it) {
     if ( (*it)->getCurrPosition().getz() > z0 )
@@ -2012,9 +2012,9 @@ REAL assembly::getMaxCenterHeight() const {
 }
 
 
-REAL assembly::ellipPileForce() {
+REAL assembly_frac::ellipPileForce() {
     REAL val=0;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==3) {
 	    val = (*it)->getForce().getz();
 	    break;
@@ -2023,9 +2023,9 @@ REAL assembly::ellipPileForce() {
 }
 
 
-vec assembly::ellipPileDimn() {	// August 19, 2013
+vec assembly_frac::ellipPileDimn() {	// August 19, 2013
     vec val;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==3) {
 	    val = vec((*it)->getAplus(), (*it)->getBplus(), (*it)->getCplus());
 	    break;
@@ -2034,9 +2034,9 @@ vec assembly::ellipPileDimn() {	// August 19, 2013
 }
 
 
-REAL assembly::ellipPileTipZ() {	// August 19, 2013
+REAL assembly_frac::ellipPileTipZ() {	// August 19, 2013
     REAL val=0;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it)
 	if ((*it)->getType()==3) {
 	    val = (*it)->getCurrPosition().getz()-(*it)->getAminus();
 	    break;
@@ -2045,7 +2045,7 @@ REAL assembly::ellipPileTipZ() {	// August 19, 2013
 }
 
 
-REAL assembly::ellipPilePeneVol() {
+REAL assembly_frac::ellipPilePeneVol() {
     REAL val=0;
     if (getTopFreeParticlePosition().getz()-ellipPileTipZ()<=0)
 	val=0;
@@ -2060,8 +2060,8 @@ REAL assembly::ellipPilePeneVol() {
 }
 
 
-void assembly::ellipPileUpdate(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::ellipPileUpdate(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	if ((*it)->getType()==3) {
 	    (*it)->curr_velocity.setx(0);	
 	    (*it)->curr_velocity.sety(0);
@@ -2072,9 +2072,9 @@ void assembly::ellipPileUpdate(){
 }
 
 
-REAL assembly::getTransEnergy() const{
+REAL assembly_frac::getTransEnergy() const{
     REAL engy=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	if ((*it)->getType()==0)
 	    engy+=(*it)->getTransEnergy();
@@ -2083,9 +2083,9 @@ REAL assembly::getTransEnergy() const{
 }
 
 
-REAL assembly::getRotatEnergy() const{
+REAL assembly_frac::getRotatEnergy() const{
     REAL engy=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	if ((*it)->getType()==0)
 	    engy+=(*it)->getRotatEnergy();
@@ -2094,9 +2094,9 @@ REAL assembly::getRotatEnergy() const{
 }
 
 
-REAL assembly::getKinetEnergy() const{
+REAL assembly_frac::getKinetEnergy() const{
     REAL engy=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	if ((*it)->getType()==0)
 	    engy+=(*it)->getKinetEnergy();
@@ -2105,9 +2105,9 @@ REAL assembly::getKinetEnergy() const{
 }
 
 
-REAL assembly::getPotenEnergy(REAL ref) const{
+REAL assembly_frac::getPotenEnergy(REAL ref) const{
     REAL engy=0;
-    std::vector<particle*>::const_iterator it;
+    std::vector<particle_frac*>::const_iterator it;
     for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	if ((*it)->getType()==0)
 	    engy+=(*it)->getPotenEnergy(ref);
@@ -2116,43 +2116,43 @@ REAL assembly::getPotenEnergy(REAL ref) const{
 }
 
 
-void assembly::clearForce(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::clearForce(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->clearForce();
     }
 }
 
 
-void assembly::clearStress(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::clearStress(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->clearStress();
     }
 }
 
 
-void assembly::flexiBoundaryForceZero(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::flexiBoundaryForceZero(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->flb_force=0;
 	(*it)->flb_moment=0;
     }
 }
 
 
-void assembly::initFBForce(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::initFBForce(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->force+=(*it)->flb_force;
 	(*it)->moment+=(*it)->flb_moment;
     }
 }
 
-void assembly::springForce() {
+void assembly_frac::springForce() {
   vector<spring*> :: iterator it;
   for (it = SpringVec.begin(); it != SpringVec.end(); ++it) {
     (*it)->applyForce();
   }
 }
 
-void assembly::internalForce(REAL& avgnm, REAL& avgsh){
+void assembly_frac::internalForce(REAL& avgnm, REAL& avgsh){
     avgnm=0;
     avgsh=0;
 
@@ -2202,11 +2202,11 @@ void assembly::internalForce(REAL& avgnm, REAL& avgsh){
 
 // November 7 ,2013
 // add sub-division criterion in the code, April 23, 2014
-void assembly::subDivision(){
+void assembly_frac::subDivision(){
 
 	matrix average_stress(3,3);
-	std::vector<particle*> sub_pctlVec;
-	for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+	std::vector<particle_frac*> sub_pctlVec;
+	for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
 //	    if((*it)->getCandidacy() != 0)// has fracture plane, cannot be divided
 //		continue;
 	    
@@ -2225,7 +2225,7 @@ void assembly::subDivision(){
 							// this will calculate maximum tensile stress first
 	    if(break_plane==-1) continue;	// not break this particle
 
-	    particle* pt = new particle((**it), break_plane); // create a fractured particle which is along the c- axle
+	    particle_frac* pt = new particle_frac((**it), break_plane); // create a fractured particle which is along the c- axle
 							      // must be before breakItSelf(), otherwise the a/b/c of the (*it) have been 
 							      // changed to the sub-particle in the positive direction
 	    (*it)->breakItSelf(break_plane);	// change the particle itself to the fractured particle which is along the c+ axle
@@ -2240,7 +2240,7 @@ void assembly::subDivision(){
 
 	} // end for
 
-	for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+	for(std::vector<particle_frac*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
 	    ParticleVec.push_back(*it);
 
 
@@ -2249,7 +2249,7 @@ void assembly::subDivision(){
 } 
 
 
-void assembly::calculateInitialCohesiveForce(){	// calculate initial cohesive forces to the springs,
+void assembly_frac::calculateInitialCohesiveForce(){	// calculate initial cohesive forces to the springs,
 						
     for(std::list<fracpair>::iterator it=fracPairList.begin(); it!=fracPairList.end(); ++it){
 	if( it->getIsInitialForce()==false ){	// hasn't applied initial cohesive force
@@ -2262,7 +2262,7 @@ void assembly::calculateInitialCohesiveForce(){	// calculate initial cohesive fo
 
 
 // October 18, 2013
-void assembly::addFractureForce(REAL &avgFracForce){
+void assembly_frac::addFractureForce(REAL &avgFracForce){
     avgFracForce = 0;
     int numFrac = 0;	// number of fracture pairs
     REAL fracForce = 0;	// magnitude of force of this fracture pair
@@ -2283,7 +2283,7 @@ void assembly::addFractureForce(REAL &avgFracForce){
 }
 
 // October 18, 2013
-void assembly::eraseFracturePair(){
+void assembly_frac::eraseFracturePair(){
     for(std::list<fracpair>::iterator it=fracPairList.begin();it!=fracPairList.end();/*nothing*/){
 	if((*it).getNumSprings() == 0){	// need to erase this fracpair
 	    (*it).getP1()->candidacyMinus();
@@ -2297,7 +2297,7 @@ void assembly::eraseFracturePair(){
 }
 
 // October 18, 2013
-void assembly::calcNumSprings(){
+void assembly_frac::calcNumSprings(){
     NumSprings = 0;
     NumBroken = 0;
     for(std::list<fracpair>::const_iterator it=fracPairList.begin();it!=fracPairList.end();++it){
@@ -2311,14 +2311,14 @@ void assembly::calcNumSprings(){
 
 
 
-void assembly::updateParticle(){
-    for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
+void assembly_frac::updateParticle(){
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){
 	(*it)->update();
     }
 }
 
 
-void assembly::readBoundary(const char* str){
+void assembly_frac::readBoundary(const char* str){
     std::ifstream ifs(str);
     if(!ifs) {
 	cout << "stream error!" << endl; exit(-1);
@@ -2334,8 +2334,8 @@ void assembly::readBoundary(const char* str){
 }
 
 
-void assembly::readRigidBoundary(std::ifstream &ifs){
-    rgd_bdry<particle>* rbptr;
+void assembly_frac::readRigidBoundary(std::ifstream &ifs){
+    rgd_bdry<particle_frac>* rbptr;
     int type;
     RBVec.clear();
     ifs>>RgdBdryNum;
@@ -2343,16 +2343,16 @@ void assembly::readRigidBoundary(std::ifstream &ifs){
     for(int i=0;i<RgdBdryNum;i++){
 	ifs>>type;
 	if(type==1) // plane boundary
-	    rbptr=new plnrgd_bdry<particle>(ifs);
+	    rbptr=new plnrgd_bdry<particle_frac>(ifs);
 	else        // cylindrical boundary
-	    rbptr=new cylrgd_bdry<particle>(ifs);
+	    rbptr=new cylrgd_bdry<particle_frac>(ifs);
 	RBVec.push_back(rbptr);
     }
 }
 
 
-void assembly::readFlexiBoundary(std::ifstream &ifs){
-    flb_bdry<particle>* fbptr;
+void assembly_frac::readFlexiBoundary(std::ifstream &ifs){
+    flb_bdry<particle_frac>* fbptr;
     int type;
     FBVec.clear();
     ifs>>FlbBdryNum;
@@ -2360,22 +2360,22 @@ void assembly::readFlexiBoundary(std::ifstream &ifs){
     for(int i=0;i<FlbBdryNum;i++){
 	ifs>>type;
 	if(type==1) // plane boundary
-	    fbptr=new plnflb_bdry<particle>(ifs);
+	    fbptr=new plnflb_bdry<particle_frac>(ifs);
 	else        // cylindrical boundary
-	    fbptr=new cylflb_bdry<particle>(ifs);
+	    fbptr=new cylflb_bdry<particle_frac>(ifs);
 	FBVec.push_back(fbptr);
     }
 }
 
 
-void assembly::readCavityBoundary(const char* str){
+void assembly_frac::readCavityBoundary(const char* str){
     std::ifstream ifs(str);
     if(!ifs) {
 	cout << "stream error!" << endl; exit(-1);
     }
     ifs >> BdryType;
     if(BdryType == 0){      // rigid boundaries
-      rgd_bdry<particle>* rbptr;
+      rgd_bdry<particle_frac>* rbptr;
       int type;
       CavityRBVec.clear();
       ifs>>RgdBdryNum;
@@ -2383,7 +2383,7 @@ void assembly::readCavityBoundary(const char* str){
       for(int i=0;i<RgdBdryNum;i++){
 	ifs>>type;
 	if(type==1) // plane boundary
-	  rbptr=new plnrgd_bdry<particle>(ifs);
+	  rbptr=new plnrgd_bdry<particle_frac>(ifs);
 	CavityRBVec.push_back(rbptr);
       }
     }
@@ -2392,7 +2392,7 @@ void assembly::readCavityBoundary(const char* str){
 }
 
 
-void assembly::printBoundary(const char* str) const
+void assembly_frac::printBoundary(const char* str) const
 {
     std::ofstream ofs(str);
     if(!ofs) {
@@ -2412,7 +2412,7 @@ void assembly::printBoundary(const char* str) const
 }
 
 
-void assembly::printCavityBoundary(const char* str) const
+void assembly_frac::printCavityBoundary(const char* str) const
 {
     std::ofstream ofs(str);
     if(!ofs) {
@@ -2432,7 +2432,7 @@ void assembly::printCavityBoundary(const char* str) const
 }
 
 
-void assembly::findParticleOnBoundary(){
+void assembly_frac::findParticleOnBoundary(){
     std::vector<RGDBDRY*>::iterator rt;
     std::vector<FLBBDRY*>::iterator ft;
     for(rt=RBVec.begin();rt!=RBVec.end();++rt)
@@ -2442,27 +2442,27 @@ void assembly::findParticleOnBoundary(){
 }
 
 
-void assembly::findParticleOnCavity(){
+void assembly_frac::findParticleOnCavity(){
     std::vector<RGDBDRY*>::iterator rt;
     for(rt = CavityRBVec.begin(); rt != CavityRBVec.end(); ++rt)
 	(*rt)->findParticleOnBoundary(ParticleVec);
 }
 
-void assembly::findParticleOnLine(){
+void assembly_frac::findParticleOnLine(){
     std::vector<FLBBDRY*>::iterator ft;
     for(ft=FBVec.begin();ft!=FBVec.end();++ft)
 	(*ft)->findParticleOnLine();
 }
 
 
-void assembly::createFlbNet(){
+void assembly_frac::createFlbNet(){
     std::vector<FLBBDRY*>::iterator ft;
     for(ft=FBVec.begin();ft!=FBVec.end();++ft)
 	(*ft)->createFlbNet();
 }
 
 
-void assembly::rigidBoundaryForce(){
+void assembly_frac::rigidBoundaryForce(){
   std::vector<RGDBDRY*>::iterator rt;
   for(rt=RBVec.begin();rt!=RBVec.end();++rt)
     (*rt)->rigidBF(BdryTgtMap);
@@ -2488,7 +2488,7 @@ void assembly::rigidBoundaryForce(){
 }
 
 
-void assembly::rigidBoundaryForce(REAL penetr[],int cntnum[]){
+void assembly_frac::rigidBoundaryForce(REAL penetr[],int cntnum[]){
   std::vector<RGDBDRY*>::iterator rt;
   for(rt=RBVec.begin();rt!=RBVec.end();++rt){	
     (*rt)->rigidBF(BdryTgtMap);
@@ -2503,21 +2503,21 @@ void assembly::rigidBoundaryForce(REAL penetr[],int cntnum[]){
 }
 
 
-void assembly::cavityBoundaryForce(){
+void assembly_frac::cavityBoundaryForce(){
   std::vector<RGDBDRY*>::iterator rt;
   for(rt = CavityRBVec.begin(); rt != CavityRBVec.end(); ++rt)
     (*rt)->rigidBF(BdryTgtMap);
 }
 
 
-void assembly::flexiBoundaryForce(){
+void assembly_frac::flexiBoundaryForce(){
     std::vector<FLBBDRY*>::iterator ft;
     for(ft=FBVec.begin();ft!=FBVec.end();++ft)
 	(*ft)->flxbBF();
 }
 
 
-vec assembly::getNormalForce(int bdry) const{
+vec assembly_frac::getNormalForce(int bdry) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==bdry)
@@ -2527,7 +2527,7 @@ vec assembly::getNormalForce(int bdry) const{
 }
 
 // calculate fabric  tensor Fij=1/Nc*sum(ni*nj), written on March 8, 2013. the unit of fabric tensor is m^2
-matrix assembly::getFabric() const{
+matrix assembly_frac::getFabric() const{
 	matrix fabric(3,3);
 	matrix n(3,1);	// contact vector
 	matrix P1center(3,1), P2center(3,1);
@@ -2564,9 +2564,9 @@ std::cout << "Nc: " << Nc << " AtualConctNum: " << ActualCntctNum << std::endl;	
 }
 
 // reset initial position for each particle
-void assembly::resetStartCenterMass() {	// August 19, 2013
+void assembly_frac::resetStartCenterMass() {	// August 19, 2013
 	vec curr_p;
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	for(it=ParticleVec.begin();it!=ParticleVec.end();++it){
 		curr_p = (*it)->getCurrCenterMass();
 		(*it)->setStartCenterMass(curr_p);
@@ -2574,7 +2574,7 @@ void assembly::resetStartCenterMass() {	// August 19, 2013
 }
 
 // create input file for Qhull
-void assembly::createInputForQhull() const{	// August 19, 2013
+void assembly_frac::createInputForQhull() const{	// August 19, 2013
 	std::ofstream ofs("input_for_Qhull");
 	if(!ofs){
 		cout << "Stream error when create input for Qhull!" << endl;
@@ -2585,7 +2585,7 @@ void assembly::createInputForQhull() const{	// August 19, 2013
 	ofs << setw(OWID) << "3" << endl
 	    << setw(OWID) << TotalNum << endl;
 	vec tmp;
-  	std::vector<particle*>::const_iterator  it;
+  	std::vector<particle_frac*>::const_iterator  it;
   	for (it=ParticleVec.begin();it!=ParticleVec.end();++it)  {
     		tmp=(*it)->getCurrCenterMass();
     		ofs << setw(OWID) << tmp.getx()
@@ -2611,14 +2611,14 @@ void assembly::createInputForQhull() const{	// August 19, 2013
 }
 
 // call Qhull to tessellate and ouput "tess_info"
-void assembly::callQhull() const{
+void assembly_frac::callQhull() const{
 	std::cout << "Checking if processor is available..." << std::endl;
 	if(system(NULL)) std::cout << "Ok!" << std::endl;
 	else exit(EXIT_FAILURE);
 	system("./qdelaunay Qt i < input_for_Qhull TO tess_info");	// call the external command qdelaunay
 }
 
-// matrix assembly::calculateStiffness(){
+// matrix assembly_frac::calculateStiffness(){
 
 // 	matrix D(9,9);
 // 	// sum the D_each for each contact
@@ -2633,7 +2633,7 @@ void assembly::callQhull() const{
 // }
 
 // calculate granular stress, written on Feb 13, 2013
-matrix assembly::getGranularStress() const{	// August 19, 2013
+matrix assembly_frac::getGranularStress() const{	// August 19, 2013
 	matrix totalForce(3,3);
 	matrix sigma(3,3);
 	matrix lc(3,1), Fc(1,3);	// sigma(i,j) = lixFj
@@ -2675,11 +2675,11 @@ matrix assembly::getGranularStress() const{	// August 19, 2013
 
 // granular strain claculation
 // written on Feb 18, 2013
-matrix assembly::getum(int ID, int type) const{		// August 19, 2013
+matrix assembly_frac::getum(int ID, int type) const{		// August 19, 2013
 // type = 1 means calculate um from starting position, for Bagi's strain and Eulerian strain; type = 0 means calculate um from
 // initial position, for lagrangian finite strain.
 	if(type != 0 && type != 1){std::cout << "Error: type should be 0 or 1 calling getum()!" << std::endl; exit(-1);}
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	it = ParticleVec.begin();
 	for(int i=0; i!=ID-1; i++)
 		it++;	// go to the ID particle
@@ -2703,7 +2703,7 @@ matrix assembly::getum(int ID, int type) const{		// August 19, 2013
 	return u;
 }
 
-matrix assembly::getb(cell pyra, int ID_m) const{	// August 19, 2013
+matrix assembly_frac::getb(cell pyra, int ID_m) const{	// August 19, 2013
 	if(ID_m!=pyra.getm() && ID_m!=pyra.getn() && ID_m!=pyra.geti() && ID_m!=pyra.getj()){
 		std::cout << "Error when calculate b vector: the node is not in this cell!" << std::endl;
 		exit(-1);
@@ -2719,7 +2719,7 @@ matrix assembly::getb(cell pyra, int ID_m) const{	// August 19, 2013
 	if(pyra.getj() != ID_m)
 		node_ID.push_back(pyra.getj());
 	
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	REAL x1, y1, z1;	// the current position of first node
 	it = ParticleVec.begin();
 	for(int i=0; i!=node_ID[it_ID]-1; i++)
@@ -2784,7 +2784,7 @@ matrix assembly::getb(cell pyra, int ID_m) const{	// August 19, 2013
 	return b_vec;
 }
 
-matrix assembly::getdmn(edge mn, std::vector<cell> cellsContain) const{
+matrix assembly_frac::getdmn(edge mn, std::vector<cell> cellsContain) const{
 	int node_m, node_n;	// nodes of edge mn
 	node_m = mn.getm();
 	node_n = mn.getn();
@@ -2799,7 +2799,7 @@ matrix assembly::getdmn(edge mn, std::vector<cell> cellsContain) const{
 	return dmn;
 }
 
-matrix assembly::getGranularStrain() {
+matrix assembly_frac::getGranularStrain() {
 	int node_m, node_n;
 	matrix deltau, dmn;
 	edge temp;
@@ -2836,10 +2836,10 @@ matrix assembly::getGranularStrain() {
 // above is for granular strain calculation
 
 // finite granular strain calculation, March 26, 2013
-void assembly::setNumberingOrder() {
+void assembly_frac::setNumberingOrder() {
 	int nm, nn, ni, nj;	// 4 nodes of a tetrahedron
 	int n1, n2 , n3, n4;	// the final odering node 
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 //	REAL x1, y1, z1;	// the current position of node 1
 //	REAL x2, y2, z2;	// the current position of node 2
 //	REAL x3, y3, z3;	// the current position of node 3
@@ -2925,7 +2925,7 @@ void assembly::setNumberingOrder() {
 	}
 }
 
-matrix assembly::getBigB(const cell& tempCell) const{	// August 19, 2013
+matrix assembly_frac::getBigB(const cell& tempCell) const{	// August 19, 2013
 	int n1,n2,n3,n4;
 	REAL x1, y1, z1;	// the current position of node 1
 	REAL x2, y2, z2;	// the current position of node 2
@@ -2938,7 +2938,7 @@ matrix assembly::getBigB(const cell& tempCell) const{	// August 19, 2013
 	n4 = tempCell.getj();
 
 	// get coordinates for the 4 nodes
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	
 	it = ParticleVec.begin();
 	for(int i=0; i!=n1-1; i++)
@@ -3008,7 +3008,7 @@ matrix assembly::getBigB(const cell& tempCell) const{	// August 19, 2013
 }
 
 // dudx for F=dudx+I
-matrix assembly::getdudx(const cell& tempCell) const{
+matrix assembly_frac::getdudx(const cell& tempCell) const{
 	int n1,n2,n3,n4;
 
 	// get ID for 4 nodes
@@ -3070,7 +3070,7 @@ matrix assembly::getdudx(const cell& tempCell) const{
 }
 
 // dudx for F=dudx+I with respect to current configuration
-matrix assembly::getdudx_curr(const cell& tempCell) const{
+matrix assembly_frac::getdudx_curr(const cell& tempCell) const{
 	int n1,n2,n3,n4;
 
 	// get ID for 4 nodes
@@ -3132,7 +3132,7 @@ matrix assembly::getdudx_curr(const cell& tempCell) const{
 }
 
 // get volume of cell
-REAL assembly::getCellVolume(const cell& tempCell) const{	// August 19, 2013
+REAL assembly_frac::getCellVolume(const cell& tempCell) const{	// August 19, 2013
 	int n1,n2,n3,n4;
 	REAL x1, y1, z1;	// the current position of node 1
 	REAL x2, y2, z2;	// the current position of node 2
@@ -3145,7 +3145,7 @@ REAL assembly::getCellVolume(const cell& tempCell) const{	// August 19, 2013
 	n4 = tempCell.getj();
 	
 	// get coordinates for the 4 nodes
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	
 	it = ParticleVec.begin();
 	for(int i=0; i!=n1-1; i++)
@@ -3185,7 +3185,7 @@ REAL assembly::getCellVolume(const cell& tempCell) const{	// August 19, 2013
 }
 
 // calculate spatial velocity gradient tensor for each tet, June 24, 2013
-matrix assembly::getdvdx_curr(const cell& tempCell) const{
+matrix assembly_frac::getdvdx_curr(const cell& tempCell) const{
 	int n1,n2,n3,n4;
 
 	// get ID for 4 nodes
@@ -3195,7 +3195,7 @@ matrix assembly::getdvdx_curr(const cell& tempCell) const{
 	n4 = tempCell.getj();
 	// get velocities for 4 nodes
 	matrix v1(3,1), v2(3,1), v3(3,1), v4(3,1);
-	std::vector<particle*>::const_iterator it;
+	std::vector<particle_frac*>::const_iterator it;
 	// go to particle n1
 	it = ParticleVec.begin();
 	for(int i=0; i!=n1-1; i++)
@@ -3258,7 +3258,7 @@ matrix assembly::getdvdx_curr(const cell& tempCell) const{
 
 
 // caclulate finite granular strain
-matrix assembly::getFiniteStrain(){
+matrix assembly_frac::getFiniteStrain(){
 	matrix finite_strain(3,3);
 	matrix dudx_trans(3,3);
 	REAL init_totalVolume = 0;	// the summed initial volume of all cells
@@ -3287,7 +3287,7 @@ matrix assembly::getFiniteStrain(){
 }
 
 // calculate 1/(2V)*sum(dudx'*dudx*vL), for mixed finite strain
-matrix assembly::getHigherStrain() const{
+matrix assembly_frac::getHigherStrain() const{
 	matrix higher_strain(3,3);
 	// initialize finite_strain(3,3)
 	for(int ir=1; ir!=4;ir++){
@@ -3307,7 +3307,7 @@ matrix assembly::getHigherStrain() const{
 }
 
 // caclulate finite granular strain
-matrix assembly::getEulerianStrain(){
+matrix assembly_frac::getEulerianStrain(){
 	matrix eulerian_strain(3,3);
 	matrix dudx_trans(3,3);
 	REAL curr_totalVolume = 0;	// the current summed volume of all cells
@@ -3337,7 +3337,7 @@ matrix assembly::getEulerianStrain(){
 }
 
 // caclulate average spatial velocity gradient tensor, June 24, 2013
-matrix assembly::getAverage_dvdx() const{
+matrix assembly_frac::getAverage_dvdx() const{
 	matrix average_dvdx(3,3);
 	REAL curr_totalVolume = 0;	// the current summed volume of all cells
 	// initialize average_dvdx(3,3)
@@ -3361,7 +3361,7 @@ matrix assembly::getAverage_dvdx() const{
 
 
 // caclulate finite granular strain
-matrix assembly::getEuler_HOT() const{
+matrix assembly_frac::getEuler_HOT() const{
 	matrix eulerian_strain(3,3);
 	// initialize finite_strain(3,3)
 	for(int ir=1; ir!=4;ir++){
@@ -3385,7 +3385,7 @@ matrix assembly::getEuler_HOT() const{
 
 
 
-vec assembly::getShearForce(int bdry) const{
+vec assembly_frac::getShearForce(int bdry) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==bdry)
@@ -3395,7 +3395,7 @@ vec assembly::getShearForce(int bdry) const{
 }
 
 
-REAL assembly::getAvgNormal(int bdry) const{
+REAL assembly_frac::getAvgNormal(int bdry) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==bdry)
@@ -3405,7 +3405,7 @@ REAL assembly::getAvgNormal(int bdry) const{
 }
 
 
-vec assembly::getApt(int bdry) const{
+vec assembly_frac::getApt(int bdry) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==bdry)
@@ -3415,7 +3415,7 @@ vec assembly::getApt(int bdry) const{
 }
 
 
-vec assembly::getDirc(int bdry) const{
+vec assembly_frac::getDirc(int bdry) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==bdry)
@@ -3425,7 +3425,7 @@ vec assembly::getDirc(int bdry) const{
 }
 
 
-REAL assembly::getArea(int n) const{
+REAL assembly_frac::getArea(int n) const{
     std::vector<RGDBDRY*>::const_iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==n)
@@ -3435,7 +3435,7 @@ REAL assembly::getArea(int n) const{
 }
 
 
-void assembly::setArea(int n, REAL a){
+void assembly_frac::setArea(int n, REAL a){
     std::vector<RGDBDRY*>::iterator it;
     for(it=RBVec.begin();it!=RBVec.end();++it){
 	if((*it)->getBdryID()==n)
@@ -3444,7 +3444,7 @@ void assembly::setArea(int n, REAL a){
 }
 
 
-REAL assembly::getAverageRigidPressure() const{
+REAL assembly_frac::getAverageRigidPressure() const{
     std::vector<RGDBDRY*>::const_iterator rt;
     REAL avgpres=0;
     for(rt=RBVec.begin();rt!=RBVec.end();++rt)
@@ -3454,7 +3454,7 @@ REAL assembly::getAverageRigidPressure() const{
 
 
 // only update CoefOfLimits[0] for specified boundaries
-void assembly::updateRB(int bn[], UPDATECTL rbctl[], int num){
+void assembly_frac::updateRB(int bn[], UPDATECTL rbctl[], int num){
     for(int i=0;i<num;i++){
 	for(std::vector<RGDBDRY*>::iterator rt=RBVec.begin();rt!=RBVec.end();++rt){
 	    if((*rt)->getBdryID()==bn[i]){
@@ -3467,7 +3467,7 @@ void assembly::updateRB(int bn[], UPDATECTL rbctl[], int num){
 
 
 // update CoefOfLimits[1,2,3,4] for all 6 boundaries
-void assembly::updateRB6(){
+void assembly_frac::updateRB6(){
     for(std::vector<RGDBDRY*>::iterator rt=RBVec.begin();rt!=RBVec.end();++rt){
 	if((*rt)->getBdryID()==1 || (*rt)->getBdryID()==3){
 	    for(std::vector<RGDBDRY*>::iterator lt=RBVec.begin();lt!=RBVec.end();++lt){
@@ -3513,7 +3513,7 @@ void assembly::updateRB6(){
 
 
 // upgrade CoefOfLimits[1,2,3,4] for rectangular pile
-void assembly::updateRectPile(){
+void assembly_frac::updateRectPile(){
     for(std::vector<RGDBDRY*>::iterator rt=RBVec.begin();rt!=RBVec.end();++rt){
 	if((*rt)->getBdryID()==7 || (*rt)->getBdryID()==9 ){
 	    for(std::vector<RGDBDRY*>::iterator lt=RBVec.begin();lt!=RBVec.end();++lt){
@@ -3543,7 +3543,7 @@ void assembly::updateRectPile(){
 }
 
 
-void assembly::updateFB(int bn[], UPDATECTL fbctl[], int num){
+void assembly_frac::updateFB(int bn[], UPDATECTL fbctl[], int num){
     std::vector<FLBBDRY*>::iterator ft;
     int i,k=1;
     for(i=0;i<num;i++){
@@ -3563,7 +3563,7 @@ void assembly::updateFB(int bn[], UPDATECTL fbctl[], int num){
 // create a specimen from discreate particles through floating and then gravitation,
 // file cre_particle contains the final particle information,
 // file cre_boundary contains the final boundary information.
-void assembly::deposit_RgdBdry(int   freetype,
+void assembly_frac::deposit_RgdBdry(int   freetype,
 			       int   total_steps,  
 			       int   snapshots,
 			       int   interval,
@@ -3601,7 +3601,7 @@ void assembly::deposit_RgdBdry(int   freetype,
 }
 
 
-void assembly::deposit_repose(int   interval,
+void assembly_frac::deposit_repose(int   interval,
 			      const char* inibdryfile,
 			      const char* particlefile, 
 			      const char* contactfile,
@@ -3620,7 +3620,7 @@ void assembly::deposit_repose(int   interval,
 		debugfile);         // output file, debug info
 }
 
-void assembly::angleOfRepose(int   interval,	// August 28, 2013
+void assembly_frac::angleOfRepose(int   interval,	// August 28, 2013
 			     const char* inibdryfile,
 			     const char* particlefile, 
 			     const char* contactfile,
@@ -3691,8 +3691,8 @@ void assembly::angleOfRepose(int   interval,	// August 28, 2013
   REAL maxDiameter = gradInfo.getMaxPtclDiameter();	// August 28, 2013
   REAL maxRadius = maxDiameter/2.0;
   REAL z0 = container.getMinCorner().getz();
-  vector<particle*> lastPtcls;
-  particle *newPtcl = NULL;
+  vector<particle_frac*> lastPtcls;
+  particle_frac *newPtcl = NULL;
   int layers = 1; // how many layers of new particles to generate each time?
 
   g_iteration = 0; 
@@ -3707,27 +3707,27 @@ void assembly::angleOfRepose(int   interval,	// August 28, 2013
 	zCurr = z0 + maxRadius;
 
 	for ( int i = 0; i != layers; ++i) {
-	  newPtcl = new particle(TotalNum+1, 0, vec(0, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	  newPtcl = new particle_frac(TotalNum+1, 0, vec(0, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newPtcl);
 	  ++TotalNum;
 	  lastPtcls.push_back(newPtcl);
 	  
-	  newPtcl = new particle(TotalNum+1, 0, vec(maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	  newPtcl = new particle_frac(TotalNum+1, 0, vec(maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newPtcl);
 	  ++TotalNum;
 	  //lastPtcls.push_back(newPtcl);
 	  
-	  newPtcl = new particle(TotalNum+1, 0, vec(-maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	  newPtcl = new particle_frac(TotalNum+1, 0, vec(-maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newPtcl);
 	  ++TotalNum;
 	  //lastPtcls.push_back(newPtcl);
 	  
-	  newPtcl = new particle(TotalNum+1, 0, vec(0, maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	  newPtcl = new particle_frac(TotalNum+1, 0, vec(0, maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newPtcl);
 	  ++TotalNum;
 	  //lastPtcls.push_back(newPtcl);
 	  
-	  newPtcl = new particle(TotalNum+1, 0, vec(0, -maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	  newPtcl = new particle_frac(TotalNum+1, 0, vec(0, -maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newPtcl);
 	  ++TotalNum;
 	  //lastPtcls.push_back(newPtcl);
@@ -3736,7 +3736,7 @@ void assembly::angleOfRepose(int   interval,	// August 28, 2013
 
       }
       else {
-	vector<particle*>::iterator it;
+	vector<particle_frac*>::iterator it;
 	bool allInContact = false;
 	for ( it = lastPtcls.begin(); it != lastPtcls.end(); ++it) {
 	  if ( (*it)->isInContact() ) 
@@ -3753,27 +3753,27 @@ void assembly::angleOfRepose(int   interval,	// August 28, 2013
 	  zCurr = getMaxCenterHeight() + maxDiameter;
 
 	  for ( int i = 0; i != layers; ++i) {
-	    newPtcl = new particle(TotalNum+1, 0, vec(0, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	    newPtcl = new particle_frac(TotalNum+1, 0, vec(0, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	    ParticleVec.push_back(newPtcl);
 	    ++TotalNum;
 	    lastPtcls.push_back(newPtcl);
 	    
-	    newPtcl = new particle(TotalNum+1, 0, vec(maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	    newPtcl = new particle_frac(TotalNum+1, 0, vec(maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	    ParticleVec.push_back(newPtcl);
 	    ++TotalNum;
 	    //lastPtcls.push_back(newPtcl);
 	    
-	    newPtcl = new particle(TotalNum+1, 0, vec(-maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	    newPtcl = new particle_frac(TotalNum+1, 0, vec(-maxDiameter, 0, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	    ParticleVec.push_back(newPtcl);
 	    ++TotalNum;
 	    //lastPtcls.push_back(newPtcl);
 	    
-	    newPtcl = new particle(TotalNum+1, 0, vec(0, maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	    newPtcl = new particle_frac(TotalNum+1, 0, vec(0, maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	    ParticleVec.push_back(newPtcl);
 	    ++TotalNum;
 	    //lastPtcls.push_back(newPtcl);
 	    
-	    newPtcl = new particle(TotalNum+1, 0, vec(0, -maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
+	    newPtcl = new particle_frac(TotalNum+1, 0, vec(0, -maxDiameter, zCurr + maxDiameter * i), gradInfo, YOUNG, POISSON);
 	    ParticleVec.push_back(newPtcl);
 	    ++TotalNum;
 	    //lastPtcls.push_back(newPtcl);	
@@ -3885,12 +3885,12 @@ void assembly::angleOfRepose(int   interval,	// August 28, 2013
 // 2 - multiple layers of free particles
 // ht- how many times of size would be the floating height
 
-void assembly::generate(const char* particlefile,
+void assembly_frac::generate(const char* particlefile,
 			int freetype,
 			REAL rFloHeight)	// August 19, 2013
 {
   REAL x,y,z;
-  particle* newptcl;
+  particle_frac* newptcl;
   TotalNum = 0;
   REAL dimx     = container.getDimx();
   REAL dimy     = container.getDimy();
@@ -3917,7 +3917,7 @@ void assembly::generate(const char* particlefile,
   REAL z0 = container.getCenter().getz();
 
   if (freetype == 0) {      // just one free particle
-    newptcl = new particle(TotalNum+1, 0, vec(x0,y0,z0), gradInfo, YOUNG, POISSON);
+    newptcl = new particle_frac(TotalNum+1, 0, vec(x0,y0,z0), gradInfo, YOUNG, POISSON);
     ParticleVec.push_back(newptcl);
     TotalNum++;
   }
@@ -3925,7 +3925,7 @@ void assembly::generate(const char* particlefile,
     z = container.getMaxCorner().getz();
     for (x = x1; x - x2 < EPS; x += diameter)
       for (y = y1; y - y2 < EPS; y += diameter) {
-	newptcl = new particle(TotalNum+1, 0, vec(x,y,z), gradInfo, YOUNG, POISSON);
+	newptcl = new particle_frac(TotalNum+1, 0, vec(x,y,z), gradInfo, YOUNG, POISSON);
 	ParticleVec.push_back(newptcl);
 	TotalNum++;
       }
@@ -3934,7 +3934,7 @@ void assembly::generate(const char* particlefile,
     for (z = z1; z < z1 + dimz*rFloHeight; z += diameter) {
       for (x = x1 + offset; x - x2 < EPS; x += diameter)
 	for (y = y1 + offset; y - y2 < EPS; y += diameter) {
-	  newptcl = new particle(TotalNum+1, 0, vec(x,y,z), gradInfo, YOUNG, POISSON);
+	  newptcl = new particle_frac(TotalNum+1, 0, vec(x,y,z), gradInfo, YOUNG, POISSON);
 	  ParticleVec.push_back(newptcl);
 	  TotalNum++;
 	}	
@@ -3946,13 +3946,13 @@ void assembly::generate(const char* particlefile,
   
 }
 
-void assembly::generateCubicPacking(const char* particlefile,
+void assembly_frac::generateCubicPacking(const char* particlefile,
 			int numX,
 			int numY,
 			int numZ,
 			REAL radius)	// August 19, 2013
 {
-  particle* newptcl;
+  particle_frac* newptcl;
   TotalNum = 0;
   
   REAL x1 = container.getMinCorner().getx();
@@ -3967,7 +3967,7 @@ void assembly::generateCubicPacking(const char* particlefile,
 	x = x1+radius+nx*2*radius;
 	y = y1+radius+ny*2*radius;
 	z = z1+radius+nz*2*radius;
-	newptcl = new particle(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
+	newptcl = new particle_frac(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
 	ParticleVec.push_back(newptcl);
 	TotalNum++;
       }
@@ -3979,13 +3979,13 @@ void assembly::generateCubicPacking(const char* particlefile,
 }
 
 // this is hexagonal close packed, refer to https://en.wikipedia.org/wiki/Close-packing_of_equal_spheres
-void assembly::generateHexPacking(const char* particlefile,
+void assembly_frac::generateHexPacking(const char* particlefile,
 			int numX,
 			int numY,
 			int numZ,
 			REAL radius)	// August 19, 2013
 {
-  particle* newptcl;
+  particle_frac* newptcl;
   TotalNum = 0;
   
   REAL x1 = container.getMinCorner().getx();
@@ -4000,7 +4000,7 @@ void assembly::generateHexPacking(const char* particlefile,
 	x = radius+( 2*i+((j+k)%2) )*radius;
 	y = radius+sqrt(3.0)*(j+1.0/3.0*(k%2))*radius;
 	z = radius+2.0*sqrt(6.0)/3.0*k*radius;
-	newptcl = new particle(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
+	newptcl = new particle_frac(TotalNum+1, 0, vec(x,y,z), radius, YOUNG, POISSON);
 	ParticleVec.push_back(newptcl);
 	TotalNum++;
       }
@@ -4016,7 +4016,7 @@ void assembly::generateHexPacking(const char* particlefile,
 // The above comment out is made by Boning Zhang, so as below new generate function. the purpose of this new function is to generate 
 //enough particles to fill up our container.
 
-void assembly::generate(const char* particlefile,
+void assembly_frac::generate(const char* particlefile,
 			int freetype,
 			REAL sampleVolumeRatio)
 {
@@ -4112,7 +4112,7 @@ void assembly::generate(const char* particlefile,
 // 1 - a horizontal layer of free particles
 // 2 - multiple layers of free particles
 // ht- how many times of size would be the floating height
-void assembly::generate(gradation& grad,
+void assembly_frac::generate(gradation& grad,
 			const char* particlefile,
 			int freetype,
 			REAL ht)
@@ -4166,7 +4166,7 @@ void assembly::generate(gradation& grad,
  /*
 // create a specimen from discreate particles through floating and then gravitation,
 // boundaries are composed of fixed particles.
-void assembly::deposit_PtclBdry(gradation& grad,
+void assembly_frac::deposit_PtclBdry(gradation& grad,
 				int   freetype,
 				REAL rsize,
 				int   total_steps,  
@@ -4205,7 +4205,7 @@ void assembly::deposit_PtclBdry(gradation& grad,
 // 1 - a horizontal layer of free particles
 // 2 - multiple layers of free particles
 // ht- how many times of size would be the floating height
-void assembly::generate_p(gradation&  grad,
+void assembly_frac::generate_p(gradation&  grad,
 			 const char* particlefile,
 			 int freetype,
 			 REAL rsize,
@@ -4298,7 +4298,7 @@ void assembly::generate_p(gradation&  grad,
 }
 */
 
-void assembly::scale_PtclBdry(int   total_steps,  
+void assembly_frac::scale_PtclBdry(int   total_steps,  
 			      int   snapshots,
 			      int   interval,
 			      REAL dimn,
@@ -4323,7 +4323,7 @@ void assembly::scale_PtclBdry(int   total_steps,
 
 
 // collapse a deposited specimen through gravitation
-void assembly::collapse(int   total_steps,  
+void assembly_frac::collapse(int   total_steps,  
 			int   snapshots,
 			int   interval,
 			const char* iniptclfile,
@@ -4348,7 +4348,7 @@ void assembly::collapse(int   total_steps,
 }
 
   
-void assembly::buildBoundary(int bdrynum,
+void assembly_frac::buildBoundary(int bdrynum,
 			   const char* boundaryfile)
 {
   std::ofstream ofs(boundaryfile);
@@ -4968,7 +4968,7 @@ void assembly::buildBoundary(int bdrynum,
 }
 
 // bdrymum = 6 by default
-void assembly::buildBoundary(const char* boundaryfile)
+void assembly_frac::buildBoundary(const char* boundaryfile)
 {
   std::ofstream ofs(boundaryfile);
   if(!ofs) { cout << "stream error!" << endl; exit(-1);}
@@ -5329,7 +5329,7 @@ void assembly::buildBoundary(const char* boundaryfile)
   ofs.close();
 }
 
-void assembly::trim(bool toRebuild,	// August 28, 2013
+void assembly_frac::trim(bool toRebuild,	// August 28, 2013
 		    const char* particlefile,
 		    const char* trmparticle)
 {
@@ -5347,7 +5347,7 @@ void assembly::trim(bool toRebuild,	// August 28, 2013
   y0 = container.getCenter().gety();
   z0 = container.getCenter().getz();
  
-  std::vector<particle*>::iterator itr;
+  std::vector<particle_frac*>::iterator itr;
   vec center;
   REAL mass = 0;
 
@@ -5376,7 +5376,7 @@ void assembly::trim(bool toRebuild,	// August 28, 2013
 
 
 // make a cavity inside the sample and remove particles in the cavity
-void assembly::trimCavity(bool toRebuild,
+void assembly_frac::trimCavity(bool toRebuild,
 			  const char* particlefile,
 			  const char* cavparticlefile)
 {
@@ -5394,7 +5394,7 @@ void assembly::trimCavity(bool toRebuild,
   y0 = cavity.getCenter().gety();
   z0 = cavity.getCenter().getz();
  
-  std::vector<particle*>::iterator itr;
+  std::vector<particle_frac*>::iterator itr;
   vec center;
   REAL mass = 0;
   REAL delta = gradInfo.getMaxPtclDiameter()/2.0;	// August 28, 2013
@@ -5425,7 +5425,7 @@ void assembly::trimCavity(bool toRebuild,
 
 
 // expand partcile size by some percentage for particles inside cavity
-void assembly::expandCavityParticles(bool toRebuild,
+void assembly_frac::expandCavityParticles(bool toRebuild,
 				     REAL percent,
 				     const char* cavityptclfile,
 				     const char* particlefile,
@@ -5442,7 +5442,7 @@ void assembly::expandCavityParticles(bool toRebuild,
   y2 = cavity.getMaxCorner().gety();
   z2 = cavity.getMaxCorner().getz();
  
-  std::vector<particle*>::iterator itr;
+  std::vector<particle_frac*>::iterator itr;
   vec center;
 
   int cavityPtclNum = 0;
@@ -5468,7 +5468,7 @@ void assembly::expandCavityParticles(bool toRebuild,
 }
 
 
-void assembly::printCavityParticle(int total, const char* str) const {	// August 19, 2013
+void assembly_frac::printCavityParticle(int total, const char* str) const {	// August 19, 2013
   std::ofstream ofs(str);
   if(!ofs) {
     cout << "stream error!" << endl; exit(-1);
@@ -5526,7 +5526,7 @@ void assembly::printCavityParticle(int total, const char* str) const {	// August
   z2 = cavity.getMaxCorner().getz();
   
   vec tmp;
-  std::vector<particle*>::const_iterator  it;
+  std::vector<particle_frac*>::const_iterator  it;
   for (it=ParticleVec.begin();it!=ParticleVec.end();++it)  {
     vec center=(*it)->getCurrPosition();
     if(center.getx() > x1 && center.getx() < x2 &&
@@ -5591,7 +5591,7 @@ void assembly::printCavityParticle(int total, const char* str) const {	// August
 // bdrymum = 6 by default
 // the variable existMaxID is important because cavity and container
 // use the same BdryTgtMap.
-void assembly::buildCavityBoundary(int existMaxId, const char* boundaryfile)
+void assembly_frac::buildCavityBoundary(int existMaxId, const char* boundaryfile)
 {
   std::ofstream ofs(boundaryfile);
   if(!ofs) { cout << "stream error!" << endl; exit(-1);}
@@ -5954,7 +5954,7 @@ void assembly::buildCavityBoundary(int existMaxId, const char* boundaryfile)
 
 
 // create boundary particles and springs connecting those boundary particles
-void assembly::createMemParticle(REAL rRadius,
+void assembly_frac::createMemParticle(REAL rRadius,
 				 bool toRebuild,
 				 const char* particlefile,
 				 const char* allparticle)
@@ -5978,11 +5978,11 @@ void assembly::createMemParticle(REAL rRadius,
   y0 = container.getCenter().gety();
   z0 = container.getCenter().getz();
 
-  particle* newptcl = NULL;
+  particle_frac* newptcl = NULL;
   REAL x, y, z;
   
-  vector<particle*> vec1d;  // 1-dimension
-  vector< vector<particle*>  > vec2d; // 2-dimension
+  vector<particle_frac*> vec1d;  // 1-dimension
+  vector< vector<particle_frac*>  > vec2d; // 2-dimension
   spring* newspring = NULL;
   REAL young   = YOUNG;   //memYOUNG;
   REAL poisson = POISSON; //memPOISSON;
@@ -5995,7 +5995,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (z = z1 + radius; z <= z2 - radius + EPS; z += diameter) {
     vec1d.clear();
     for (y = y1 + radius; y <= y2 - radius + EPS; y += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6020,7 +6020,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (z = z1 + radius; z <= z2 - radius + EPS; z += diameter) {
     vec1d.clear();
     for (y = y1 + radius; y <= y2 - radius + EPS; y += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6045,7 +6045,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (z = z1 + radius; z <= z2 - radius + EPS; z += diameter) {
     vec1d.clear();
     for (x = x1 + radius; x <= x2 - radius + EPS; x += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6070,7 +6070,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (z = z1 + radius; z <= z2 - radius + EPS; z += diameter) {
     vec1d.clear();
     for (x = x1 + radius; x <= x2 - radius + EPS; x += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6095,7 +6095,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (y = y1 + radius; y <= y2 - radius + EPS; y += diameter) {
     vec1d.clear();
     for (x = x1 + radius; x <= x2 - radius + EPS; x += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6120,7 +6120,7 @@ void assembly::createMemParticle(REAL rRadius,
   for (y = y1 + radius; y <= y2 - radius + EPS; y += diameter) {
     vec1d.clear();
     for (x = x1 + radius; x <= x2 - radius + EPS; x += diameter) {
-      newptcl = new particle(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
+      newptcl = new particle_frac(++memPtclIndex, 5, vec(x,y,z), radius, young, poisson);
       vec1d.push_back(newptcl);
       ParticleVec.push_back(newptcl);
     }
@@ -6141,35 +6141,35 @@ void assembly::createMemParticle(REAL rRadius,
 
   // membrane particles at the edges of each surface, for example,
   // x1y1 means particles on surface x1 connecting to particles on surface y1
-  vector<particle *> x1y1;
-  vector<particle *> x1y2;
-  vector<particle *> x1z1;
-  vector<particle *> x1z2;
+  vector<particle_frac *> x1y1;
+  vector<particle_frac *> x1y2;
+  vector<particle_frac *> x1z1;
+  vector<particle_frac *> x1z2;
 
-  vector<particle *> x2y1;
-  vector<particle *> x2y2;
-  vector<particle *> x2z1;
-  vector<particle *> x2z2;
+  vector<particle_frac *> x2y1;
+  vector<particle_frac *> x2y2;
+  vector<particle_frac *> x2z1;
+  vector<particle_frac *> x2z2;
 
-  vector<particle *> y1x1;
-  vector<particle *> y1x2;
-  vector<particle *> y1z1;
-  vector<particle *> y1z2;
+  vector<particle_frac *> y1x1;
+  vector<particle_frac *> y1x2;
+  vector<particle_frac *> y1z1;
+  vector<particle_frac *> y1z2;
 
-  vector<particle *> y2x1;
-  vector<particle *> y2x2;
-  vector<particle *> y2z1;
-  vector<particle *> y2z2;
+  vector<particle_frac *> y2x1;
+  vector<particle_frac *> y2x2;
+  vector<particle_frac *> y2z1;
+  vector<particle_frac *> y2z2;
 
-  vector<particle *> z1x1;
-  vector<particle *> z1x2;
-  vector<particle *> z1y1;
-  vector<particle *> z1y2;
+  vector<particle_frac *> z1x1;
+  vector<particle_frac *> z1x2;
+  vector<particle_frac *> z1y1;
+  vector<particle_frac *> z1y2;
 
-  vector<particle *> z2x1;
-  vector<particle *> z2x2;
-  vector<particle *> z2y1;
-  vector<particle *> z2y2;
+  vector<particle_frac *> z2x1;
+  vector<particle_frac *> z2x2;
+  vector<particle_frac *> z2y1;
+  vector<particle_frac *> z2y2;
 
   // find edge particles for each surface
   // MemBoundary[0, 1, 2, 3, 4, 5] correspond to 
@@ -6301,13 +6301,13 @@ void assembly::createMemParticle(REAL rRadius,
 }
 
 
-void assembly::TrimPtclBdryByHeight(REAL height,
+void assembly_frac::TrimPtclBdryByHeight(REAL height,
 			    const char* iniptclfile,
 			    const char* particlefile)
 {
   readSample(iniptclfile);
   
-  std::vector<particle*>::iterator itr;
+  std::vector<particle_frac*>::iterator itr;
   for (itr = ParticleVec.begin(); itr != ParticleVec.end(); ){
     if ( (*itr)->getType() == 1 ) { // 1-fixed
       vec center=(*itr)->getCurrPosition();
@@ -6330,7 +6330,7 @@ void assembly::TrimPtclBdryByHeight(REAL height,
 
 // deposit floating particles into a container through applying gravity,
 // the container can be as simple as a bottom plate
-void assembly::deposit(int   total_steps,  
+void assembly_frac::deposit(int   total_steps,  
 		       int   snapshots,
 		       int   interval,
 		       const char* iniptclfile,   
@@ -6558,7 +6558,7 @@ void assembly::deposit(int   total_steps,
 }
 
 
-void assembly::depositAfterCavity(int   total_steps,  
+void assembly_frac::depositAfterCavity(int   total_steps,  
 				  int   snapshots,
 				  int   interval,
 				  const char* iniptclfile,   
@@ -6784,7 +6784,7 @@ void assembly::depositAfterCavity(int   total_steps,
 }
 
 
-void assembly::deGravitation(int   total_steps,  
+void assembly_frac::deGravitation(int   total_steps,  
 			     int   snapshots,
 			     int   interval,
 			     bool  toRebuild,
@@ -6896,7 +6896,7 @@ void assembly::deGravitation(int   total_steps,
 
 
 // actual deposit function for the case of fixed particle boundaries
-void assembly::deposit_p(int   total_steps,  
+void assembly_frac::deposit_p(int   total_steps,  
 			 int   snapshots,
 			 int   interval,
 			 REAL dimn,
@@ -7045,7 +7045,7 @@ void assembly::deposit_p(int   total_steps,
 
 
 // squeeze paticles inside a container by moving the boundaries
-void assembly::squeeze(int   total_steps,  
+void assembly_frac::squeeze(int   total_steps,  
 		       int   init_steps,
 		       int   snapshots,
 		       int   interval,
@@ -7214,7 +7214,7 @@ void assembly::squeeze(int   total_steps,
 // Isotropically compress floating particles to a specific confining pressure, which is usually a low
 // value in order to create an intial status. Force boundaries are used. This process may be not 
 // physically true.
-void assembly::isotropic(int   total_steps,
+void assembly_frac::isotropic(int   total_steps,
 			 int   snapshots, 
 			 int   interval,
 			 REAL  sigma,			  
@@ -7861,7 +7861,7 @@ void assembly::isotropic(int   total_steps,
 // The specimen has been isotropically compressed to confining pressure sigma_a. This function
 // increases confining pressure step by step to sigma_b, making it possible to find equilibrium 
 // state where particle pressure equals confining pressure. Force boundaries are used
-void assembly::isotropic(int   total_steps,
+void assembly_frac::isotropic(int   total_steps,
 			 int   snapshots, 
 			 int   interval,
 			 REAL sigma_a,
@@ -8566,7 +8566,7 @@ void assembly::isotropic(int   total_steps,
 
 // loading-unloading-reloading of isotropic compression
 // the stress path is defined by sigma_points and sigma_values[]
-void assembly::isotropic(int   total_steps,  
+void assembly_frac::isotropic(int   total_steps,  
 			 int   snapshots, 
 			 int   interval,
 			 int   sigma_points,  
@@ -8907,7 +8907,7 @@ void assembly::isotropic(int   total_steps,
 // increases vertical pressure step by step to sigma_1, thus making it possible to find out
 // balanced status where top & bottom particle pressure equals major principle stress. 
 // Side boundaries are fixed, top and bottom plates are force-controlled.
-void assembly::odometer(int   total_steps,  
+void assembly_frac::odometer(int   total_steps,  
 			int   snapshots, 
 			int   interval,
 			REAL sigma_3,     
@@ -9657,7 +9657,7 @@ void assembly::odometer(int   total_steps,
 // balanced status where top & bottom particle pressure equals major principle stress. 
 // Side boundaries are fixed, top and bottom plates are force-controlled. Unloading path is
 // applied.
-void assembly::odometer(int   total_steps,  
+void assembly_frac::odometer(int   total_steps,  
 			int   snapshots, 
 			int   interval,
 			int   sigma_points,  
@@ -9923,7 +9923,7 @@ void assembly::odometer(int   total_steps,
 }
 
 
-void assembly::unconfined(int   total_steps,  
+void assembly_frac::unconfined(int   total_steps,  
 			  int   snapshots,	
 			  int   interval,
 			  const char* iniptclfile,  
@@ -10055,7 +10055,7 @@ void assembly::unconfined(int   total_steps,
 }
 
 
-void assembly::iso_MemBdry(int   total_steps,  
+void assembly_frac::iso_MemBdry(int   total_steps,  
 			   int   snapshots, 
 			   int   interval,
 			   REAL  sigma3,
@@ -10106,7 +10106,7 @@ void assembly::iso_MemBdry(int   total_steps,
   REAL x2 = container.getMaxCorner().getx();
   REAL y2 = container.getMaxCorner().gety();
   REAL z2 = container.getMaxCorner().getz();
-  std::vector<particle*>::const_iterator  it;
+  std::vector<particle_frac*>::const_iterator  it;
   vec pos;
   for (it=ParticleVec.begin();it!=ParticleVec.end();++it)
     {
@@ -10210,7 +10210,7 @@ void assembly::iso_MemBdry(int   total_steps,
 
 
 // This function initializes triaxial sample to a certain confining pressure.
-void assembly::triaxialPtclBdryIni(int   total_steps,  
+void assembly_frac::triaxialPtclBdryIni(int   total_steps,  
 				   int   snapshots, 
 				   int   interval,
 				   REAL  sigma,
@@ -10368,7 +10368,7 @@ void assembly::triaxialPtclBdryIni(int   total_steps,
 
 // This function performs triaxial compression test.
 // Displacement boundaries are used in axial direction.
-void assembly::triaxialPtclBdry(int   total_steps,  
+void assembly_frac::triaxialPtclBdry(int   total_steps,  
 				int   snapshots, 
 				int   interval,
 				const char* iniptclfile, 
@@ -10565,7 +10565,7 @@ void assembly::triaxialPtclBdry(int   total_steps,
 
 // The specimen has been isotropically compressed to confining pressure sigma_a. This function
 // performs triaxial compression test. Displacement boundaries are used in axial direction.
-void assembly::triaxial(int   total_steps,  
+void assembly_frac::triaxial(int   total_steps,  
 			int   snapshots, 
 			int   interval,
 			REAL  sigma_a,	  
@@ -11373,7 +11373,7 @@ void assembly::triaxial(int   total_steps,
 // The specimen has been isotropically compressed to confining pressure sigma_a. This function
 // performs triaxial compression test with unloading. Displacement boundaries are used in 
 // axial direction.
-void assembly::triaxial(int   total_steps,  
+void assembly_frac::triaxial(int   total_steps,  
 			int   unload_step,
 			int   snapshots, 
 			int   interval,
@@ -11664,7 +11664,7 @@ void assembly::triaxial(int   total_steps,
 
 // The specimen has been deposited with gravitation within boundaries composed of particles.
 // A rectangular pile is then drived into the particles using displacement control.
-void assembly::rectPile_Disp(int   total_steps,  
+void assembly_frac::rectPile_Disp(int   total_steps,  
 			     int   snapshots, 
 			     int   interval,
 			     const char* iniptclfile,  
@@ -11813,7 +11813,7 @@ void assembly::rectPile_Disp(int   total_steps,
 
 // The specimen has been deposited with gravitation within boundaries composed of particles.
 // An ellipsoidal pile is then drived into the particles using displacement control.
-void assembly::ellipPile_Disp(int   total_steps,  
+void assembly_frac::ellipPile_Disp(int   total_steps,  
 			      int   snapshots, 
 			      int   interval,
 			      REAL dimn,
@@ -12282,7 +12282,7 @@ void assembly::ellipPile_Disp(int   total_steps,
 
 // The specimen has been deposited with gravitation within rigid boundaries.
 // An ellipsoidal penetrator is then impacted into the particles with initial velocity.
-void assembly::ellipPile_Impact(int   total_steps,  
+void assembly_frac::ellipPile_Impact(int   total_steps,  
 				int   snapshots, 
 				int   interval,
 				REAL dimn,
@@ -12442,7 +12442,7 @@ void assembly::ellipPile_Impact(int   total_steps,
 
 // The specimen has been deposited with gravitation within particle boundaries.
 // An ellipsoidal penetrator is then impacted into the particles with initial velocity.
-void assembly::ellipPile_Impact_p(int   total_steps,  
+void assembly_frac::ellipPile_Impact_p(int   total_steps,  
 				  int   snapshots, 
 				  int   interval,
 				  REAL dimn,
@@ -12578,7 +12578,7 @@ void assembly::ellipPile_Impact_p(int   total_steps,
 // The specimen has been deposited with gravitation within boundaries composed of particles.
 // An ellipsoidal pile is then drived into the particles using force control.
 // Not recommended.
-void assembly::ellipPile_Force(int   total_steps,  
+void assembly_frac::ellipPile_Force(int   total_steps,  
 			       int   snapshots,
 			       int   interval,
 			       REAL dimn,
@@ -12740,7 +12740,7 @@ void assembly::ellipPile_Force(int   total_steps,
 
 // The specimen has been isotropically compressed to confining pressure sigma_a. This function
 // performs true triaxial test. Force boundaries are used.
-void assembly::truetriaxial(int   total_steps,  
+void assembly_frac::truetriaxial(int   total_steps,  
 			    int   snapshots, 
 			    int   interval,
 			    REAL sigma_a,     
@@ -13052,7 +13052,7 @@ void assembly::truetriaxial(int   total_steps,
 //} // namespace dem ends
 
 /* 
-void assembly::dircShear(REAL rate, REAL roterate,REAL stress,const char* iniptclfile,
+void assembly_frac::dircShear(REAL rate, REAL roterate,REAL stress,const char* iniptclfile,
 						 const char* boundaryfile, const char* responsefile, const char* resultfile,
 						 const char* trackfile){
 	readSample(iniptclfile);//create particles 
@@ -13179,7 +13179,7 @@ bdry_6_norm_x  bdry_6_norm_y  bdry_6_norm_z  bdry_6_shar_x  bdry_6_shar_y  bdry_
 */
 
 /* 
-void assembly::soft_tric(REAL _sigma3,REAL _b,const char* iniptclfile,
+void assembly_frac::soft_tric(REAL _sigma3,REAL _b,const char* iniptclfile,
 						   const char* boundaryfile,const char* responsefile,
 						   const char* resultfile,const char* trackfile){
 	readSample(iniptclfile); //create particles 
@@ -13272,7 +13272,7 @@ void assembly::soft_tric(REAL _sigma3,REAL _b,const char* iniptclfile,
 */
 
 /* 
-void assembly::shallowFoundation(const char* iniptclfile, const char* boundaryfile,const char* responsefile, 
+void assembly_frac::shallowFoundation(const char* iniptclfile, const char* boundaryfile,const char* responsefile, 
 	const char* resultfile, const char* trackfile)
 {
 	readSample(iniptclfile);//create particles 
@@ -13378,7 +13378,7 @@ void assembly::shallowFoundation(const char* iniptclfile, const char* boundaryfi
 */
 
 /* 
-void assembly::simpleShear(REAL _sigma3,REAL _b,
+void assembly_frac::simpleShear(REAL _sigma3,REAL _b,
 			const char* iniptclfile,const char* boundaryfile,
 			const char* responsefile,const char* resultfile, const char* trackfile)
 {
@@ -13569,7 +13569,7 @@ disp.x,disp.y,disp.z,angl.x,angl.y,angl.z,nm.x,nm.y,nm.z,sh.x,sh.y,sh.z);
 */
 
 /* 
-void assembly::earthPressure(REAL pressure,bool IsPassive, 
+void assembly_frac::earthPressure(REAL pressure,bool IsPassive, 
 				const char* iniptclfile, const char* boundaryfile,
 				const char* responsefile, const char* resultfile,
 				const char* trackfile)
@@ -13679,7 +13679,7 @@ void assembly::earthPressure(REAL pressure,bool IsPassive,
 
 // calculate granular stress for assembly from input files, such as the assembly after deposition.
 // writtend on Feb 16, 2013
-void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each subdomain to boundary height (assume they are equal)
+void assembly_frac::calculateStress(REAL   relativeHeight,	// ratio of height of each subdomain to boundary height (assume they are equal)
 			       REAL   relativeWidth,	// ratio of width of each subdomain to boundary width
 			       REAL   relativeLength,	// ratio of length of each subdomain to boundary length
 			       std::vector<REAL> &relBaseH,	// ratio of the base height of each subdomain above the assembly boundary base
@@ -13793,7 +13793,7 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	}
 
 	// get density of each subdomain
-	std::vector<particle*>::const_iterator  it_p;
+	std::vector<particle_frac*>::const_iterator  it_p;
 	REAL x_p, y_p, z_p;
 	vector<REAL>::size_type it_mass = 0;
 	bool is_pctl_in;
@@ -13891,7 +13891,7 @@ void assembly::calculateStress(REAL   relativeHeight,	// ratio of height of each
 	}	
 }
 
-void assembly::trimByHeight(REAL Height,
+void assembly_frac::trimByHeight(REAL Height,
 			const char* inptclefile,	// initial particle file
 			const char* inbdryfile,		// initial boundary file
 			const char* resultptcle,
@@ -13912,7 +13912,7 @@ void assembly::trimByHeight(REAL Height,
  	z1 = getApt(6).getz();
 	z2 = z1+Height;
  
-  	std::vector<particle*>::iterator itr;
+  	std::vector<particle_frac*>::iterator itr;
   	vec center;
   	REAL mass = 0;
 	int num_iter = 0;
@@ -14300,7 +14300,7 @@ std::cout << "mass of removed particles: " << endl << mass_removed << endl;
 }
 
 
-void assembly::calculateMiddleStress(int subNum,	// the number of subdomains that are used to calculate formula stress
+void assembly_frac::calculateMiddleStress(int subNum,	// the number of subdomains that are used to calculate formula stress
 			       const char* inptclfile,	// particle file, can use trm_particle_end for deposited assembly
 			       const char* inbdryfile,
 			       const char* resultfile)
@@ -14394,7 +14394,7 @@ void assembly::calculateMiddleStress(int subNum,	// the number of subdomains tha
 		subVolume.push_back((bdryH-i*subHeight)*subArea);
 	}
 	// get density of each subdomain
-	std::vector<particle*>::const_iterator  it_p;
+	std::vector<particle_frac*>::const_iterator  it_p;
 	REAL x_p, y_p, z_p;
 
 	bool is_pctl_in;
@@ -14439,7 +14439,7 @@ void assembly::calculateMiddleStress(int subNum,	// the number of subdomains tha
 	}	
 }
 
-void assembly::calculateFabric(const char* inptclfile,
+void assembly_frac::calculateFabric(const char* inptclfile,
 			       const REAL boxLength,	// the height, width and length of box. used for porosity
 			       const REAL boxWidth,	// the unit is mm
 			       const REAL boxHeight,
@@ -14538,11 +14538,11 @@ std::cout << "a: " << a << std::endl;
 		     << endl;
 }
 
-REAL assembly::getMaxDiameter() const{
+REAL assembly_frac::getMaxDiameter() const{
     
     REAL Alength, Blength, Clength;
     REAL maxDiameter = 0;
-    for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
+    for(std::vector<particle_frac*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
 	Alength = (*it)->getAplus() + (*it)->getAminus();
 	Blength = (*it)->getBplus() + (*it)->getBminus();
         Clength = (*it)->getCplus() + (*it)->getCminus();
@@ -14559,11 +14559,11 @@ REAL assembly::getMaxDiameter() const{
     return maxDiameter;
 }
 
-REAL assembly::getMinDiameter() const{
+REAL assembly_frac::getMinDiameter() const{
     
     REAL Alength, Blength, Clength;
     REAL minDiameter = 0;
-    for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
+    for(std::vector<particle_frac*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
 	Alength = (*it)->getAplus() + (*it)->getAminus();
 	Blength = (*it)->getBplus() + (*it)->getBminus();
         Clength = (*it)->getCplus() + (*it)->getCminus();
@@ -14581,7 +14581,7 @@ REAL assembly::getMinDiameter() const{
 }
 
 
-void assembly::GrainSizeDistribution(int sieve_num,
+void assembly_frac::GrainSizeDistribution(int sieve_num,
 				     const char* inptclfile,
 			       	     const char* resultfile){
 
@@ -14612,7 +14612,7 @@ void assembly::GrainSizeDistribution(int sieve_num,
 	REAL totalMass = 0;
 	REAL particleMass;
 	REAL Alength, Blength, Clength;
-	for(std::vector<particle*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
+	for(std::vector<particle_frac*>::const_iterator it=ParticleVec.begin(); it!=ParticleVec.end(); it++){
 	    Alength = (*it)->getAplus() + (*it)->getAminus();
 	    Blength = (*it)->getBplus() + (*it)->getBminus();
 	    Clength = (*it)->getCplus() + (*it)->getCminus();
@@ -14644,7 +14644,7 @@ void assembly::GrainSizeDistribution(int sieve_num,
 
 
 // reset coordinates of particles which are contacting with boundaries. And then call Qhull to tessellate. This function is written for Nonlinear FEM term project -- a 3D tet poromechanics Matlab code.
-  void assembly::resetCoord_FEM(const char* inptclfile,
+  void assembly_frac::resetCoord_FEM(const char* inptclfile,
 		      const char* inbdryfile){
 
 	// pre_2. create particles and boundaries from files
@@ -14731,7 +14731,7 @@ void assembly::GrainSizeDistribution(int sieve_num,
 
 	vec new_coord;	// new coordinate for boundary particle
 	REAL max_r;	// max radius of particle
-	std::vector<particle*>::const_iterator  it_p;
+	std::vector<particle_frac*>::const_iterator  it_p;
   	for (it_p=ParticleVec.begin();it_p!=ParticleVec.end();++it_p)  {	
 		x_p = (*it_p)->getCurrPosition().getx();
 		y_p = (*it_p)->getCurrPosition().gety();
@@ -14829,7 +14829,7 @@ void assembly::GrainSizeDistribution(int sieve_num,
   	node_info.precision(OPREC);
   
   	vec tmp;
-  	std::vector<particle*>::const_iterator  it;
+  	std::vector<particle_frac*>::const_iterator  it;
 	int ptclID = 1;
   	for (it=ParticleVec.begin();it!=ParticleVec.end();++it, ptclID++)  {
     
@@ -14860,7 +14860,7 @@ void assembly::GrainSizeDistribution(int sieve_num,
 
 
 // rotate the boundary walls along different axis. Test finite granular strain. May 21, 2013
-void assembly::rotateXYZ(REAL angle,	// angle that you want to roate
+void assembly_frac::rotateXYZ(REAL angle,	// angle that you want to roate
 	       		 vec axis_flag,	// represent axis you want to roate: 0 means not to this axis, 1 means along this axis. If axis_num is 1 1 1, then it means rotate along x,y,z
 			 int   snapshots, 
 			 int   interval,			  
@@ -15509,7 +15509,7 @@ void assembly::rotateXYZ(REAL angle,	// angle that you want to roate
 
 
 // rotate the each particle with the same rotation tensor directly. Test finite granular strain. June 10, 2013
-void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
+void assembly_frac::rotateXYZ_dir(REAL angle,	// angle that you want to roate
 	       		 vec axis_flag,	// represent axis you want to roate: 0 means not to this axis, 1 means along this axis. If axis_num is 1 1 1, then it means rotate along x,y,z
 			 int   snapshots, 
 			 int   interval,			  
@@ -16030,7 +16030,7 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
 	}
 
 	// apply rotation to each particle
-	for(std::vector<particle*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){				
+	for(std::vector<particle_frac*>::iterator it=ParticleVec.begin();it!=ParticleVec.end();++it){				
 		// get previous position
 		prev_x = (*it)->getCurrCenterMass().getx();
 		prev_y = (*it)->getCurrCenterMass().gety();
@@ -16319,7 +16319,7 @@ void assembly::rotateXYZ_dir(REAL angle,	// angle that you want to roate
 
 // this is actually a deposit process, but since we cannot calculate granular stress and strain during normal deposition, however in cavity expansion we need to calculate granular stress and strain. Then we write a new function cavityExpand to do cavity expansion and in this function, we will calculate granular stress and strain. June 17, 2013
 // the output progress file format is the same as triaxial
-void assembly::cavityExpand(int   total_steps,  
+void assembly_frac::cavityExpand(int   total_steps,  
 		       int   snapshots,
 		       int   interval,
 		       const char* iniptclfile,   
@@ -16862,7 +16862,7 @@ void assembly::cavityExpand(int   total_steps,
 }
 
 // this is used to calculate volume of the assembly based on particle input file, July 14, 2013
-void assembly::calculateVolume(const char* iniptclefile){
+void assembly_frac::calculateVolume(const char* iniptclefile){
 
     readSample(iniptclefile); // create container and particles, velocity and omga are set zero. 
     // first tessellation
@@ -16885,25 +16885,25 @@ void assembly::calculateVolume(const char* iniptclefile){
 }
 
 
-void assembly::testTransition(){
+void assembly_frac::testTransition(){
 
     // generate a new particle
-    particle* pt= new particle(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
+    particle_frac* pt= new particle_frac(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
     TotalNum = 1;
     ParticleVec.push_back(pt);
 
     // initial break
-    std::vector<particle*> sub_pctlVec;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    std::vector<particle_frac*> sub_pctlVec;
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
     	int break_plane = 1;	// [-1, 1,2,3], if -1, means not break, 
-	particle* pt = new particle((**it), break_plane); 
+	particle_frac* pt = new particle_frac((**it), break_plane); 
 	(*it)->breakItSelf(break_plane);	
 	TotalNum++;
 	pt->setID(TotalNum);
 	sub_pctlVec.push_back(pt);		
     } // end for
 
-    for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    for(std::vector<particle_frac*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
     	ParticleVec.push_back(*it);
 
     // time integration
@@ -16918,18 +16918,18 @@ void assembly::testTransition(){
 
 	if(g_iteration==30){
 	    sub_pctlVec.clear();
-    	    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
     	    	int break_plane = 2;	// [-1, 1,2,3], if -1, means not break, 
 		if(it==ParticleVec.begin())
 		    break_plane = 3;
-	    	particle* pt = new particle((**it), break_plane); 
+	    	particle_frac* pt = new particle_frac((**it), break_plane); 
 	    	(*it)->breakItSelf(break_plane);	
 	    	TotalNum++;
 	    	pt->setID(TotalNum);
 	    	sub_pctlVec.push_back(pt);		
     	    } // end for
 
-    	     for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	     for(std::vector<particle_frac*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
     	  	ParticleVec.push_back(*it);
  	}
     } //end time for
@@ -16940,28 +16940,28 @@ void assembly::testTransition(){
 } // testTransition()
 
 
-void assembly::testBreakPlaneRotation(){
+void assembly_frac::testBreakPlaneRotation(){
 
     // generate a new particle
-    particle* pt= new particle(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
+    particle_frac* pt= new particle_frac(1,0,vec(0,0,0),1,1,1,1,1,1,YOUNG,POISSON);
     TotalNum = 1;
     ParticleVec.push_back(pt);
 
     printParticle("com_particle_000");
 
     // initial break
-    std::vector<particle*> sub_pctlVec;
-    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    std::vector<particle_frac*> sub_pctlVec;
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
     	int break_plane = 1;	// [-1, 1,2,3], if -1, means not break, 
 	(*it)->rotateBreakPlaneRandomly();
-	particle* pt = new particle((**it), break_plane); 
+	particle_frac* pt = new particle_frac((**it), break_plane); 
 	(*it)->breakItSelf(break_plane);	
 	TotalNum++;
 	pt->setID(TotalNum);
 	sub_pctlVec.push_back(pt);		
     } // end for
 
-    for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    for(std::vector<particle_frac*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
     	ParticleVec.push_back(*it);
 
     // time integration
@@ -16974,18 +16974,18 @@ void assembly::testBreakPlaneRotation(){
 
 	if(g_iteration==30){
 	    sub_pctlVec.clear();
-    	    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    	    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
     	    	int break_plane = 2;	// [-1, 1,2,3], if -1, means not break, 
 		if(it==ParticleVec.begin())
 		    break_plane = 3;
-	    	particle* pt = new particle((**it), break_plane); 
+	    	particle_frac* pt = new particle_frac((**it), break_plane); 
 	    	(*it)->breakItSelf(break_plane);	
 	    	TotalNum++;
 	    	pt->setID(TotalNum);
 	    	sub_pctlVec.push_back(pt);		
     	    } // end for
 
-    	     for(std::vector<particle*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
+    	     for(std::vector<particle_frac*>::iterator it=sub_pctlVec.begin(); it!=sub_pctlVec.end(); ++it)
     	  	ParticleVec.push_back(*it);
  	}
     } //end time for
@@ -16996,14 +16996,14 @@ void assembly::testBreakPlaneRotation(){
 } // testTransition()
 
 
-void assembly::particleShapeTransition(){
+void assembly_frac::particleShapeTransition(){
 
-    for(std::vector<particle*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
+    for(std::vector<particle_frac*>::iterator it=ParticleVec.begin(); it!=ParticleVec.end(); ++it){ 
 	(*it)->shapeTransition();		
     } // end for
 } // particleShapeTransition
 
-void assembly::compress(int   total_steps,  
+void assembly_frac::compress(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			const char* iniptclfile, 
@@ -17466,7 +17466,7 @@ void assembly::compress(int   total_steps,
 }
 
 
-void assembly::compressRandomParticles(int   total_steps,  
+void assembly_frac::compressRandomParticles(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			const char* iniptclfile, 
@@ -17922,7 +17922,7 @@ void assembly::compressRandomParticles(int   total_steps,
 //    g_debuginf.close();
 }
 
-void assembly::compressRandomCubicPacking(int   total_steps,  
+void assembly_frac::compressRandomCubicPacking(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			int   numX,	// number of particles in x direction
@@ -18427,7 +18427,7 @@ void assembly::compressRandomCubicPacking(int   total_steps,
 //    g_debuginf.close();
 }
 
-void assembly::compressRandomHexPacking(int   total_steps,  
+void assembly_frac::compressRandomHexPacking(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			int   numX,	// number of particles in x direction
@@ -18933,7 +18933,7 @@ void assembly::compressRandomHexPacking(int   total_steps,
 }
 
 
-void assembly::compressParticlePacking(int   total_steps,  
+void assembly_frac::compressParticlePacking(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			const char* iniptclfile,
@@ -19420,7 +19420,7 @@ void assembly::compressParticlePacking(int   total_steps,
 }
 
 
-void assembly::SHPB(int   total_steps,  
+void assembly_frac::SHPB(int   total_steps,  
 			int   snapshots, 
 			int   interval,  
 			const char* iniptclfile, 
@@ -19883,7 +19883,7 @@ void assembly::SHPB(int   total_steps,
 }
 
 
-void assembly::unixialCompression(int   total_steps,  
+void assembly_frac::unixialCompression(int   total_steps,  
 			REAL topDispl,
 			REAL botDispl,
 			int   first_snapshot,
@@ -20605,7 +20605,7 @@ void assembly::unixialCompression(int   total_steps,
 //    g_debuginf.close();
 } // unixialCompression
 
-// void assembly::unixialCompressionPB1(int   total_steps,  
+// void assembly_frac::unixialCompressionPB1(int   total_steps,  
 // 			REAL topDispl,
 // 			REAL botDispl,
 // 			int   first_snapshot,

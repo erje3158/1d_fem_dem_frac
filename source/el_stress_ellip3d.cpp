@@ -125,7 +125,11 @@ void el_stress_ellip3d(const char * outputDir,
     // Change to the output directory path so that ellips3d can run
     chdir(dirName.c_str());
 
-    main_ellip3d(float(dtop(0)), float(dbot(0)), n_save, num_threads, dirName, dt, demParams);
+    if (demParams.isFrac == 0){
+        cout << endl << endl << "NONE FRAC MODEL HERE!!" << endl << endl << endl;
+    } else if (demParams.isFrac == 1) {
+        main_ellip3d_frac(float(dtop(0)), float(dbot(0)), n_save, num_threads, dirName, dt, demParams);
+    }
         
     // Change back to the directory from where this code is being run so that file inputs can be referenced properly
     chdir(cCurrentPath);

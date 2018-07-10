@@ -222,7 +222,8 @@ void demInput::readData(const char * inputFile)
                                             input >> this->friction   ;}
       if ( line == "$Particle Fracture" ) { input >> this->sigmaComp  ;
                                             input >> this->tensileCrit;
-                                            input >> this->fracTough  ;}
+                                            input >> this->fracTough  ;
+                                            this->isFrac = 1          ;}
       if ( line == "$Random Seed"       ) { this->whichSeed = 1       ;}
       if ( line == "$Constant Seed"     ) { this->whichSeed = 2       ;}
     }
@@ -251,10 +252,17 @@ void demInput::echoData()
   cout << "   damping        = " << this->damping     << endl;
   cout << "   friction       = " << this->friction    << endl;
   cout << endl;
-  cout << "Particle Fracture:"                        << endl;
-  cout << "   sigmaComp      = " << this->sigmaComp   << endl;
-  cout << "   tensileCrit    = " << this->tensileCrit << endl;
-  cout << "   fracTough      = " << this->fracTough   << endl;
+  if (this->isFrac == 0)
+  {
+    cout << "No Particle Fracture Model Specified"    << endl;
+  } else if (this->isFrac == 1)
+  {
+    cout << "Particle Fracture:"                        << endl;
+    cout << "   sigmaComp      = " << this->sigmaComp   << endl;
+    cout << "   tensileCrit    = " << this->tensileCrit << endl;
+    cout << "   fracTough      = " << this->fracTough   << endl;
+  }
+  cout << endl;
   cout << "Which Random Number Seed?"                 << endl;
   if (this->whichSeed == 1)
   {

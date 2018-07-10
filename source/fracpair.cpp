@@ -31,7 +31,7 @@ fracpair::fracpair(){
 // create a fracture pair based on the different break planes
 // by definition, t1 is the sub-particle that is in positive direction
 // while t2 is the one in negative direction
-fracpair::fracpair(particle* t1, particle* t2, int break_plane){
+fracpair::fracpair(particle_frac* t1, particle_frac* t2, int break_plane){
     p1 = t1;
     p2 = t2;
     type = break_plane;
@@ -156,7 +156,7 @@ fracpair::fracpair(particle* t1, particle* t2, int break_plane){
 }
 
 // jugde if particle t1 belongs to this fracture pair
-bool fracpair::isIn(particle * t1){
+bool fracpair::isIn(particle_frac * t1){
     if(t1==p1 || t1==p2)
 	return true;
     else

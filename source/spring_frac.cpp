@@ -1,14 +1,14 @@
-#include "spring.h"
-#include "parameter.h"
+#include "spring_frac.h"
+#include "parameter_frac.h"
 
 namespace dem{
 
-spring::spring(particle &ptcl1, particle &ptcl2, REAL modulus)
+spring::spring(particle_frac &ptcl1, particle_frac &ptcl2, REAL modulus)
   :p1(ptcl1), p2(ptcl2), Young(modulus) {
   init(p1, p2);
 }
 
-spring::spring(std::vector<particle*> &ParticleVec, int id1, int id2, REAL modulus)
+spring::spring(std::vector<particle_frac*> &ParticleVec, int id1, int id2, REAL modulus)
   :p1(*ParticleVec[id1]), p2(*ParticleVec[id2]), Young(modulus) {
   init(p1, p2);
 }

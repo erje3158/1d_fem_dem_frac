@@ -37,7 +37,7 @@ void el_stress_ellip3d(const char * outputDir,
                        double dt,
                        demInput demParams);
 
-void main_ellip3d(float disp_top,
+void main_ellip3d_frac(float disp_top,
                   float disp_bot,
                   int num_runs,
                   int num_threads,

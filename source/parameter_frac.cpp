@@ -1,4 +1,4 @@
-#include "parameter.h"
+#include "parameter_frac.h"
 #include <time.h>
 
 namespace dem { 

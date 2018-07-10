@@ -3,9 +3,9 @@
 
 #include "realtypes.h"
 #include "vec.h"
-#include "gradation.h"
-#include "contact.h"
-#include "boundary.h"
+#include "gradation_frac.h"
+#include "contact_frac.h"
+#include "boundary_frac.h"
 #include "rectangle.h"
 #include "cylinder.h"
 #include "boundarytgt.h"
@@ -14,16 +14,16 @@
 
 namespace dem {
 
-  class particle{
-    friend class assembly;
-    friend class contact<particle>;
-    friend class flb_bdry<particle>;
+  class particle_frac{
+    friend class assembly_frac;
+    friend class contact<particle_frac>;
+    friend class flb_bdry<particle_frac>;
   public:
-    particle(int n, int type, vec center_geo, REAL r, REAL young, REAL poisson);	// August 16, 2013
-    particle(int n, int type, vec center_geo, REAL aplus, REAL aminus, REAL bplus, REAL bminus, REAL cplus, REAL cminus, REAL young, REAL poisson);	// August 16, 2013
-    particle(int id,int type, REAL aplus, REAL aminus, REAL bplus, REAL bminus, REAL cplus, REAL cminus, vec position_geo, vec dirca, vec dircb, vec dircc, REAL young, REAL poisson);	// August 16, 2013
-    particle(int n, int type, vec center, gradation& grad, REAL young, REAL poisson);	// August 19, 2013
-    particle(const particle& pt, int brk_pln);	// September 23, 2014. for fracture model 
+    particle_frac(int n, int type, vec center_geo, REAL r, REAL young, REAL poisson);	// August 16, 2013
+    particle_frac(int n, int type, vec center_geo, REAL aplus, REAL aminus, REAL bplus, REAL bminus, REAL cplus, REAL cminus, REAL young, REAL poisson);	// August 16, 2013
+    particle_frac(int id,int type, REAL aplus, REAL aminus, REAL bplus, REAL bminus, REAL cplus, REAL cminus, vec position_geo, vec dirca, vec dircb, vec dircc, REAL young, REAL poisson);	// August 16, 2013
+    particle_frac(int n, int type, vec center, gradation& grad, REAL young, REAL poisson);	// August 19, 2013
+    particle_frac(const particle_frac& pt, int brk_pln);	// September 23, 2014. for fracture model 
     
     int  getID() const {return ID;}
     int  getType() const {return type;}
@@ -188,7 +188,7 @@ namespace dem {
     
     //side indicates which side the particles are in about the plane
     //calculate the normal force between particle and a plane rigid boundary
-    void planeRBForce(plnrgd_bdry<particle>* plb,	// August 19, 2013. apply moment on the mass center. August 22, 2013
+    void planeRBForce(plnrgd_bdry<particle_frac>* plb,	// August 19, 2013. apply moment on the mass center. August 22, 2013
 		      std::map<int,std::vector<boundarytgt> >& BoundarytgtMap,
 		      std::vector<boundarytgt>& vtmp,
 		      REAL &penetr);

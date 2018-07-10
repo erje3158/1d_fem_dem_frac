@@ -59,7 +59,6 @@ class matrix{
 	friend REAL trace(matrix);	// calculate the trace of the matrix, add on March 8, 2013 for fabric invariants
 	friend matrix kroneckerProduct(matrix A, matrix B);	// kronecker product
 
-	
 
 };
 // all the operations defined in this matrix class can deal with any dimension matrix except getInvs(), which is now only

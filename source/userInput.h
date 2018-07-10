@@ -107,6 +107,7 @@ public:
   double sigmaComp;
   double tensileCrit;
   double fracTough;
+  int    isFrac;
 
   int    whichSeed; 
 
@@ -125,6 +126,7 @@ public:
     sigmaComp    = 0.0;
     tensileCrit  = 0.0;
     fracTough    = 0.0;
+    isFrac       = 0;
 
     whichSeed    = 0;
   }

@@ -1,0 +1,341 @@
+Running Hierarchical Upscaling Code on macOS
+Removing previous run directory: /Users/erikjensen/Documents/1d_fem_dem_frac/outputs/debug_ellip3d
+/Users/erikjensen/Documents/1d_fem_dem_frac
+debug   info.txt  plot.py   valgrind
+
+Output Directory : 
+/Users/erikjensen/Documents/1d_fem_dem_frac/outputs/debug_ellip3d
+
+
+Running Hierarchical Upscaling Code
+-----------------------------------
+Armadillo version: 8.300.3 (Tropical Shenanigans)
+Boundary Input File found...
+Particle Input File found...
+qdelaunay binary found...
+FEM input file found...
+DEM input file found...
+Current Directory is /Users/erikjensen/Documents/1d_fem_dem_frac/outputs/debug_ellip3d
+*** Attemping to Creating Directory: ./el1_ip1
+*** Making directory: ./el1_ip1
+*** Attemping to Creating Directory: ./el1_ip2
+*** Making directory: ./el1_ip2
+*** Attemping to Creating Directory: ./el2_ip1
+*** Making directory: ./el2_ip1
+*** Attemping to Creating Directory: ./el2_ip2
+*** Making directory: ./el2_ip2
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SUMMARY OF INPUTS:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FEM Constitutive:
+   lambda         = 3.13e+08
+   mu             = 2.8e+08
+   rho            = 1540
+
+Gravity:
+   grav           = 0
+
+FEM Geometry:
+   d              = 0.0127
+   LDratio        = 0.81
+
+DEM Geometry:
+   h_DEM          = 0.003
+   w_DEM          = 0.003
+   l_DEM          = 0.003
+
+FEM Constants:
+   numips         = 2
+   nstress        = 6
+   nisv           = 2
+   ndof           = 1
+   nel            = 2
+   neldof         = 2
+
+Time Parameters:
+   t              = 0
+   dt             = 2e-08
+   print_int      = 1
+   n_print        = 1
+   time_tot       = 6e-08
+
+Strain Rate:
+   strainrate     = 387
+
+Mass Damping:
+   alphaM         = 0
+
+Which Displacement?
+   applied finite displacement
+
+Which Constitutive Model?
+   Ellip3D DEM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SUMMARY OF INPUTS:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Particle Overlap:
+   maxOverlap     = 0.5
+
+DEM Constitutive:
+   youngsMod      = 2.9e+10
+   poisRatio      = 0.18
+
+Time Parameters:
+   timestep       = 2e-08
+
+Particle Contact:
+   damping        = 0.7
+   friction       = 0.8
+
+Particle Fracture:
+   sigmaComp      = 1e+09
+   tensileCrit    = 1e+09
+   fracTough      = 1e+06
+Which Random Number Seed?
+   Uses Computer Clock for Random Seed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SUMMARY OF MESH:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+coords = 
+        0   0.0051
+   0.0051   0.0103
+
+LM = 
+        0        1
+        1        0
+
+g = 
+        0        0
+        0        0
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+*** Current step = 1 ***
+el_stress_ellip3d: Iteration 1 of 2
+dirName = ./el1_ip1
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:10:40 2018
+simulation  end  time: Mon Jul  9 20:10:44 2018
+el_stress_ellip3d: Iteration 2 of 2
+dirName = ./el1_ip2
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:10:44 2018
+simulation  end  time: Mon Jul  9 20:10:48 2018
+el_stress_ellip3d: Iteration 1 of 2
+dirName = ./el2_ip1
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:10:48 2018
+simulation  end  time: Mon Jul  9 20:10:53 2018
+el_stress_ellip3d: Iteration 2 of 2
+dirName = ./el2_ip2
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:10:53 2018
+simulation  end  time: Mon Jul  9 20:10:57 2018
+dd =         0
+
+v =         0
+
+a =         0
+
+t = 2e-08
+stress_el = [cube slice 0]
+        0        0
+        0        0
+        0        0
+        0        0
+        0        0
+        0        0
+
+[cube slice 1]
+         0  -36.8702
+         0  -36.8702
+         0  -36.8702
+         0         0
+         0         0
+         0         0
+
+
+isv_el = [cube slice 0]
+        0        0
+        0        0
+
+[cube slice 1]
+        0  -1.0000
+        0        0
+
+
+F_S =         0
+
+*** Current step = 2 ***
+el_stress_ellip3d: Iteration 1 of 2
+dirName = ./el1_ip1
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:10:57 2018
+simulation  end  time: Mon Jul  9 20:11:01 2018
+el_stress_ellip3d: Iteration 2 of 2
+dirName = ./el1_ip2
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:11:01 2018
+simulation  end  time: Mon Jul  9 20:11:05 2018
+el_stress_ellip3d: Iteration 1 of 2
+dirName = ./el2_ip1
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:11:05 2018
+simulation  end  time: Mon Jul  9 20:11:10 2018
+el_stress_ellip3d: Iteration 2 of 2
+dirName = ./el2_ip2
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+Checking if processor is available...
+Ok!
+Read tessellation begin!
+Read cell information begin!
+
+simulation start time: Mon Jul  9 20:11:10 2018
+simulation  end  time: Mon Jul  9 20:11:14 2018
+dd =         0
+
+v =   -5.1130e-13
+
+a =   -5.1130e-05
+
+t = 4e-08
+stress_el = [cube slice 0]
+        0        0
+        0        0
+        0        0
+        0        0
+        0        0
+        0        0
+
+[cube slice 1]
+            0  -3.8717e+01
+            0  -3.8717e+01
+            0  -3.8718e+01
+            0  -1.5480e-05
+            0  -1.5480e-05
+            0  -1.5480e-05
+
+
+isv_el = [cube slice 0]
+        0        0
+        0        0
+
+[cube slice 1]
+            0  -1.0000e+00
+            0  -9.2880e-08
+
+
+F_S =    3.4203e-08
+
+-----------------------------------
+End of Simulation
