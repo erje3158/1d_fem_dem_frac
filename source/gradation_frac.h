@@ -4,7 +4,7 @@
 #include "realtypes.h"
 #include <vector>
 
-namespace dem {
+namespace dem_frac {
 
   class gradation{
     

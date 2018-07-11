@@ -5,12 +5,12 @@
    traditional K&R versions, along with #ifdef macros to select the
    correct version.  *This* file contains only ANSI C.               */
 
-#include "nrutil.h"
+#include "nrutil_frac.h"
 #include <cstdio>
 #include <cstddef>
 #include <cstdlib>
 
-namespace dem {
+namespace dem_frac {
 
 #define NR_END 1
 #define FREE_ARG char*

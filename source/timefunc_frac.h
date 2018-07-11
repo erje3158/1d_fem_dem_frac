@@ -4,7 +4,7 @@
 #include "realtypes.h"
 #include <sys/time.h>
 
-namespace dem {
+namespace dem_frac {
 
 struct timeval timedifsf(const struct timeval &time1, const struct timeval &time2);
 long int       timediffmsec(const struct timeval &time1, const struct timeval &time2);

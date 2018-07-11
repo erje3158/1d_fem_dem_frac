@@ -2,24 +2,24 @@
 #define ASSEMBLY_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 #include "gradation_frac.h"
 #include "particle_frac.h"
 #include "contact_frac.h"
 #include "boundary_frac.h"
-#include "rectangle.h"
-#include "cylinder.h"
+#include "rectangle_frac.h"
+#include "cylinder_frac.h"
 #include "spring_frac.h"
-#include "matrix.h"
-#include "cell.h"
-#include "edge.h"
+#include "matrix_frac.h"
+#include "cell_frac.h"
+#include "edge_frac.h"
 #include "fracpair.h"	
 #include <map>
 #include <vector>
 #include <fstream>
 #include <list>
 
-namespace dem {
+namespace dem_frac {
 
 class assembly_frac{
   typedef contact<particle_frac>  CONTACT;

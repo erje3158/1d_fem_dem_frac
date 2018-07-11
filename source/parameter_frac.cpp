@@ -1,7 +1,7 @@
 #include "parameter_frac.h"
 #include <time.h>
 
-namespace dem { 
+namespace dem_frac { 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Part A: These parameters do not change frequently

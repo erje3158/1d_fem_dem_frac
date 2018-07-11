@@ -1,6 +1,6 @@
-#include "timefunc.h"
+#include "timefunc_frac.h"
 
-namespace dem {
+namespace dem_frac {
 
 struct timeval timediff(const struct timeval &time1, const struct timeval &time2) {
     struct timeval diff;

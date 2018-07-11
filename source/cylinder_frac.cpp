@@ -1,8 +1,8 @@
-#include "cylinder.h"
-#include "ran.h"
+#include "cylinder_frac.h"
+#include "ran_frac.h"
 #include <iostream>
 
-namespace dem {
+namespace dem_frac {
 
 void cylinder::print() const{
     std::cout<<"radius="<<radius<<std::endl;

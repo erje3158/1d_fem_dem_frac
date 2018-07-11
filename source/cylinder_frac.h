@@ -2,12 +2,11 @@
 #define CYLINDER_H
 
 #include "realtypes.h"
-//#include "parameter.h"
 #include "parameter_frac.h"
-#include "vec.h"
-#include "shape.h"
+#include "vec_frac.h"
+#include "shape_frac.h"
 
-namespace dem {
+namespace dem_frac {
 
 class cylinder:public shape{
  public:

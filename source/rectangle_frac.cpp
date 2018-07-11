@@ -1,9 +1,9 @@
-#include "rectangle.h"
+#include "rectangle_frac.h"
 #include "parameter_frac.h"
-#include "ran.h"
+#include "ran_frac.h"
 #include <iostream>
 
-namespace dem {
+namespace dem_frac {
 
   void rectangle::print() const{
     std::cout << "dimensions: " << dimx << " " << dimy << " " << dimz << std::endl;

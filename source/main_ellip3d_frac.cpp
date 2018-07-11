@@ -9,7 +9,7 @@
 #include "realtypes.h"
 #include "parameter_frac.h"
 #include "gradation_frac.h"
-#include "rectangle.h"
+#include "rectangle_frac.h"
 #include "assembly_frac.h"
 #include <iostream>
 #include <vector>
@@ -38,61 +38,61 @@ void main_ellip3d_frac(float disp_top, float disp_bot, int num_runs, int num_thr
 //    }
 //
 //    if (argc == 5) {
-//	dem::NUM_THREADS = atoi(argv[4]);
+//	dem_frac::NUM_THREADS = atoi(argv[4]);
 //	std::cout << "command line: " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << std::endl; 
 //    }
-    dem::NUM_THREADS = num_threads;
+    dem_frac::NUM_THREADS = num_threads;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Part 1: setup parameters (override parameter.cpp)
     // 1. time integration method
     // --- dynamic
 /*
-    dem::TIMESTEP      = 5.0e-8; // time step
-    dem::MASS_SCL      = 100;       // mass scaling
-    dem::MNT_SCL       = 100;       // moment of inertial scaling
-    dem::GRVT_SCL      = 0;       // gravity scaling
-    dem::DMP_F         = 10;       // background viscous damping on mass
-    dem::DMP_M         = 10;       // background viscous damping on moment of inertial
+    dem_frac::TIMESTEP      = 5.0e-8; // time step
+    dem_frac::MASS_SCL      = 100;       // mass scaling
+    dem_frac::MNT_SCL       = 100;       // moment of inertial scaling
+    dem_frac::GRVT_SCL      = 0;       // gravity scaling
+    dem_frac::DMP_F         = 10;       // background viscous damping on mass
+    dem_frac::DMP_M         = 10;       // background viscous damping on moment of inertial
 */
     
     // --- dynamic relaxation and scaling
-    dem::TIMESTEP      = demParams.timestep; //
-    dem::MASS_SCL      = 1.0;
-    dem::MNT_SCL       = 1.0;
-    dem::GRVT_SCL      = 1.0;       // 1.0e+03;
-    dem::DMP_F         = 0;
-    dem::DMP_M         = 0;
+    dem_frac::TIMESTEP      = demParams.timestep; //
+    dem_frac::MASS_SCL      = 1.0;
+    dem_frac::MNT_SCL       = 1.0;
+    dem_frac::GRVT_SCL      = 1.0;       // 1.0e+03;
+    dem_frac::DMP_F         = 0;
+    dem_frac::DMP_M         = 0;
     
     // 2. normal damping and tangential friciton
-    dem::DMP_CNT       = demParams.damping;    // normal contact damping ratio
-    dem::FRICTION      = demParams.friction;     // coefficient of friction between particles
-    dem::BDRYFRIC      = 0.8;     // coefficient of friction between particle and rigid wall
-    dem::COHESION      = 0;       // cohesion between particles, 5.0e+8
+    dem_frac::DMP_CNT       = demParams.damping;    // normal contact damping ratio
+    dem_frac::FRICTION      = demParams.friction;     // coefficient of friction between particles
+    dem_frac::BDRYFRIC      = 0.8;     // coefficient of friction between particle and rigid wall
+    dem_frac::COHESION      = 0;       // cohesion between particles, 5.0e+8
 
     // 3. boundary displacement rate
-    dem::COMPRESS_RATE = 7.0e-03; // 7.0e-03 for triaxial; 1.0e-03 for isotropic and odometer.
-    dem::RELEASE_RATE  = 7.0e-03; // the same as above
-    dem::PILE_RATE     = 2.5e-01; // pile penetration velocity
-    dem::STRESS_ERROR  = 2.0e-02; // tolerance of stress equilibrium on rigid walls
+    dem_frac::COMPRESS_RATE = 7.0e-03; // 7.0e-03 for triaxial; 1.0e-03 for isotropic and odometer.
+    dem_frac::RELEASE_RATE  = 7.0e-03; // the same as above
+    dem_frac::PILE_RATE     = 2.5e-01; // pile penetration velocity
+    dem_frac::STRESS_ERROR  = 2.0e-02; // tolerance of stress equilibrium on rigid walls
 
-    dem::MAXOVERLAP    = demParams.maxOverlap;
-    dem::YOUNG         = demParams.youngsMod;
-    dem::POISSON       = demParams.poisRatio;
+    dem_frac::MAXOVERLAP    = demParams.maxOverlap;
+    dem_frac::YOUNG         = demParams.youngsMod;
+    dem_frac::POISSON       = demParams.poisRatio;
 
-    dem::sigmaCompress          = demParams.sigmaComp;
-    dem::ContactTensileCritical = demParams.tensileCrit;
-    dem::fracTough              = demParams.fracTough;
+    dem_frac::sigmaCompress          = demParams.sigmaComp;
+    dem_frac::ContactTensileCritical = demParams.tensileCrit;
+    dem_frac::fracTough              = demParams.fracTough;
 
     if (demParams.whichSeed == 1) {
-      dem::idum = -time(NULL);
+      dem_frac::idum = -time(NULL);
     } else if (demParams.whichSeed == 2) {
-      dem::idum = -1;
+      dem_frac::idum = -1;
     } else {
       exit(0);
     }
 
-    dem::assembly_frac A;
+    dem_frac::assembly_frac A;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Part 2: set up a simulation to run
@@ -111,12 +111,12 @@ void main_ellip3d_frac(float disp_top, float disp_bot, int num_runs, int num_thr
 //	    "comp_balance",
 //	    "comp_debug");
     
-    A.unixialCompression(int(dt/dem ::TIMESTEP),	// the timestep used in FEM and DEM may be different, so control the total_steps to keep the time the same
+    A.unixialCompression(int(dt/dem_frac::TIMESTEP),	// the timestep used in FEM and DEM may be different, so control the total_steps to keep the time the same
                          disp_top,		// displacement of top boundary, positive downward
                          disp_bot,  		// displacement of bottom boundary, positive upward
                          (num_runs-1)*numSnap,	// the number of first snapshot
                          numSnap, 		// number of snapshots
-                         int(dt/dem::TIMESTEP),
+                         int(dt/dem_frac::TIMESTEP),
                          "input_particle_file",
                          "input_boundary_file",
                          "comp_particle",	// this should be the same as iniptclfile, since the output file will be used as input file for next run
@@ -137,7 +137,7 @@ void main_ellip3d_frac(float disp_top, float disp_bot, int num_runs, int num_thr
     percent.push_back(0.60); ptclsize.push_back(2.0e-3);
     percent.push_back(0.30); ptclsize.push_back(1.5e-3);
     percent.push_back(0.10); ptclsize.push_back(1.0e-3);
-    dem::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
+    dem_frac::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
     
     A.deposit(1000000,               // total_steps
               100,                // number of snapshots
@@ -303,7 +303,7 @@ A.calculateVolume("exp_particle_000");
     //percent.push_back(0.60); ptclsize.push_back(2.0e-3);
     //percent.push_back(0.30); ptclsize.push_back(1.5e-3);
     //percent.push_back(0.10); ptclsize.push_back(1.0e-3);
-    dem::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
+    dem_frac::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
     A.deposit_RgdBdry(grad,
 		      2,                  // freetype, setting of free particles 
 		      100000,             // total_steps
@@ -332,7 +332,7 @@ A.calculateVolume("exp_particle_000");
     //percent.push_back(0.60); ptclsize.push_back(1.6e-3);
     //percent.push_back(0.30); ptclsize.push_back(1.0e-3);
     //percent.push_back(0.10); ptclsize.push_back(0.5e-3);
-    dem::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
+    dem_frac::gradation grad(rorc, dimn, ratio_ba, ratio_ca, percent.size(), percent, ptclsize);
     A.deposit_PtclBdry(grad,
 		       2,                  // freetype, setting of free particles
 		       1.0,                // relative container size, 0.8/1.0/1.2---small/medium/large

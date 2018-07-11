@@ -1,6 +1,6 @@
 // 11.7 The QR Algorithm for Real Hessenberg Matrices
 
-#include "nrutil.h"
+#include "nrutil_frac.h"
 
 #ifndef QUADMATH
 #define MAXITER 30
@@ -8,7 +8,7 @@
 #define MAXITER 50
 #endif
 
-namespace dem {
+namespace dem_frac {
 
 #define NRANSI
 

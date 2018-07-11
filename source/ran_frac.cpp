@@ -3,9 +3,9 @@
      just rename it to ran() for convenience.
 */
 
-#include "ran.h"
+#include "ran_frac.h"
 
-namespace dem {
+namespace dem_frac {
 
 #define IM1 2147483563
 #define IM2 2147483399

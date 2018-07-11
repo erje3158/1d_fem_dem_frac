@@ -1,8 +1,8 @@
-#include "vec.h"
+#include "vec_frac.h"
 #include "parameter_frac.h"
 #include <iostream>
 
-namespace dem {
+namespace dem_frac {
   
   bool vec::operator==(const vec v){
     return x==v.x && y==v.y && z==v.z;

@@ -2,9 +2,9 @@
 #define SHAPE_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 
-namespace dem {
+namespace dem_frac {
   
   class shape{ // abstract class
   public:

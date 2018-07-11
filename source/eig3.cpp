@@ -12,7 +12,7 @@
 
 #define n 3
 
-namespace dem{
+namespace dem_frac{
 
 static double hypot2(double x, double y) {
   return sqrt(x*x+y*y);

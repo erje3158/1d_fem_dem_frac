@@ -33,7 +33,7 @@
 
 #include "assembly_frac.h"
 #include "parameter_frac.h"
-#include "timefunc.h"
+#include "timefunc_frac.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -72,7 +72,7 @@ static struct timeval time_w1, time_w2; // for wall-clock time record
 static struct timeval time_p1, time_p2; // for internal wall-clock time profiling, can be used on any piece of code
 static struct timeval time_r1, time_r2; // for internal wall-clock time profiling for contact resolution only (excluding space search)
 
-namespace dem {
+namespace dem_frac {
   
 std::ofstream progressinf;
   
@@ -18084,7 +18084,7 @@ void assembly_frac::compressRandomCubicPacking(int   total_steps,
     REAL dimx = numX*2*radius;
     REAL dimy = numY*2*radius;
     REAL dimz = numZ*2*radius;
-    dem::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
+    dem_frac::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
     container = rectangle(dimx,dimy,dimz,center);
     buildBoundary(inibdryfile);
     generateCubicPacking(iniptclfile, numX, numY, numZ, radius);
@@ -18593,7 +18593,7 @@ void assembly_frac::compressRandomHexPacking(int   total_steps,
     REAL dimx = radius+std::max( ( 2*i+((j+k)%2) ), ( 2*i+((j+k-1)%2) ) )*radius+radius;
     REAL dimy = radius+std::max( ( sqrt(3.0)*(j+1.0/3.0*(k%2)) ), ( sqrt(3.0)*(j+1.0/3.0*((k-1)%2)) ) )*radius+radius;
     REAL dimz = radius+2.0*sqrt(6.0)/3.0*k*radius+radius;
-    dem::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
+    dem_frac::vec center(dimx*0.5, dimy*0.5, dimz*0.5);	// start from (0,0,0)
     container = rectangle(dimx,dimy,dimz,center);
     buildBoundary(inibdryfile);
     generateHexPacking(iniptclfile, numX, numY, numZ, radius);

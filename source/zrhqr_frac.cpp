@@ -1,13 +1,13 @@
-#include "nrutil.h"
+#include "nrutil_frac.h"
 
-namespace dem {
+namespace dem_frac {
 
 #define NRANSI
 #define MAXM 50
 
 bool zrhqr(REAL a[], int m, REAL rtr[], REAL rti[])
 {
-	void balanc(REAL **a, int n);
+	void balanc_frac(REAL **a, int n);
 	bool hqr(REAL **a, int n, REAL wr[], REAL wi[]);
 	int j,k;
 	REAL **hess,xr,xi;
@@ -21,7 +21,7 @@ bool zrhqr(REAL a[], int m, REAL rtr[], REAL rti[])
 		for (j=2;j<=m;j++) hess[j][k]=0.0;
 		if (k != m) hess[k+1][k]=1.0;
 	}
-	balanc(hess,m);
+	balanc_frac(hess,m);
 	if (!hqr(hess,m,rtr,rti)) {
 	    free_matrix(hess,1,MAXM,1,MAXM);
 	    return false;

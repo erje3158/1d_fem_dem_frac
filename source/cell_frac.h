@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include "realtypes.h"
-#include "matrix.h"
+#include "matrix_frac.h"
 
-namespace dem{
+namespace dem_frac{
 
 class cell{
       private:

@@ -2,9 +2,9 @@
 #define ROOT6_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 
-namespace dem {
+namespace dem_frac {
     bool root6(REAL coef1[],REAL coef2[],vec& v);
 }
 #endif

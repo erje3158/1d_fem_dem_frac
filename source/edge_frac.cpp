@@ -1,8 +1,8 @@
-#include "edge.h"
+#include "edge_frac.h"
 #include <iostream>
 #include <cstdlib>
 
-namespace dem{
+namespace dem_frac{
 
 void edge::setNodes(int m, int n){
 	if(m<=0 || n<=0){

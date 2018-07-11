@@ -6,7 +6,7 @@
 #include "realtypes.h"
 #include <fstream>
 
-namespace dem { 
+namespace dem_frac { 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Part A: These parameters do not change frequently

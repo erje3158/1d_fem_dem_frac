@@ -1,6 +1,6 @@
 #include "particle_frac.h"
 #include "parameter_frac.h"
-#include "ran.h"
+#include "ran_frac.h"
 #include "root6_frac.h"
 #include "eig3.h"
 #include <iostream>
@@ -13,11 +13,11 @@
 const int START = 10000;  // at which time step to apply moment? for moment rotation test only.
 #define SLIP  // if defined, stick and slip; otherwise slide.
 #endif
-//main.cpp: dem::TIMESTEP = 5.0e-07; A.deposit(12000,... 
+//main.cpp: dem_frac::TIMESTEP = 5.0e-07; A.deposit(12000,... 
 
 //#define MINDLIN_ASSUMED
 
-namespace dem {
+namespace dem_frac {
 
 void particle_frac::init() {	// August 19, 2013
     // generate orientation of axle a/b/c
@@ -129,10 +129,10 @@ void particle_frac::init() {	// August 19, 2013
     delta_c = 0;	// -1 means not transit
 
     weibullPhi = ran(&idum);
-    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem::weibullModulus))
-			*pow(getAverageRadius()/dem::basicRadius, -2*dem::weibullModulus);
-    strengthHoek = dem::sigmaCompress*tmp_parameter;
-    strengthContact = dem::ContactTensileCritical*tmp_parameter;
+    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem_frac::weibullModulus))
+			*pow(getAverageRadius()/dem_frac::basicRadius, -2*dem_frac::weibullModulus);
+    strengthHoek = dem_frac::sigmaCompress*tmp_parameter;
+    strengthContact = dem_frac::ContactTensileCritical*tmp_parameter;
 
     matrix zero3x3(3,3);
     average_stress = zero3x3;
@@ -338,10 +338,10 @@ particle_frac::particle_frac(int id, int tp, REAL raplus, REAL raminus, REAL rbp
     delta_c = 0;	// -1 means not transit
 
     weibullPhi = ran(&idum);
-    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem::weibullModulus))
-			*pow(getAverageRadius()/dem::basicRadius, -2*dem::weibullModulus);
-    strengthHoek = dem::sigmaCompress*tmp_parameter;
-    strengthContact = dem::ContactTensileCritical*tmp_parameter;
+    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem_frac::weibullModulus))
+			*pow(getAverageRadius()/dem_frac::basicRadius, -2*dem_frac::weibullModulus);
+    strengthHoek = dem_frac::sigmaCompress*tmp_parameter;
+    strengthContact = dem_frac::ContactTensileCritical*tmp_parameter;
 
     matrix zero3x3(3,3);
     average_stress = zero3x3;
@@ -461,7 +461,7 @@ particle_frac::particle_frac(const particle_frac & pt, int break_plane){ // brea
 	bplus = left_ratio*pt.bplus; bminus = left_ratio*pt.bminus;
 	cplus = shift_ratio*pt.cminus; cminus = 0.9*pt.cminus;
 
-	delta_c = -(0.2*cminus-0.8*cplus)/dem::numStepTransition;
+	delta_c = -(0.2*cminus-0.8*cplus)/dem_frac::numStepTransition;
 
     	curr_position.setx(pt.curr_position.getx() + cosl(lz)*shift_ratio*z_oct);
     	curr_position.sety(pt.curr_position.gety() + cosl(mz)*shift_ratio*z_oct);
@@ -475,7 +475,7 @@ particle_frac::particle_frac(const particle_frac & pt, int break_plane){ // brea
 	bplus = shift_ratio*pt.bminus; bminus = 0.9*pt.bminus;
 	cplus = left_ratio*pt.cplus; cminus = left_ratio*pt.cminus;
 
-	delta_b = -(0.2*bminus-0.8*bplus)/dem::numStepTransition;
+	delta_b = -(0.2*bminus-0.8*bplus)/dem_frac::numStepTransition;
 
     	curr_position.setx(pt.curr_position.getx() + cosl(ly)*shift_ratio*y_oct);
     	curr_position.sety(pt.curr_position.gety() + cosl(my)*shift_ratio*y_oct);
@@ -489,7 +489,7 @@ particle_frac::particle_frac(const particle_frac & pt, int break_plane){ // brea
 	bplus = left_ratio*pt.bplus; bminus = left_ratio*pt.bminus;
 	cplus = left_ratio*pt.cplus; cminus = left_ratio*pt.cminus;
 
-	delta_a = -(0.2*aminus-0.8*aplus)/dem::numStepTransition;
+	delta_a = -(0.2*aminus-0.8*aplus)/dem_frac::numStepTransition;
 
     	curr_position.setx(pt.curr_position.getx() + cosl(lx)*shift_ratio*x_oct);
     	curr_position.sety(pt.curr_position.gety() + cosl(mx)*shift_ratio*x_oct);
@@ -567,10 +567,10 @@ particle_frac::particle_frac(const particle_frac & pt, int break_plane){ // brea
 
     J=vec(Ixx,Iyy,Izz);    
 
-    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem::weibullModulus))
-			*pow(getAverageRadius()/dem::basicRadius, -2*dem::weibullModulus);
-    strengthHoek = dem::sigmaCompress*tmp_parameter;
-    strengthContact = dem::ContactTensileCritical*tmp_parameter;
+    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem_frac::weibullModulus))
+			*pow(getAverageRadius()/dem_frac::basicRadius, -2*dem_frac::weibullModulus);
+    strengthHoek = dem_frac::sigmaCompress*tmp_parameter;
+    strengthContact = dem_frac::ContactTensileCritical*tmp_parameter;
 
     GlobCoef();	
 
@@ -652,7 +652,7 @@ void particle_frac::breakItSelf(int break_plane){
 	bplus = left_ratio*bplus; bminus = left_ratio*bminus;
 	cminus = shift_ratio*cplus; cplus = 0.9*cplus;	// cminus has to be before cplus
 
-	delta_c = (0.2*cplus-0.8*cminus)/dem::numStepTransition;
+	delta_c = (0.2*cplus-0.8*cminus)/dem_frac::numStepTransition;
 
     	curr_position.setx(curr_position.getx() + cosl(lz)*shift_ratio*z_oct);
     	curr_position.sety(curr_position.gety() + cosl(mz)*shift_ratio*z_oct);
@@ -666,7 +666,7 @@ void particle_frac::breakItSelf(int break_plane){
 	bminus = shift_ratio*bplus; bplus = 0.9*bplus;	// bminus has to be before bplus
 	cplus = left_ratio*cplus; cminus = left_ratio*cminus;
 
-	delta_b = (0.2*bplus-0.8*bminus)/dem::numStepTransition;
+	delta_b = (0.2*bplus-0.8*bminus)/dem_frac::numStepTransition;
 
     	curr_position.setx(curr_position.getx() + cosl(ly)*shift_ratio*y_oct);
     	curr_position.sety(curr_position.gety() + cosl(my)*shift_ratio*y_oct);
@@ -680,7 +680,7 @@ void particle_frac::breakItSelf(int break_plane){
 	bplus = left_ratio*bplus; bminus = left_ratio*bminus;
 	cplus = left_ratio*cplus; cminus = left_ratio*cminus;
 
-	delta_a = (0.2*aplus-0.8*aminus)/dem::numStepTransition;
+	delta_a = (0.2*aplus-0.8*aminus)/dem_frac::numStepTransition;
 
     	curr_position.setx(curr_position.getx() + cosl(lx)*shift_ratio*x_oct);
     	curr_position.sety(curr_position.gety() + cosl(mx)*shift_ratio*x_oct);
@@ -760,10 +760,10 @@ void particle_frac::breakItSelf(int break_plane){
     J=vec(Ixx,Iyy,Izz);    
 
 //    weibullPhi = ran(&idum);
-    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem::weibullModulus))
-			*pow(getAverageRadius()/dem::basicRadius, -2*dem::weibullModulus);
-    strengthHoek = dem::sigmaCompress*tmp_parameter;
-    strengthContact = dem::ContactTensileCritical*tmp_parameter;
+    REAL tmp_parameter = log(pow(1.0/weibullPhi, 1.0/dem_frac::weibullModulus))
+			*pow(getAverageRadius()/dem_frac::basicRadius, -2*dem_frac::weibullModulus);
+    strengthHoek = dem_frac::sigmaCompress*tmp_parameter;
+    strengthContact = dem_frac::ContactTensileCritical*tmp_parameter;
 
     GlobCoef();	
 
@@ -2010,8 +2010,8 @@ void particle_frac::clearForce(){
 #endif
 }
 
-dem::vec particle_frac::calculateInitialCohesiveForce(){
-    dem::vec fc_tmp;
+dem_frac::vec particle_frac::calculateInitialCohesiveForce(){
+    dem_frac::vec fc_tmp;
 
     REAL atf=DMP_F*TIMESTEP; 
 //    REAL atm=DMP_M*TIMESTEP;  
@@ -2258,17 +2258,17 @@ int particle_frac::calculateBreakPlane(){
     REAL V[3][3];	// eigenvectors
     REAL d[3];		// eigenvalues
 
-    dem::eigen_decomposition(sigma,V,d);	// d[0]<d[1]<d[2], d[2] is the maximum tensile stress
+    dem_frac::eigen_decomposition(sigma,V,d);	// d[0]<d[1]<d[2], d[2] is the maximum tensile stress
 
     // compare the maximum tensile stress d[2] with the critical stress
     // the critical stress should be a function related to grain size, it is not established yet,
-//    if(d[2]<dem::sigma_critical) return -1;	// not break
+//    if(d[2]<dem_frac::sigma_critical) return -1;	// not break
 // our stress formulation will give sigma_max = 0 for particles under unixial compression experiment, we noticed that this not correct, since from Uintah simulations, we know that there is actually tensile volume inside the particle. But there is no other way to calculate stress inside the particle. Then we change the fracture criterion from sigma_max > sigma_critical to 2tau-p
 // where tau = 0.5*(sigma_max-sigma_min) & p = 0.5*(sigma_max+sigma_min)
 
 //    //-------------- below is the maximum shear stress criterion --------------
 //    REAL tau = 0.5*(d[2]-d[0]); REAL p = 0.5*(d[2]+d[0]);
-//    if(2*tau-p<dem::sigma_critical) return -1;	// not break
+//    if(2*tau-p<dem_frac::sigma_critical) return -1;	// not break
 //    // ------------- above is the maximum shear stress criterion --------------
 
     //-------------- below is the Hoek-Brown criterion ------------------------
@@ -2358,7 +2358,7 @@ int particle_frac::calculateBreakPlane(){
   } // the Hoek-Brown sub-division criterion
   else
  if(numCriticalContacts>=3){ // break
-    dem::vec unitNormal = dem::normalize(dem::vec(contact1-contact2)*dem::vec(contact1-contact3)); // contact is global coordinate
+    dem_frac::vec unitNormal = dem_frac::normalize(dem_frac::vec(contact1-contact2)*dem_frac::vec(contact1-contact3)); // contact is global coordinate
     // if this is a spherical particle, then set its principal directions to be the same as the principal directions of stress
     if(aplus==aminus && bplus==bminus && cplus==cminus
     && aplus==bplus  && bplus==cplus ){	// means this particle is sphere, do not write as a==b==c
@@ -2377,9 +2377,9 @@ int particle_frac::calculateBreakPlane(){
     REAL c_min = getCMin(); REAL c_max = getCMax();
     break_plane = -1;
 	
-    dem::vec direcA=vcos(curr_direction_a);
-    dem::vec direcB=vcos(curr_direction_b);
-    dem::vec direcC=vcos(curr_direction_c);
+    dem_frac::vec direcA=vcos(curr_direction_a);
+    dem_frac::vec direcB=vcos(curr_direction_b);
+    dem_frac::vec direcC=vcos(curr_direction_c);
     REAL dotAN=fabs(direcA%unitNormal);	// absolute fabs() is very important 
     REAL dotBN=fabs(direcB%unitNormal);
     REAL dotCN=fabs(direcC%unitNormal);
@@ -2505,7 +2505,7 @@ int particle_frac::calculateBreakPlane(){
     if(stress2<1.5*strengthContact)
 	return -1;
 
-    dem::vec unitNormal = dem::normalize(dem::vec(contact1-contact2)); // contact is global coordinate
+    dem_frac::vec unitNormal = dem_frac::normalize(dem_frac::vec(contact1-contact2)); // contact is global coordinate
     // if this is a spherical particle, then set its principal directions to be the same as the principal directions of stress
     if(aplus==aminus && bplus==bminus && cplus==cminus
     && aplus==bplus  && bplus==cplus ){	// means this particle is sphere, do not write as a==b==c
@@ -2524,9 +2524,9 @@ int particle_frac::calculateBreakPlane(){
     REAL c_min = getCMin(); REAL c_max = getCMax();
     break_plane = -1;
 	
-    dem::vec direcA=vcos(curr_direction_a);	// direcA is unit vector
-    dem::vec direcB=vcos(curr_direction_b);
-    dem::vec direcC=vcos(curr_direction_c);
+    dem_frac::vec direcA=vcos(curr_direction_a);	// direcA is unit vector
+    dem_frac::vec direcB=vcos(curr_direction_b);
+    dem_frac::vec direcC=vcos(curr_direction_c);
     REAL dotAN=fabs(direcA%unitNormal);	// absolute fabs() is very important 
     REAL dotBN=fabs(direcB%unitNormal);
     REAL dotCN=fabs(direcC%unitNormal);
@@ -2672,24 +2672,24 @@ int particle_frac::calculateBreakPlane(){
 // rotate the principal directions of sphere to be the same as the principal directions of stress
 void particle_frac::rotatePrincipalDirections(REAL V[3][3]){
     // the principal directions of stress calculated as V[3][3] are currently in local coordinate
-    dem::vec v1 = globalVec( vec(V[0][0],V[1][0],V[2][0]) );	// principal direction of d[0]
-    dem::vec v2 = globalVec( vec(V[0][1],V[1][1],V[2][1]) );	// principal direction of d[1]
-    dem::vec v3 = globalVec( vec(V[0][2],V[1][2],V[2][2]) );	// principal direction of d[2]
+    dem_frac::vec v1 = globalVec( vec(V[0][0],V[1][0],V[2][0]) );	// principal direction of d[0]
+    dem_frac::vec v2 = globalVec( vec(V[0][1],V[1][1],V[2][1]) );	// principal direction of d[1]
+    dem_frac::vec v3 = globalVec( vec(V[0][2],V[1][2],V[2][2]) );	// principal direction of d[2]
 
     // set current direction as the principal directions of stress
     // onething needs to notice is that the curr_direction_a is the angle of a between x,y,z axles
-    dem::vec e1=vec(1,0,0); dem::vec e2=vec(0,1,0); dem::vec e3=vec(0,0,1);
-    dem::vec v1_tmp = normalize(v1);
+    dem_frac::vec e1=vec(1,0,0); dem_frac::vec e2=vec(0,1,0); dem_frac::vec e3=vec(0,0,1);
+    dem_frac::vec v1_tmp = normalize(v1);
     curr_direction_a.setx( acos(v1_tmp%e1) );
     curr_direction_a.sety( acos(v1_tmp%e2) );
     curr_direction_a.setz( acos(v1_tmp%e3) );
 
-    dem::vec v2_tmp = normalize(v2);
+    dem_frac::vec v2_tmp = normalize(v2);
     curr_direction_b.setx( acos(v2_tmp%e1) );
     curr_direction_b.sety( acos(v2_tmp%e2) );
     curr_direction_b.setz( acos(v2_tmp%e3) );
 
-    dem::vec v3_tmp = normalize(v3);
+    dem_frac::vec v3_tmp = normalize(v3);
     curr_direction_c.setx( acos(v3_tmp%e1 ) );
     curr_direction_c.sety( acos(v3_tmp%e2 ) );
     curr_direction_c.setz( acos(v3_tmp%e3 ) );
@@ -2705,7 +2705,7 @@ void particle_frac::rotatePrincipalDirections(REAL V[3][3]){
 // determined by the maximum tensile stress in contacts
 // after this rotation, the curr_direction_a is the same as unitN, which is orthogonal to the 
 // break plane.
-void particle_frac::rotatePrincipalDirections(dem::vec unitN){
+void particle_frac::rotatePrincipalDirections(dem_frac::vec unitN){
     // generate the other two directions orthogonal to the unitN randomly
     REAL l1=unitN.getx();
     REAL m1=unitN.gety();
@@ -2778,22 +2778,22 @@ void particle_frac::rotateBreakPlaneRandomly(){
     sign = 2*ran(&idum)-1 > 0 ? 1:-1;
     REAL gamma = num*sign*theta_max;	// rotation angle along z direction
 
-//    REAL alpha = 0.5*dem::PI;
-//    REAL beta  = 0.5*dem::PI;
-//    REAL gamma = 0.5*dem::PI;
+//    REAL alpha = 0.5*dem_frac::PI;
+//    REAL beta  = 0.5*dem_frac::PI;
+//    REAL gamma = 0.5*dem_frac::PI;
 
-    dem::vec a_prime = dem::vec(cos(beta)*cos(gamma), 
+    dem_frac::vec a_prime = dem_frac::vec(cos(beta)*cos(gamma), 
 			        cos(gamma)*sin(alpha)*sin(beta)-cos(alpha)*sin(gamma),
 			        sin(alpha)*sin(gamma)+cos(alpha)*cos(gamma)*sin(beta)  );
-    dem::vec b_prime = dem::vec(cos(beta)*sin(gamma),
+    dem_frac::vec b_prime = dem_frac::vec(cos(beta)*sin(gamma),
 			        cos(alpha)*cos(gamma)+sin(alpha)*sin(beta)*sin(gamma),
 			        cos(alpha)*sin(beta)*sin(gamma)-cos(gamma)*sin(alpha)  );
-    dem::vec c_prime = dem::vec(-sin(beta), cos(beta)*sin(alpha), cos(alpha)*cos(beta) );
+    dem_frac::vec c_prime = dem_frac::vec(-sin(beta), cos(beta)*sin(alpha), cos(alpha)*cos(beta) );
 
     // convert the new rotated prinple directions in local coordinate to global coordinates
-    dem::vec a_global = globalVec(a_prime);
-    dem::vec b_global = globalVec(b_prime);
-    dem::vec c_global = globalVec(c_prime);
+    dem_frac::vec a_global = globalVec(a_prime);
+    dem_frac::vec b_global = globalVec(b_prime);
+    dem_frac::vec c_global = globalVec(c_prime);
 
     curr_direction_a=vec(acos(a_global.getx()), acos(a_global.gety()), acos(a_global.getz()) );
     curr_direction_b=vec(acos(b_global.getx()), acos(b_global.gety()), acos(b_global.getz()) );
@@ -3715,7 +3715,7 @@ void particle_frac::clearStress(){
     stress2 = 0;
     stress3 = 0;	
 
-    dem::vec tmp_zero = dem::vec(0,0,0);
+    dem_frac::vec tmp_zero = dem_frac::vec(0,0,0);
     contact1 = tmp_zero;	
     contact2 = tmp_zero;	
     contact3 = tmp_zero;
@@ -3725,7 +3725,7 @@ void particle_frac::clearStress(){
 
 } // clearStress()
 
-void particle_frac::addMaximuContactTensile(REAL tmp_stress, dem::vec tmp_contact){
+void particle_frac::addMaximuContactTensile(REAL tmp_stress, dem_frac::vec tmp_contact){
     // check if this critical contact point is larger than the existing three ones
     if(tmp_stress>stress1){	// this tensile stress is larger than the current largest one
 	numCriticalContacts++;

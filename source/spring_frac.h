@@ -3,10 +3,10 @@
 
 #include "realtypes.h"
 #include "particle_frac.h"
-#include "vec.h"
+#include "vec_frac.h"
 #include <cassert>
 
-namespace dem{
+namespace dem_frac{
 
 class spring {
 

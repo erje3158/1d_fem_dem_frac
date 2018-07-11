@@ -4,7 +4,7 @@
 
 #ifndef _eig_h
 
-namespace dem{
+namespace dem_frac{
 
 /* Symmetric matrix A => eigenvectors in columns of V, corresponding
    eigenvalues in d. */

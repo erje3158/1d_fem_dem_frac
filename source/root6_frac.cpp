@@ -18,12 +18,12 @@
 
 #include "root6_frac.h"
 #include "parameter_frac.h"
-#include "nr.h"
+#include "nr_frac.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 
-namespace dem {
+namespace dem_frac {
 
 bool root6(REAL coef1[],REAL coef2[],vec& point){
 	if((coef1[0]==1.0&&coef1[1]==1.0&&coef1[2]==1.0&&

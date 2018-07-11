@@ -1,10 +1,10 @@
 #include "realtypes.h"
 
-namespace dem {
+namespace dem_frac {
 
 #define RADIX 2.0
 
-void balanc(REAL **a, int n)
+void balanc_frac(REAL **a, int n)
 {
 	int last,j,i;
 	REAL s,r,g,f,c,sqrdx;

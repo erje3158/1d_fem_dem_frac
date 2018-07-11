@@ -11,7 +11,7 @@
 #include "realtypes.h"
 #include <cstdio>
 
-namespace dem {
+namespace dem_frac {
 
 #ifndef _FCOMPLEX_DECLARE_T_
 typedef struct FCOMPLEX {REAL r,i;} fcomplex;

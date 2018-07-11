@@ -1,8 +1,8 @@
-#include "matrix.h"
+#include "matrix_frac.h"
 #include <cstdlib>
 #include <cmath>
 // written on Feb 13, 2013
-namespace dem{
+namespace dem_frac{
 
 matrix::matrix(int i, int j){
 	if(i<1 || j<1){

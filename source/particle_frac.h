@@ -2,17 +2,17 @@
 #define PARTICLE_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 #include "gradation_frac.h"
 #include "contact_frac.h"
 #include "boundary_frac.h"
-#include "rectangle.h"
-#include "cylinder.h"
-#include "boundarytgt.h"
-#include "matrix.h"
+#include "rectangle_frac.h"
+#include "cylinder_frac.h"
+#include "boundarytgt_frac.h"
+#include "matrix_frac.h"
 #include <map>
 
-namespace dem {
+namespace dem_frac {
 
   class particle_frac{
     friend class assembly_frac;
@@ -38,11 +38,11 @@ namespace dem {
 				// then return break plane [-1, 1,2,3], -1 means not break this particle
     void rotatePrincipalDirections(REAL V[3][3]);// for spheres, rotate their geometry principal directions the same as the
 					// principal directions of the stress
-    void rotatePrincipalDirections(dem::vec);// for spheres, rotate their geometry principal directions the same as the
+    void rotatePrincipalDirections(dem_frac::vec);// for spheres, rotate their geometry principal directions the same as the
 					// break plane determined by the three maximum tensile stress in contacts
     void rotateToXYZDirections();	// rotate the particles to be along x,y,z directions
     void rotateBreakPlaneRandomly();	// rotate break plane randomly a little
-    dem::vec calculateInitialCohesiveForce();	// calculate the initial cohesive force provided by 4 springs on particle p1
+    dem_frac::vec calculateInitialCohesiveForce();	// calculate the initial cohesive force provided by 4 springs on particle p1
 						// based on the fact that when particle is sub-divided, then two sub-poly-ellipsoids
 						// should keep the same acceleration
     REAL getAplus() const {return aplus;}
@@ -159,7 +159,7 @@ namespace dem {
     void addStress(matrix mm) {average_stress = average_stress+mm;}
     void calcStress();	// calculate the average stress after the summation of force terms
     matrix getStress() {return average_stress;}
-    void addMaximuContactTensile(REAL, dem::vec);
+    void addMaximuContactTensile(REAL, dem_frac::vec);
     void update();	// August 16, 2013
     void shapeTransition();	// transit bad-shaped poly-ellipsoids generated in fracture
 				// to normal shaped poly-ellipsoids, suggested by Dr. Fu at LLNL  
@@ -267,9 +267,9 @@ namespace dem {
     REAL stress1;	// the maximum tensile stress for the three contact points
     REAL stress2;	// whose maximum tensile stresses are larger than the tensile strength
     REAL stress3;	// if 0, means this is not a critical contact point
-    dem::vec contact1;	// the global coordinate of the contact point corresponding to stress1
-    dem::vec contact2;	// has and only has three contact points, it is because a plane can be determined by 3 points
-    dem::vec contact3;  // Even we have 4th contact points who is also critical point, we will not account for it
+    dem_frac::vec contact1;	// the global coordinate of the contact point corresponding to stress1
+    dem_frac::vec contact2;	// has and only has three contact points, it is because a plane can be determined by 3 points
+    dem_frac::vec contact3;  // Even we have 4th contact points who is also critical point, we will not account for it
 
     int numBroken;	// the number of brokens that this particle has experienced
     int typeBroken;	// type of this broken, -1 means Hoek-Brown broken, 0 means not break, 1 means 3 contact points broken

@@ -16,10 +16,10 @@
 #define BOUNDARY_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 #include "parameter_frac.h"
-#include "cylinder.h"
-#include "boundarytgt.h"
+#include "cylinder_frac.h"
+#include "boundarytgt_frac.h"
 #include <map>
 #include <vector>
 #include <list>
@@ -32,7 +32,7 @@ using std::cout;
 using std::setw;
 using std::endl;
 
-namespace dem {
+namespace dem_frac {
 
 // BdryCoef is used for rigid boundary conditions
 typedef struct bdryfunc{

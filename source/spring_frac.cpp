@@ -1,7 +1,7 @@
 #include "spring_frac.h"
 #include "parameter_frac.h"
 
-namespace dem{
+namespace dem_frac{
 
 spring::spring(particle_frac &ptcl1, particle_frac &ptcl2, REAL modulus)
   :p1(ptcl1), p2(ptcl2), Young(modulus) {

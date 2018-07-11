@@ -1,8 +1,8 @@
-#include "cell.h"
+#include "cell_frac.h"
 #include <iostream>
 #include <cstdlib>
 
-namespace dem{
+namespace dem_frac{
 
 void cell::setNodes(int m, int n, int i, int j){
 	if(m<=0 || n<=0 || i<=0 || j<=0){

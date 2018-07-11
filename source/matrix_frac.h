@@ -13,7 +13,7 @@
 // 3, matrix A; A = ["1,2,2;2,3,4"] ([] is overloaded which will return a matrix), this is plan
 
 // written on Feb 13, 2013
-namespace dem{
+namespace dem_frac{
 
 class matrix{
       public:

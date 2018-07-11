@@ -3,7 +3,7 @@
 
 #include "realtypes.h"
 
-namespace dem {
+namespace dem_frac {
   
 class vec{
  public:

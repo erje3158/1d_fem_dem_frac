@@ -8,7 +8,7 @@
 #include "realtypes.h"
 #include "parameter_frac.h"
 #include "root6_frac.h"
-#include "matrix.h"
+#include "matrix_frac.h"
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,7 @@
 //#define MINDLIN_ASSUMED
 //#define MINDLIN_KNOWN
 
-namespace dem {
+namespace dem_frac {
 
 class cnttgt{
 public:

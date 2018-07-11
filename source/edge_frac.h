@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace dem{
+namespace dem_frac{
 
 class edge{
       private:

@@ -10,7 +10,7 @@
 
 #include "realtypes.h"
 
-namespace dem {
+namespace dem_frac {
 
 static REAL sqrarg;
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)

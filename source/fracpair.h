@@ -2,7 +2,7 @@
 #define FRACPAIR_H
 
 #include "realtypes.h"
-#include "vec.h"
+#include "vec_frac.h"
 #include "particle_frac.h"
 #include "parameter_frac.h"
 
@@ -19,7 +19,7 @@
 //	  |
 //        2
 
-namespace dem{
+namespace dem_frac{
 
 class fracpair{
 
@@ -32,7 +32,7 @@ class fracpair{
 	REAL k0_spring[4];	// the initial stiffness of the springs, k0=EA/nsl, we do not distinguish normal or tangential
 //	REAL d[4];		// breakage parameter of each spring
 	REAL l0_spring[4]; 	// the initial spring vector w.r.t. p1p2
-   	dem::vec fc_init[4];	// the initial cohesive force in each spring
+   	dem_frac::vec fc_init[4];	// the initial cohesive force in each spring
 				// force in the springs are in the same direction as acting on particle p1, 
 				// i.e., when calculate spring forces on p1, then just need to add the spring forces
 				// while, when calculate spring forces on p2, then need to add the repulsant forces -fc
