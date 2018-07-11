@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="debug"
+NAME="debug_ellip3d_orig"
 
 # Should be where ./Submit_Script is run
 LOCAL_DIR=$(pwd)
@@ -8,7 +8,7 @@ LOCAL_DIR=$(pwd)
 EXE=${LOCAL_DIR}/source
 BIN=${LOCAL_DIR}/bin
 LIB=${LOCAL_DIR}/lib
-INP=${LOCAL_DIR}/inputs
+INP=${LOCAL_DIR}/inputs/
 DEM=${LOCAL_DIR}/inputs/dem_assemblies/original
 OUT=${LOCAL_DIR}/outputs
 
@@ -37,6 +37,6 @@ echo
 echo "Running Hierarchical Upscaling Code"
 echo "-----------------------------------"
 ./hu_code ${DEM}/input_boundary_file ${DEM}/input_particle_file ${BIN}/qdelaunay . \
-          ${INP}/debug_fem ${INP}/debug_dem
+          ${INP}/debug_ellip3d_orig_fem ${INP}/debug_ellip3d_orig_dem
 echo "-----------------------------------"
 echo "End of Simulation"

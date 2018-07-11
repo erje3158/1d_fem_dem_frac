@@ -12,9 +12,4 @@ $Particle Contact
 0.7
 0.8
 
-$Particle Fracture
-200.5399e+7
-350.196e+7
-1.77e+6
-
-$Constant Seed
+$Random Seed

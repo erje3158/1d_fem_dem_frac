@@ -1,14 +1,14 @@
 #!/bin/bash
-#PBS -N debug
+#PBS -N debug_ellip3d_orig
 #PBS -l select=4:ncpus=32:mpiprocs=1
 #PBS -l walltime=1:00:00
 #PBS -l place=scatter:excl
 #PBS -q debug
 #PBS -j oe
 #PBS -V
-#PBS -A ONRDC34502393
+#PBS -A ARLAP01001YF6
 #PBS -m be
-#PBS -M Yuhsuan.Lee@colorado.edu
+#PBS -M jensen.erik.w@gmail.com
 
 # --- USER INPUT ---
 export PREFIX=$PBS_JOBNAME #PBS_JOBNAME is the name of the job that's been submitted
@@ -43,18 +43,16 @@ pwd
 
 # --- LD_LIBRARY_PATH ---
 
-MKLA=/opt/intel/lib/intel64/
-MKLB=/opt/intel/mkl/lib/intel64/
-export LD_LIBRARY_PATH="${LIB}:${MKLA}:${MKLB}:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="${LIB}:$LD_LIBRARY_PATH"
 echo $LD_LIBRARY_PATH
 
 # --- MACHINE SPECIFIC ---
-module swap PrgEnv-pgi PrgEnv-gnu
+module swap PrgEnv-intel PrgEnv-gnu
 module list
 
 echo Simulation started at `date`
 aprun -n $NSLOTS ./hu_code ${DEM}/input_boundary_file ${DEM}/input_particle_file ${BIN}/qdelaunay . \
-      ${INP}/debug_fem ${INP}/debug_dem
+      ${INP}/debug_ellip3d_orig_fem ${INP}/debug_ellip3d_orig_dem
 echo Simulation finished at `date`
 
 # --- CLEAN UP ---

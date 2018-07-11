@@ -126,7 +126,7 @@ void el_stress_ellip3d(const char * outputDir,
     chdir(dirName.c_str());
 
     if (demParams.isFrac == 0){
-        cout << endl << endl << "NONE FRAC MODEL HERE!!" << endl << endl << endl;
+        main_ellip3d(float(dtop(0)), float(dbot(0)), n_save, num_threads, dirName, dt, demParams);
     } else if (demParams.isFrac == 1) {
         main_ellip3d_frac(float(dtop(0)), float(dbot(0)), n_save, num_threads, dirName, dt, demParams);
     }
