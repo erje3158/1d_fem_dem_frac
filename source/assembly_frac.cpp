@@ -1538,7 +1538,7 @@ void assembly_frac::findContact() { 	// August 21, 2013
 	       && ( ParticleVec[i]->getType() !=  1 || ParticleVec[j]->getType() != 1  )      // not both are fixed particles
 	       && ( ParticleVec[i]->getType() !=  5 || ParticleVec[j]->getType() != 5  )      // not both are free boundary particles
 	       && ( ParticleVec[i]->getType() != 10 || ParticleVec[j]->getType() != 10 )  ) { // not both are ghost particles
-	  contact<particle> tmpct(ParticleVec[i], ParticleVec[j]); // a local and temparory object
+	  contact<particle_frac> tmpct(ParticleVec[i], ParticleVec[j]); // a local and temparory object
 	  ++possContact;
 	  if(tmpct.isOverlapped())
 #pragma omp critical
