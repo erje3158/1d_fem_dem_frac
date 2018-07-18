@@ -2,7 +2,6 @@
 #PBS -N debug_ellip3d_frac
 #PBS -l select=4:ncpus=32:mpiprocs=1
 #PBS -l walltime=1:00:00
-#PBS -l place=scatter:excl
 #PBS -q debug
 #PBS -j oe
 #PBS -V
