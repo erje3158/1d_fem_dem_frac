@@ -66,6 +66,27 @@ if [ "$#" = 1 ]
 
             rm Makefile
 
+    elif [ "$1" = "onyx" ]
+        then
+            echo "Compiling Hierarchical Upscaling Code on onyx.erdc.hpc.mil"
+            cp onyx/Makefile ./
+
+            module swap PrgEnv-pgi PrgEnv-gnu
+            module list
+
+            cd ../lib
+            MKLA=/opt/intel/lib/intel64/
+            MKLB=/opt/intel/mkl/lib/intel64/
+            export LD_LIBRARY_PATH="$(pwd):$MKLA:$MKLB:$LD_LIBRARY_PATH"
+            echo $LD_LIBRARY_PATH
+            cd ../source
+
+            rm *.o *~ hu_code
+            make
+            echo "Done!"
+
+            rm Makefile
+
 	elif [ "$1" = "macOS" ]
 		then
 			echo "Compiling Hierarchical Upscaling Code on macOS"
