@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N debug
-#PBS -l select=4:ncpus=32:mpiprocs=1
+#PBS -l select=4:ncpus=44:mpiprocs=1
 #PBS -l walltime=1:00:00
 #PBS -q debug
 #PBS -j oe
@@ -48,7 +48,7 @@ export LD_LIBRARY_PATH="${LIB}:${MKLA}:${MKLB}:$LD_LIBRARY_PATH"
 echo $LD_LIBRARY_PATH
 
 # --- MACHINE SPECIFIC ---
-module swap PrgEnv-pgi PrgEnv-gnu
+module swap PrgEnv-cray PrgEnv-gnu
 module list
 
 echo Simulation started at `date`
