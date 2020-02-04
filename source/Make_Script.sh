@@ -71,7 +71,7 @@ if [ "$#" = 1 ]
             echo "Compiling Hierarchical Upscaling Code on onyx.erdc.hpc.mil"
             cp onyx/Makefile ./
 
-            module swap PrgEnv-pgi PrgEnv-gnu
+            module swap PrgEnv-cray PrgEnv-gnu
             module list
 
             cd ../lib
